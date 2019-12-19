@@ -19,8 +19,8 @@ void ListWidget::updateTabs()
 {
   for (const auto& [index, confblock] : confBlocks)
   {
-    tabWidget->addTab(new QPlainTextEdit(confblock.getHeader().c_str()), confblock.getHeader().c_str());
-    qDebug() << "Adding tab: \"" << confblock.getHeader().c_str()<<"\"";
+    tabWidget->addTab(new QPlainTextEdit(confblock.getLines().c_str()), confblock.getHeader().c_str());
+//    std::cout  << confblock.getLines().c_str() << std::endl;
   }
 }
 
@@ -51,34 +51,3 @@ void ListWidget::loadFile(const std::string& filename)
   updateTabs();
 }
 
-ConfBlock::ConfBlock()
-{
-}
-
-void ConfBlock::setLines(const std::vector<std::string>& lines)
-{
-  if(lines.size() > 0)
-  {
-    _header = lines[0];
-
-    std::string from= "# Table of ";
-    std::string to= "";
-
-    size_t start_pos = _header.find(from);
-    if(start_pos != std::string::npos)
-      _header.replace(start_pos, from.length(), to);
-
-    from = "# ";
-    start_pos = _header.find(from);
-    if(start_pos != std::string::npos)
-      _header.replace(start_pos, from.length(), to);
-
-    if(_header =="#")
-      _header = "Info";
-  }
-}
-
-std::string ConfBlock::getHeader() const
-{
-  return _header;
-}

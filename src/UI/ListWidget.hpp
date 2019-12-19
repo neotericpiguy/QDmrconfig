@@ -6,17 +6,7 @@
 #include <fstream>
 #include <memory>
 
-class ConfBlock
-{
-public:
-  ConfBlock();
-
-  void setLines(const std::vector<std::string>& lines);
-  std::string getHeader() const;
-
-private:
-  std::string _header;
-};
+#include "ConfBlock.hpp"
 
 class ListWidget : public QWidget
 {
