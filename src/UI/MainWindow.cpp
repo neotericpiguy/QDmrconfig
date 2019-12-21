@@ -1,17 +1,11 @@
 #include "MainWindow.hpp"
 
-#include "QDmrconfigEditor.h"
-
 MainWindow::MainWindow() :
     QMainWindow(),
     textEdit(new QPlainTextEdit("asdwfowiejf")),
-    listWidget(new ListWidget)
+    _confFileWidget(new ConfFileWidget)
 {
-  setCentralWidget(listWidget.get());
-
-  connect(textEdit->document(), &QTextDocument::contentsChanged, this, [=]() {
-    //    setWindowModified(textEdit->document()->isModified());
-  });
+  setCentralWidget(_confFileWidget.get());
 
   QMenu* fileMenu = menuBar()->addMenu(tr("&File"));
 
@@ -32,16 +26,9 @@ MainWindow::MainWindow() :
 
   //  connect(newAct, &QAction::triggered, this, &MainWindow::newFile);
   connect(uploadAct, &QAction::triggered, this, [=]() {
-    qDebug() << "upload act";
-    radio_connect();
-    radio_download();
-    radio_print_version(stdout);
-    radio_save_image("backup.img");
-    radio_parse_config("device.conf");
-    radio_verify_config();
-    radio_upload(1);
-    radio_disconnect();
+    _confFileWidget->getConfFile().uploadFile();
   });
+
   connect(closeAct, &QAction::triggered, this, [=]() {
     qDebug() << "close act";
     close();
@@ -57,7 +44,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
-  if (listWidget->isModified())
+  if (_confFileWidget->getConfFile().isModified())
   {
     QMessageBox::StandardButton resBtn = QMessageBox::question(this, "QDmrconfig",
                                                                tr("Save changes?\n"),
@@ -65,7 +52,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
                                                                QMessageBox::Yes);
     if (resBtn == QMessageBox::Yes)
     {
-      listWidget->saveFile();
+      _confFileWidget->getConfFile().saveFile();
     }
     else
     {
@@ -86,20 +73,8 @@ void MainWindow::loadFile(const QString& filename)
     return;
   }
 
-  listWidget->loadFile(filename.toStdString());
+  _confFileWidget->getConfFile().loadFile(filename.toStdString());
+  _confFileWidget->updateTabs();
 
   statusBar()->showMessage(tr("File loaded"), 2000);
 }
-
-void MainWindow::setCurrentFile(const QString& filename)
-{
-  //  curFile = filename;
-  //  textEdit->document()->setModified(false);
-  //  setWindowModified(false);
-  //
-  //  QString shownName = curFile;
-  //  if (curFile.isEmpty())
-  //    shownName = "untitled.txt";
-  //  setWindowFilePath(shownName);
-}
-

@@ -8,7 +8,7 @@
 #include <QtWidgets/QtWidgets>
 #include <memory>
 
-#include "ListWidget.hpp"
+#include "ConfFileWidget.hpp"
 
 class MainWindow : public QMainWindow
 {
@@ -17,13 +17,13 @@ class MainWindow : public QMainWindow
 public:
   MainWindow();
   virtual ~MainWindow();
+
   void loadFile(const QString& fileName);
-  void setCurrentFile(const QString& fileName);
   void closeEvent(QCloseEvent* event) override;
 
 private:
   std::unique_ptr<QPlainTextEdit> textEdit;
-  std::unique_ptr<ListWidget> listWidget;
+  std::unique_ptr<ConfFileWidget> _confFileWidget;
 };
 
 #endif
