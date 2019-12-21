@@ -1,8 +1,11 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <stdlib.h>
+
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QPlainTextEdit>
+#include <QtWidgets/QtWidgets>
 #include <memory>
 
 #include "ListWidget.hpp"
@@ -21,8 +24,6 @@ public:
 private:
   std::unique_ptr<QPlainTextEdit> textEdit;
   std::unique_ptr<ListWidget> listWidget;
-
-  QString curFile;
 };
 
 #endif

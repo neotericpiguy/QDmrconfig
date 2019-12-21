@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "ConfBlock.hpp"
+#include "ConfBlockWidget.hpp"
 
 class ListWidget : public QWidget
 {
@@ -17,11 +18,13 @@ public:
   virtual ~ListWidget();
 
   void loadFile(const std::string& filename);
+  void saveFile();
   void updateTabs();
+  bool isModified() const;
 
 private:
+  std::string _filename;
   std::unique_ptr<QTabWidget> tabWidget;
-
   std::map<int, ConfBlock> confBlocks;
 };
 

@@ -6,7 +6,6 @@
 #include <QtWidgets/QApplication>
 
 #include "MainWindow.hpp"
-#include "QDmrconfigEditor.h"
 
 //int main()
 //{

@@ -17,17 +17,27 @@ ListWidget::~ListWidget()
 
 void ListWidget::updateTabs()
 {
-  for (const auto& [index, confblock] : confBlocks)
+  std::ofstream outStream("temp.cfg");
+  for (auto& [index, confBlock] : confBlocks)
   {
-    tabWidget->addTab(new QPlainTextEdit(confblock.getLines().c_str()), confblock.getHeader().c_str());
-//    std::cout  << confblock.getLines().c_str() << std::endl;
+    //    tabWidget->addTab(new QPlainTextEdit(confBlock.getConfLines().c_str()), confBlock.getHeader().c_str());
+    tabWidget->addTab(new ConfBlockWidget(confBlock), confBlock.getHeader().c_str());
+    outStream << confBlock.getConfLines() << std::endl;
   }
+}
+
+bool ListWidget::isModified() const
+{
+  for (auto& [index, confBlock] : confBlocks)
+    if (confBlock.isModified())
+      return true;
+  return false;
 }
 
 void ListWidget::loadFile(const std::string& filename)
 {
   qDebug() << "Loading file: " << filename.c_str();
-  std::map<int,std::vector<std::string>> blocks;
+  std::map<int, std::vector<std::string>> blocks;
 
   int blockId = 0;
   std::ifstream inStream(filename);
@@ -37,17 +47,29 @@ void ListWidget::loadFile(const std::string& filename)
     std::string line;
     std::getline(inStream, line);
 
-    blocks[blockId].push_back(line);
+    if (!line.empty())
+      blocks[blockId].push_back(line);
 
-    if(line == "")
+    if (line == "")
       blockId++;
-
   }
   qDebug() << "Blocks found: " << blocks.size();
 
-  for(const auto& [key, value] : blocks)
+  for (const auto& [key, value] : blocks)
     confBlocks[key].setLines(value);
 
+  _filename = filename;
+
   updateTabs();
+}
+
+void ListWidget::saveFile()
+{
+  std::ofstream outStream(_filename);
+  for (auto& [index, confBlock] : confBlocks)
+  {
+    outStream << confBlock.getConfLines() << std::endl;
+    confBlock.setModified(false);
+  }
 }
 

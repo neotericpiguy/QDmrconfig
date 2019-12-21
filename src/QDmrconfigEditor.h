@@ -18,5 +18,8 @@ extern "C" void radio_print_version(FILE* out);
 extern "C" void radio_disconnect(void);
 extern "C" void radio_save_image(const char* filename);
 extern "C" void radio_print_config(FILE* out, int verbose);
+extern "C" void radio_parse_config(const char* filename);
+extern "C" void radio_verify_config();
+extern "C" void radio_upload(int cont_flag);
 
 #endif

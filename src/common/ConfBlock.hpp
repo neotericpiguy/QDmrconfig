@@ -3,12 +3,12 @@
 
 #include <fstream>
 #include <iomanip>
+#include <iostream>
 #include <limits>
 #include <regex>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <iostream>
 
 class ConfBlock
 {
@@ -17,7 +17,18 @@ public:
 
   void setLines(const std::vector<std::string>& lines);
   std::string getHeader() const;
-  std::string getLines() const;
+  std::string getConfLines(bool withComments = true) const;
+
+  std::vector<std::vector<std::string>>& getLines();
+
+  const std::vector<std::string>& getColumnNames() const;
+  unsigned int getRowCount() const;
+  unsigned int getColumnCount() const;
+
+  void setModified(bool state);
+
+  bool isModified() const;
+  bool isTable() const;
 
   static void replace(std::string& str, const std::string& from, const std::string& to);
   static std::vector<std::string> strToVec(const std::string& vec, char seperator);
@@ -26,10 +37,12 @@ public:
 private:
   std::string _header;
   std::vector<std::vector<std::string>> _lines;
+  std::vector<std::string> _comments;
 
   std::vector<int> _columnStart;
-  std::vector<int> _columnWidth;
   std::vector<std::string> _columnName;
+  bool _isTable;
+  bool _isModified;
 };
 
 #endif
