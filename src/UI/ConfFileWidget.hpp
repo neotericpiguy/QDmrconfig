@@ -3,9 +3,11 @@
 
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QPlainTextEdit>
+#include <QtWidgets/QtWidgets>
 #include <fstream>
 #include <memory>
 
+#include "ConfBlockWidget.hpp"
 #include "ConfFile.hpp"
 
 class ConfFileWidget : public QWidget
@@ -25,6 +27,8 @@ private:
 
   std::string _filename;
   std::unique_ptr<QTabWidget> _tabWidget;
+  std::unique_ptr<QVBoxLayout> _layout;
+  std::vector<std::unique_ptr<ConfBlockWidget>> _confBlockWidgets;
 };
 
 #endif

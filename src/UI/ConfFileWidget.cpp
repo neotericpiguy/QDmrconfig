@@ -1,16 +1,12 @@
 #include "ConfFileWidget.hpp"
 
-#include <QtWidgets/QtWidgets>
-
-#include "ConfBlockWidget.hpp"
-
 ConfFileWidget::ConfFileWidget() :
     QWidget(),
-    _tabWidget(new QTabWidget)
+    _tabWidget(new QTabWidget),
+    _layout(new QVBoxLayout)
 {
-  QVBoxLayout* layout = new QVBoxLayout;
-  layout->addWidget(_tabWidget.get());
-  setLayout(layout);
+  _layout->addWidget(_tabWidget.get());
+  setLayout(_layout.get());
 }
 
 ConfFileWidget::~ConfFileWidget()
@@ -24,7 +20,14 @@ ConfFile& ConfFileWidget::getConfFile()
 
 void ConfFileWidget::updateTabs()
 {
+  _tabWidget->clear();
+  _confBlockWidgets.clear();
+
   for (auto& [index, confBlock] : _confFile.getConfBlock())
-    _tabWidget->addTab(new ConfBlockWidget(confBlock), confBlock.getHeader().c_str());
+  {
+    auto temp = std::make_unique<ConfBlockWidget>(confBlock);
+    _tabWidget->addTab(temp.get(), confBlock.getHeader().c_str());
+    _confBlockWidgets.push_back(std::move(temp));
+  }
 }
 

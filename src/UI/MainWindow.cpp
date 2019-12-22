@@ -2,7 +2,6 @@
 
 MainWindow::MainWindow() :
     QMainWindow(),
-    textEdit(new QPlainTextEdit("asdwfowiejf")),
     _confFileWidget(new ConfFileWidget)
 {
   setCentralWidget(_confFileWidget.get());
@@ -13,6 +12,11 @@ MainWindow::MainWindow() :
   newAct->setShortcuts(QKeySequence::New);
   newAct->setStatusTip(tr("Create a new file"));
   fileMenu->addAction(newAct);
+
+  QAction* saveAct = new QAction(tr("&Save"), this);
+  saveAct->setShortcuts(QKeySequence::Save);
+  saveAct->setStatusTip(tr("SaveFile"));
+  fileMenu->addAction(saveAct);
 
   QAction* uploadAct = new QAction(tr("&Upload"), this);
   uploadAct->setShortcut(QKeySequence(tr("Ctrl+U")));
@@ -27,6 +31,11 @@ MainWindow::MainWindow() :
   //  connect(newAct, &QAction::triggered, this, &MainWindow::newFile);
   connect(uploadAct, &QAction::triggered, this, [=]() {
     _confFileWidget->getConfFile().uploadFile();
+  });
+
+  connect(saveAct, &QAction::triggered, this, [=]() {
+      qDebug() << "Saving file";
+    _confFileWidget->getConfFile().saveFile();
   });
 
   connect(closeAct, &QAction::triggered, this, [=]() {

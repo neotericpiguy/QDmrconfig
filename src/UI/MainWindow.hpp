@@ -4,7 +4,6 @@
 #include <stdlib.h>
 
 #include <QtWidgets/QMainWindow>
-#include <QtWidgets/QPlainTextEdit>
 #include <QtWidgets/QtWidgets>
 #include <memory>
 
@@ -22,7 +21,6 @@ public:
   void closeEvent(QCloseEvent* event) override;
 
 private:
-  std::unique_ptr<QPlainTextEdit> textEdit;
   std::unique_ptr<ConfFileWidget> _confFileWidget;
 };
 
