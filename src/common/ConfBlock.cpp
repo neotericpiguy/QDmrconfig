@@ -34,20 +34,30 @@ void ConfBlock::setLines(const std::vector<std::string>& lines)
   _isTable = false;
   for (const auto& line : lines)
   {
+    //Ignore blank lines
+    if (line.empty())
+      continue;
+
+    // Handle comments
     if (line[0] == '#')
     {
       _comments.push_back(line);
       continue;
     }
 
-    if (line == "")
-      continue;
-
     //    std::cout << line << std::endl;
     if (line[0] != ' ')  // Header line
     {
-      if (line.find(':') == std::string::npos)
+      if (line.find(':') != std::string::npos)
       {
+        // Use a map
+        auto key = line.substr(0, line.find(':'));
+        auto value = line.substr(line.find(':') + 2, line.length() - 2 - line.find(':'));
+        _valueMap[key] = value;
+      }
+      else
+      {
+        // Use a table
         _columnName = strToVec(line, ' ');
 
         _header = _columnName[0];
@@ -63,11 +73,12 @@ void ConfBlock::setLines(const std::vector<std::string>& lines)
           //std::cout << c << " : " << _columnStart.back() << std::endl;
         }
       }
-      else
-        _lines.push_back(strToVec(line, ' '));
     }
     else
+    {
+      // A table row
       _lines.push_back(strToVec(line, ' '));
+    }
   }
 
   _columnStart.push_back(0);
@@ -91,7 +102,7 @@ std::string ConfBlock::getConfLines(bool withComments) const
       ss << comment << "\n";
   }
 
-  if (_isTable)
+  if (isTable())
   {
     const auto& line = getColumnNames();
     for (unsigned int i = 0; i < line.size(); i++)
@@ -99,38 +110,45 @@ std::string ConfBlock::getConfLines(bool withComments) const
       ss << std::left << std::setw(_columnStart[i + 1]) << line[i];
     }
     ss << std::endl;
+
+    for (unsigned int j = 0; j < getRowCount(); j++)
+    {
+      const auto& line = _lines.at(j);
+      if (!_isTable)
+      {
+        ss << vecToStr(line, " ") << std::endl;
+        continue;
+      }
+
+      for (unsigned int i = 0; i < line.size(); i++)
+      {
+        // i = column
+        if (i == 0)
+          ss << std::right;
+        else
+          ss << std::left;
+
+        // j = row
+        if (i == 0)
+        {
+          ss << std::setw(5);
+          ss << line[i] << std::string(_columnStart[i + 1] - 5, ' ');
+        }
+        else
+        {
+          ss << std::setw(_columnStart[i + 1]);
+          ss << line[i];
+        }
+      }
+      ss << std::endl;
+    }
   }
-
-  for (unsigned int j = 0; j < getRowCount(); j++)
+  else
   {
-    const auto& line = _lines.at(j);
-    if (!_isTable)
+    for (const auto& [key, value] : _valueMap)
     {
-      ss << vecToStr(line, " ") << std::endl;
-      continue;
+      ss << key << ": " << value << std::endl;
     }
-
-    for (unsigned int i = 0; i < line.size(); i++)
-    {
-      // i = column
-      if (i == 0)
-        ss << std::right;
-      else
-        ss << std::left;
-
-      // j = row
-      if (i == 0)
-      {
-        ss << std::setw(5);
-        ss << line[i] << std::string(_columnStart[i + 1] - 5, ' ');
-      }
-      else
-      {
-        ss << std::setw(_columnStart[i + 1]);
-        ss << line[i];
-      }
-    }
-    ss << std::endl;
   }
 
   return ss.str();
@@ -213,4 +231,9 @@ bool ConfBlock::isModified() const
 std::vector<std::vector<std::string>>& ConfBlock::getLines()
 {
   return _lines;
+}
+
+std::map<std::string, std::string>& ConfBlock::getMap()
+{
+  return _valueMap;
 }

@@ -19,11 +19,14 @@ public:
   std::string getHeader() const;
   std::string getConfLines(bool withComments = true) const;
 
+  // Table getter/setters
   std::vector<std::vector<std::string>>& getLines();
-
   const std::vector<std::string>& getColumnNames() const;
   unsigned int getRowCount() const;
   unsigned int getColumnCount() const;
+
+  // Map getter/setter
+  std::map<std::string, std::string>& getMap();
 
   void setModified(bool state);
 
@@ -41,6 +44,9 @@ private:
 
   std::vector<int> _columnStart;
   std::vector<std::string> _columnName;
+
+  std::map<std::string, std::string> _valueMap;
+
   bool _isTable;
   bool _isModified;
 };

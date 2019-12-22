@@ -20,23 +20,19 @@ ConfBlockWidget::ConfBlockWidget(ConfBlock& confBlock) :
   _textView->setReadOnly(true);
   _textView->setPlainText(_confBlock.getConfLines(false).c_str());
 
+  QStringList headers;
   if (_confBlock.isTable())
   {
     _tableWidget->setRowCount(_confBlock.getRowCount());
     _tableWidget->setColumnCount(_confBlock.getColumnCount());
-    QStringList headers;
 
     for (const auto& c : _confBlock.getColumnNames())
       headers << c.c_str();
-
-    _tableWidget->setHorizontalHeaderLabels(headers);
-    _tableWidget->verticalHeader()->setVisible(false);
 
     const auto& lines = _confBlock.getLines();
     for (unsigned int i = 0; i < _confBlock.getRowCount(); i++)
     {
       const auto& line = lines[i];
-
       for (unsigned int j = 0; j < _confBlock.getColumnCount(); j++)
       {
         _tableWidget->setItem(i, j, new QTableWidgetItem(line[j].c_str()));
@@ -44,8 +40,29 @@ ConfBlockWidget::ConfBlockWidget(ConfBlock& confBlock) :
     }
     //    connect(_tableWidget, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(&ConfBlockWidget::itemUpdate(QTableWidgetItem*)));
     //    connect(_tableWidget.get(), SIGNAL(cellDoubleClicked(int, int)), this, SLOT(cellSelected(int, int)));
-    connect(_tableWidget.get(), SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(itemUpdate(QTableWidgetItem*)));
   }
+  else
+  {
+    // ConfBlock is a map
+    _tableWidget->setRowCount(_confBlock.getMap().size());
+    _tableWidget->setColumnCount(2);
+
+    headers << "Key";
+    headers << "Value";
+
+    int row = 0;
+    for (const auto& [key, value] : _confBlock.getMap())
+    {
+      _tableWidget->setItem(row, 0, new QTableWidgetItem(key.c_str()));
+      _tableWidget->setItem(row++, 1, new QTableWidgetItem(value.c_str()));
+      qDebug() << "'" << key.c_str() << "'";
+      qDebug() << "'" << value.c_str() << "'";
+    }
+  }
+
+  _tableWidget->setHorizontalHeaderLabels(headers);
+  _tableWidget->verticalHeader()->setVisible(false);
+  connect(_tableWidget.get(), SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(itemUpdate(QTableWidgetItem*)));
 }
 
 ConfBlockWidget::~ConfBlockWidget()
@@ -56,9 +73,27 @@ void ConfBlockWidget::itemUpdate(QTableWidgetItem* item)
 {
   int row = item->row();
   int column = item->column();
-  auto& rows = _confBlock.getLines();
+  if (_confBlock.isTable())
+  {
+    auto& rows = _confBlock.getLines();
+    rows[row][column] = item->text().toStdString();
+  }
+  else
+  {
+    auto& valueMap = _confBlock.getMap();
+    auto vi = valueMap.begin();
+    std::advance(vi, row);
 
-  rows[row][column] = item->text().toStdString();
+    // if Value changed
+    if (column == 1)
+    {
+      vi->second = item->text().toStdString();
+    }
+    else
+    {
+      item->setText(vi->first.c_str());
+    }
+  }
 
   _confBlock.setModified(true);
 
