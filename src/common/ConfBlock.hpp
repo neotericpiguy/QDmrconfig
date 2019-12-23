@@ -20,10 +20,13 @@ public:
   std::string getConfLines(bool withComments = true) const;
 
   // Table getter/setters
-  std::vector<std::vector<std::string>>& getLines();
+  std::vector<std::vector<std::string>>& getRows();
+  std::vector<std::string>& getRow(int);
   const std::vector<std::string>& getColumnNames() const;
   unsigned int getRowCount() const;
   unsigned int getColumnCount() const;
+  int insertRow(int, const std::vector<std::string>&);
+  int removeRow(int);
 
   // Map getter/setter
   std::map<std::string, std::string>& getMap();

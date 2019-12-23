@@ -15,9 +15,13 @@ public:
   explicit ConfBlockWidget(ConfBlock& confBlock);
   virtual ~ConfBlockWidget();
 
+  void update();
+
 private slots:
   void itemUpdate(QTableWidgetItem* item);
   void cellSelected(int nRow, int nCol);
+  void duplicateTableRow();
+  void removeTableRow();
 
 private:
   ConfBlock& _confBlock;

@@ -28,7 +28,6 @@ MainWindow::MainWindow() :
   closeAct->setStatusTip(tr("Close"));
   fileMenu->addAction(closeAct);
 
-  //  connect(newAct, &QAction::triggered, this, &MainWindow::newFile);
   connect(uploadAct, &QAction::triggered, this, [=]() {
     _confFileWidget->getConfFile().uploadFile();
   });
@@ -39,7 +38,6 @@ MainWindow::MainWindow() :
   });
 
   connect(closeAct, &QAction::triggered, this, [=]() {
-    qDebug() << "close act";
     close();
   });
 

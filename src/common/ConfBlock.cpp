@@ -228,7 +228,7 @@ bool ConfBlock::isModified() const
   return _isModified;
 }
 
-std::vector<std::vector<std::string>>& ConfBlock::getLines()
+std::vector<std::vector<std::string>>& ConfBlock::getRows()
 {
   return _lines;
 }
@@ -236,4 +236,29 @@ std::vector<std::vector<std::string>>& ConfBlock::getLines()
 std::map<std::string, std::string>& ConfBlock::getMap()
 {
   return _valueMap;
+}
+
+int ConfBlock::insertRow(int rowIndex, const std::vector<std::string>& newRow)
+{
+  auto row = newRow;
+  auto linesIter = _lines.begin();
+
+  row.resize(getColumnCount());
+  std::advance(linesIter, rowIndex);
+
+  _lines.insert(linesIter, row);
+  return 0;
+}
+
+int ConfBlock::removeRow(int rowIndex)
+{
+  auto linesIter = _lines.begin();
+  std::advance(linesIter, rowIndex);
+  _lines.erase(linesIter);
+  return 0;
+}
+
+std::vector<std::string>& ConfBlock::getRow(int i)
+{
+  return _lines[i];
 }
