@@ -33,7 +33,7 @@ MainWindow::MainWindow() :
   });
 
   connect(saveAct, &QAction::triggered, this, [=]() {
-      qDebug() << "Saving file";
+    qDebug() << "Saving file";
     _confFileWidget->getConfFile().saveFile();
   });
 
