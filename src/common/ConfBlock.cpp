@@ -1,5 +1,7 @@
 #include "ConfBlock.hpp"
 
+#include <algorithm>
+
 ConfBlock::ConfBlock() :
     _header(),
     _lines(),
@@ -180,24 +182,6 @@ std::vector<std::string> ConfBlock::strToVec(const std::string& vec, char sepera
   return result;
 }
 
-std::string ConfBlock::vecToStr(const std::vector<std::string>& vec, const std::string& seperator)
-{
-  if (vec.size() == 0)
-    return "";
-
-  std::stringstream ss;
-  auto iter = vec.begin();
-
-  ss << *iter;
-
-  iter++;
-
-  for (; iter != vec.end(); iter++)
-    ss << seperator << *iter;
-
-  return ss.str();
-}
-
 unsigned int ConfBlock::getRowCount() const
 {
   return _lines.size();
@@ -211,6 +195,15 @@ unsigned int ConfBlock::getColumnCount() const
 const std::vector<std::string>& ConfBlock::getColumnNames() const
 {
   return _columnName;
+}
+
+int ConfBlock::getColumnIndex(const std::string& columnName) const
+{
+  auto iter = std::find(_columnName.begin(), _columnName.end(), columnName);
+  if (iter == _columnName.end())
+    return -1;
+
+  return std::distance(_columnName.begin(), iter);
 }
 
 bool ConfBlock::isTable() const
@@ -229,6 +222,11 @@ bool ConfBlock::isModified() const
 }
 
 std::vector<std::vector<std::string>>& ConfBlock::getRows()
+{
+  return _lines;
+}
+
+const std::vector<std::vector<std::string>>& ConfBlock::getLines() const
 {
   return _lines;
 }
@@ -261,4 +259,62 @@ int ConfBlock::removeRow(int rowIndex)
 std::vector<std::string>& ConfBlock::getRow(int i)
 {
   return _lines[i];
+}
+
+template <typename T>
+std::string ConfBlock::vecToStr(const std::vector<T>& vec, const std::string& seperator)
+{
+  if (vec.size() == 0)
+    return "";
+
+  std::stringstream ss;
+  auto iter = vec.begin();
+
+  ss << *iter;
+
+  iter++;
+
+  for (; iter != vec.end(); iter++)
+    ss << seperator << *iter;
+
+  return ss.str();
+}
+template std::string ConfBlock::vecToStr<int>(const std::vector<int>& vec, const std::string& seperator);
+
+std::string ConfBlock::rangify(std::vector<int>& vec)
+{
+  std::sort(vec.begin(), vec.end());
+
+  std::vector<std::string> result;
+  auto vecIter = vec.begin();
+  int startRange = *vecIter;
+  int rangeCounter = startRange;
+
+  vecIter++;
+  for (; vecIter != vec.end(); vecIter++)
+  {
+    if (*vecIter == rangeCounter + 1)
+    {
+      rangeCounter++;
+      if (vecIter == vec.end() - 1)
+      {
+        result.push_back(std::to_string(startRange) + "-" + std::to_string(rangeCounter));
+      }
+    }
+    else
+    {
+      result.push_back(std::to_string(startRange) + "-" + std::to_string(rangeCounter));
+      startRange = *vecIter;
+      rangeCounter = startRange;
+
+      if (vecIter == vec.end() - 1)
+      {
+        result.push_back(std::to_string(*vecIter));
+      }
+    }
+  }
+
+  if (result.size())
+    return vecToStr(result, ",");
+  return "";
 }

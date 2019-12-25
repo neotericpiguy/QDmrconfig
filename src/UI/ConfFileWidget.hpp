@@ -22,6 +22,9 @@ public:
 
   ConfFile& getConfFile();
 
+private slots:
+  void tabSelected();
+
 private:
   ConfFile _confFile;
 

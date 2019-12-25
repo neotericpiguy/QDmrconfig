@@ -12,7 +12,7 @@ class ConfBlockWidget : public QWidget
   Q_OBJECT
 
 public:
-  explicit ConfBlockWidget(ConfBlock& confBlock);
+  ConfBlockWidget(ConfBlock& confBlock);
   virtual ~ConfBlockWidget();
 
   void update();

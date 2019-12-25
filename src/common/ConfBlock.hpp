@@ -20,9 +20,11 @@ public:
   std::string getConfLines(bool withComments = true) const;
 
   // Table getter/setters
+  const std::vector<std::vector<std::string>>& getLines() const;
   std::vector<std::vector<std::string>>& getRows();
   std::vector<std::string>& getRow(int);
   const std::vector<std::string>& getColumnNames() const;
+  int getColumnIndex(const std::string& columnName) const;
   unsigned int getRowCount() const;
   unsigned int getColumnCount() const;
   int insertRow(int, const std::vector<std::string>&);
@@ -36,9 +38,21 @@ public:
   bool isModified() const;
   bool isTable() const;
 
+  template <typename T>
+  static bool strTo(const std::string& tempStr, T& retval)
+  {
+    std::istringstream iss(tempStr);
+
+    iss >> retval;
+    if (iss.fail())
+      return false;
+    return true;
+  }
   static void replace(std::string& str, const std::string& from, const std::string& to);
+  static std::string rangify(std::vector<int>& vec);
   static std::vector<std::string> strToVec(const std::string& vec, char seperator);
-  static std::string vecToStr(const std::vector<std::string>& vec, const std::string& seperator);
+  template <typename T>
+  static std::string vecToStr(const std::vector<T>& vec, const std::string& seperator);
 
 private:
   std::string _header;

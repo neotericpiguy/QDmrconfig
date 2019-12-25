@@ -28,12 +28,20 @@ void ConfFile::loadFile(const std::string& filename)
   for (const auto& [key, value] : blocks)
     _confBlocks[key].setLines(value);
 
+  for (auto& [key, value] : _confBlocks)
+    _confNameBlocks[value.getHeader()] = &value;
+
   _filename = filename;
 }
 
-std::map<int, ConfBlock>& ConfFile::getConfBlock()
+std::map<int, ConfBlock>& ConfFile::getConfBlocks()
 {
   return _confBlocks;
+}
+
+std::map<std::string, ConfBlock*>& ConfFile::getNameBlocks()
+{
+  return _confNameBlocks;
 }
 
 void ConfFile::saveFile()
@@ -69,4 +77,33 @@ void ConfFile::uploadFile()
   radio_verify_config();
   radio_upload(1);
   radio_disconnect();
+}
+
+void ConfFile::updateChannelList(const ConfBlock& sourceBlock, const std::string& sourceColumn, ConfBlock& destBlock, const std::string& destColumn)
+{
+  std::map<std::string, std::vector<int>> scanIndexToChanMap;
+
+  auto sourceColumnIndex = sourceBlock.getColumnIndex(sourceColumn);
+  for (const auto& sourceRow : sourceBlock.getLines())  // use getLines because it returns a const vector
+  {
+    const auto& scanlistNumber = sourceRow[sourceColumnIndex];
+    int channel;
+    if (ConfBlock::strTo(sourceRow[0], channel))
+    {
+      scanIndexToChanMap[scanlistNumber].push_back(channel);
+    }
+  }
+
+  auto destColumnIndex = destBlock.getColumnIndex(destColumn);
+  for (auto& destRow : destBlock.getRows())  // use getLines because it returns a const vector
+  {
+    std::string range = "";
+    if (scanIndexToChanMap.find(destRow[0]) != scanIndexToChanMap.end())
+    {
+      range = ConfBlock::rangify(scanIndexToChanMap[destRow[0]]);
+    }
+
+    destRow[destColumnIndex] = range;
+  }
+  return;
 }
