@@ -18,6 +18,7 @@ public:
   ConfFileWidget();
   virtual ~ConfFileWidget();
 
+  void setDebug(bool state);
   void updateTabs();
 
   ConfFile& getConfFile();
@@ -27,6 +28,7 @@ private slots:
 
 private:
   ConfFile _confFile;
+  bool _isDebug;
 
   std::string _filename;
   std::unique_ptr<QTabWidget> _tabWidget;

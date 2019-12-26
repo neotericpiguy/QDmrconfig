@@ -143,3 +143,16 @@ void ConfBlockWidget::update()
   }
   _tableWidget->setHorizontalHeaderLabels(headers);
 }
+
+void ConfBlockWidget::setDebug(bool state)
+{
+  isDebug = state;
+  if (isDebug)
+  {
+    _textView->setVisible(true);
+  }
+  else
+  {
+    _textView->setVisible(false);
+  }
+}

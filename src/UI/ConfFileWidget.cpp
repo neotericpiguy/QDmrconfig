@@ -43,8 +43,14 @@ void ConfFileWidget::updateTabs()
   for (auto& [index, confBlock] : _confFile.getConfBlocks())
   {
     auto temp = std::make_unique<ConfBlockWidget>(confBlock);
+    temp->setDebug(_isDebug);
+
     _tabWidget->addTab(temp.get(), confBlock.getHeader().c_str());
     _confBlockWidgets.push_back(std::move(temp));
   }
 }
 
+void ConfFileWidget::setDebug(bool state)
+{
+  _isDebug = state;
+}

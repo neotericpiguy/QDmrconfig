@@ -69,6 +69,11 @@ void MainWindow::closeEvent(QCloseEvent* event)
   event->accept();
 }
 
+void MainWindow::setDebug(bool state)
+{
+  _confFileWidget->setDebug(state);
+}
+
 void MainWindow::loadFile(const QString& filename)
 {
   QFile file(filename);
@@ -85,3 +90,4 @@ void MainWindow::loadFile(const QString& filename)
 
   statusBar()->showMessage(tr("File loaded"), 2000);
 }
+

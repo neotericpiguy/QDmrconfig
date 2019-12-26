@@ -19,6 +19,7 @@ public:
 
   void loadFile(const QString& fileName);
   void closeEvent(QCloseEvent* event) override;
+  void setDebug(bool state);
 
 private:
   std::unique_ptr<ConfFileWidget> _confFileWidget;

@@ -16,6 +16,7 @@ public:
   virtual ~ConfBlockWidget();
 
   void update();
+  void setDebug(bool state);
 
 private slots:
   void itemUpdate(QTableWidgetItem* item);
@@ -24,6 +25,7 @@ private slots:
   void removeTableRow();
 
 private:
+  bool isDebug;
   ConfBlock& _confBlock;
   std::unique_ptr<QPlainTextEdit> _textView;
   std::unique_ptr<QTableWidget> _tableWidget;
