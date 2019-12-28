@@ -47,7 +47,6 @@ void ConfBlock::setLines(const std::vector<std::string>& lines)
       continue;
     }
 
-    //    std::cout << line << std::endl;
     if (line[0] != ' ')  // Header line
     {
       if (line.find(':') != std::string::npos)
@@ -74,12 +73,17 @@ void ConfBlock::setLines(const std::vector<std::string>& lines)
           lastIndex = newIndex;
           //std::cout << c << " : " << _columnStart.back() << std::endl;
         }
+
+        auto metaIter = std::find(_columnName.begin(), _columnName.end(), "#");
+        if (metaIter != _columnName.end())
+          _metaIndex = std::distance(_columnName.begin(), metaIter);
       }
     }
     else
     {
       // A table row
       _lines.push_back(strToVec(line, ' '));
+      _lines.back().resize(_columnStart.size());
     }
   }
 
@@ -154,6 +158,11 @@ std::string ConfBlock::getConfLines(bool withComments) const
   }
 
   return ss.str();
+}
+
+int ConfBlock::getMetaIndex() const
+{
+  return _metaIndex;
 }
 
 std::vector<std::string> ConfBlock::strToVec(const std::string& vec, char seperator)

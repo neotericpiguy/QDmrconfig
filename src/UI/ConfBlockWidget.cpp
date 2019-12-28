@@ -64,6 +64,7 @@ void ConfBlockWidget::removeTableRow()
 
 void ConfBlockWidget::itemUpdate(QTableWidgetItem* item)
 {
+  bool needMetaUpdate = false;
   auto newValue = item->text().toStdString();
   for (const auto& item : _tableWidget->selectedItems())
   {
@@ -74,6 +75,9 @@ void ConfBlockWidget::itemUpdate(QTableWidgetItem* item)
       auto& rows = _confBlock.getRows();
       rows[row][column] = newValue;
       item->setText(newValue.c_str());
+
+      if (column > _confBlock.getMetaIndex())
+        needMetaUpdate = true;
     }
     else
     {
@@ -93,9 +97,52 @@ void ConfBlockWidget::itemUpdate(QTableWidgetItem* item)
     }
   }
 
-  _confBlock.setModified(true);
+  if (needMetaUpdate)
+    metaUpdate();
 
+  _confBlock.setModified(true);
   _textView->setPlainText(_confBlock.getConfLines(false).c_str());
+}
+
+void ConfBlockWidget::metaUpdate()
+{
+  auto& rows = _confBlock.getRows();
+  for (unsigned int row = 0; row < rows.size(); row++)
+  {
+    for (unsigned int column = _confBlock.getMetaIndex() + 1; column < _confBlock.getColumnCount(); column++)
+    {
+      std::string metaColumnName = _confBlock.getColumnNames()[column];
+      std::string targetColumn = metaColumnName;
+      ConfBlock::replace(targetColumn, "Offset", "");
+      auto newValue = _tableWidget->item(row, column)->text().toStdString();
+
+      int targetColumnIndex = _confBlock.getColumnIndex(targetColumn);
+      if (targetColumnIndex != -1)
+      {
+        if (newValue.find("+") != std::string::npos ||
+            newValue.find("-") != std::string::npos)
+        {
+          int currentVal;
+          ConfBlock::strTo(rows[row - 1][targetColumnIndex], currentVal);
+
+          int delta;
+          ConfBlock::strTo(newValue, delta);
+
+          auto newOffsetValue = std::to_string(currentVal + delta);
+          rows[row][targetColumnIndex] = newOffsetValue;
+        }
+        else
+        {
+          rows[row][targetColumnIndex] = newValue;
+        }
+
+        _tableWidget->blockSignals(true);
+        _tableWidget->item(row, targetColumnIndex)->setText(rows[row][targetColumnIndex].c_str());
+        _tableWidget->blockSignals(false);
+      }
+    }
+  }
+  return;
 }
 
 void ConfBlockWidget::cellSelected(int nRow, int nCol)

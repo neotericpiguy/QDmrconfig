@@ -18,6 +18,7 @@ public:
   void setLines(const std::vector<std::string>& lines);
   std::string getHeader() const;
   std::string getConfLines(bool withComments = true) const;
+  int getMetaIndex() const;
 
   // Table getter/setters
   const std::vector<std::vector<std::string>>& getLines() const;
@@ -66,6 +67,7 @@ private:
 
   bool _isTable;
   bool _isModified;
+  int _metaIndex;
 };
 
 #endif

@@ -25,6 +25,8 @@ private slots:
   void removeTableRow();
 
 private:
+  void metaUpdate();
+
   bool isDebug;
   ConfBlock& _confBlock;
   std::unique_ptr<QPlainTextEdit> _textView;
