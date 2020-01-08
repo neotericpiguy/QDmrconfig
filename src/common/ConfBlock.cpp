@@ -9,7 +9,8 @@ ConfBlock::ConfBlock() :
     _columnStart(),
     _columnName(),
     _isTable(false),
-    _isModified(false)
+    _isModified(false),
+    _metaIndex(0xBEEF)
 {
 }
 

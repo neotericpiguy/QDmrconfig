@@ -56,8 +56,22 @@ void ConfBlockWidget::removeTableRow()
 {
   qDebug() << _tableWidget->currentItem()->text();
 
-  int row = _tableWidget->currentRow();
-  _confBlock.removeRow(row);
+  static std::vector<std::string> empty;
+  for (const auto& item : _tableWidget->selectedItems())
+  {
+    //    _confBlock.removeRow(item->row());
+    _confBlock.getRow(item->row()) = empty;
+  }
+
+  auto iter = _confBlock.getRows().begin();
+
+  auto removeIter = std::remove_if(iter, _confBlock.getRows().end(), [&](const std::vector<std::string>& val) -> bool {
+    if (val == empty)
+      return true;
+    return false;
+  });
+
+  _confBlock.getRows().erase(removeIter, _confBlock.getRows().end());
 
   update();
 }
