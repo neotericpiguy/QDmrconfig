@@ -45,7 +45,8 @@ ConfBlockWidget::~ConfBlockWidget()
 
 void ConfBlockWidget::duplicateTableRow()
 {
-  qDebug() << _tableWidget->currentItem()->text();
+  if (_isDebug)
+    qDebug() << _tableWidget->currentItem()->text();
 
   int row = _tableWidget->currentRow();
   _confBlock.insertRow(row, _confBlock.getRow(row));
@@ -55,7 +56,8 @@ void ConfBlockWidget::duplicateTableRow()
 
 void ConfBlockWidget::removeTableRow()
 {
-  qDebug() << _tableWidget->currentItem()->text();
+  if (_isDebug)
+    qDebug() << _tableWidget->currentItem()->text();
 
   static std::vector<std::string> empty;
   for (const auto& item : _tableWidget->selectedItems())
@@ -114,7 +116,8 @@ void ConfBlockWidget::itemUpdate(QTableWidgetItem* item)
     metaUpdate();
 
   _confBlock.setModified(true);
-  qDebug() << "Modified";
+  if (_isDebug)
+    qDebug() << "Modified";
   _textView->setPlainText(_confBlock.getConfLines(false).c_str());
 }
 
@@ -122,7 +125,8 @@ void ConfBlockWidget::metaUpdate()
 {
   if (_confBlock.isTable())
   {
-    qDebug() << _confBlock.getHeader().c_str() << " meta update";
+    if (_isDebug)
+      qDebug() << _confBlock.getHeader().c_str() << " meta update";
     _confBlock.metaUpdate();
 
     updateTable();
@@ -136,8 +140,11 @@ void ConfBlockWidget::updateTable()
 
   int modifiedCells = 0;
 
-  qDebug() << "rows: " << _confBlock.getRowCount() << "," << _tableWidget->rowCount();
-  qDebug() << "columns: " << _confBlock.getColumnCount() << "," << _tableWidget->columnCount();
+  if (_isDebug)
+  {
+    qDebug() << "rows: " << _confBlock.getRowCount() << "," << _tableWidget->rowCount();
+    qDebug() << "columns: " << _confBlock.getColumnCount() << "," << _tableWidget->columnCount();
+  }
 
   for (unsigned int i = 0; i < _confBlock.getRowCount(); i++)
   {
@@ -150,7 +157,9 @@ void ConfBlockWidget::updateTable()
       }
     }
   }
-  qDebug() << "Modified cells: " << modifiedCells;
+
+  if (_isDebug)
+    qDebug() << "Modified cells: " << modifiedCells;
   _tableWidget->blockSignals(false);
 }
 
@@ -161,7 +170,6 @@ void ConfBlockWidget::cellSelected(int nRow, int nCol)
 
 void ConfBlockWidget::update()
 {
-  qDebug() << _confBlock.getHeader().c_str() << " update";
   _tableWidget->clear();
   QStringList headers;
   if (_confBlock.isTable())
@@ -203,8 +211,8 @@ void ConfBlockWidget::update()
 
 void ConfBlockWidget::setDebug(bool state)
 {
-  isDebug = state;
-  if (isDebug)
+  _isDebug = state;
+  if (_isDebug)
   {
     _textView->setVisible(true);
   }
