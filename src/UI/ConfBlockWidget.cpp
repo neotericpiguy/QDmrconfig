@@ -2,9 +2,10 @@
 
 #include <QtWidgets/QtWidgets>
 
-ConfBlockWidget::ConfBlockWidget(ConfBlock& confBlock) :
+ConfBlockWidget::ConfBlockWidget(ConfBlock& confBlock, ConfFile& confFile) :
     QWidget(),
     _confBlock(confBlock),
+    _confFile(confFile),
     _textView(new QPlainTextEdit()),
     _tableWidget(new QTableWidget())
 {
@@ -65,10 +66,8 @@ void ConfBlockWidget::removeTableRow()
 
   auto iter = _confBlock.getRows().begin();
 
-  auto removeIter = std::remove_if(iter, _confBlock.getRows().end(), [&](const std::vector<std::string>& val) -> bool {
-    if (val == empty)
-      return true;
-    return false;
+  auto removeIter = std::remove_if(iter, _confBlock.getRows().end(), [&](const std::vector<std::string>& val) {
+    return (val == empty);
   });
 
   _confBlock.getRows().erase(removeIter, _confBlock.getRows().end());
@@ -115,44 +114,79 @@ void ConfBlockWidget::itemUpdate(QTableWidgetItem* item)
     metaUpdate();
 
   _confBlock.setModified(true);
+  qDebug() << "Modified";
   _textView->setPlainText(_confBlock.getConfLines(false).c_str());
 }
 
 void ConfBlockWidget::metaUpdate()
 {
+  qDebug() << _confBlock.getHeader().c_str() << " meta update";
   auto& rows = _confBlock.getRows();
+  std::vector<std::string> rangeUpdates;
   for (unsigned int row = 0; row < rows.size(); row++)
   {
     for (unsigned int column = _confBlock.getMetaIndex() + 1; column < _confBlock.getColumnCount(); column++)
     {
       std::string metaColumnName = _confBlock.getColumnNames()[column];
       std::string targetColumn = metaColumnName;
-      ConfBlock::replace(targetColumn, "Offset", "");
-      auto newValue = _tableWidget->item(row, column)->text().toStdString();
 
-      int targetColumnIndex = _confBlock.getColumnIndex(targetColumn);
-      if (targetColumnIndex != -1)
+      if (targetColumn.find("Range") != std::string::npos &&
+          std::find(rangeUpdates.begin(), rangeUpdates.end(), targetColumn) == rangeUpdates.end())
       {
-        if (newValue.find("+") != std::string::npos ||
-            newValue.find("-") != std::string::npos)
+        rangeUpdates.push_back(targetColumn);
+        qDebug() << "Range find";
+        std::string srcBlockColumn = targetColumn.substr(targetColumn.rfind("-") + 1, targetColumn.length() - 1 - targetColumn.rfind("-"));
+        std::string srcBlockHeader = targetColumn;
+
+        srcBlockHeader = srcBlockHeader.substr(srcBlockHeader.find("Range-") + 6, srcBlockHeader.length() - 6 - srcBlockHeader.find("Range-"));
+        ConfBlock::replace(srcBlockHeader, "-" + srcBlockColumn, "");
+
+        std::string dstBlockColumn = targetColumn.substr(0, targetColumn.find("Range"));
+
+        if (_confFile.getNameBlocks().find(srcBlockHeader) != _confFile.getNameBlocks().end())
         {
-          int currentVal;
-          ConfBlock::strTo(rows[row - 1][targetColumnIndex], currentVal);
+          ConfBlock& sourceBlock = *(_confFile.getNameBlocks()[srcBlockHeader]);
+          _confFile.updateChannelList(sourceBlock, srcBlockColumn, _confBlock, dstBlockColumn);
 
-          int delta;
-          ConfBlock::strTo(newValue, delta);
-
-          auto newOffsetValue = std::to_string(currentVal + delta);
-          rows[row][targetColumnIndex] = newOffsetValue;
+          _tableWidget->blockSignals(true);
+          update();
+          _tableWidget->blockSignals(false);
         }
         else
         {
-          rows[row][targetColumnIndex] = newValue;
+          qDebug() << "Cant' find block header" << srcBlockHeader.c_str();
         }
+      }
+      else if (targetColumn.find("Offset") != std::string::npos)
+      {
+        ConfBlock::replace(targetColumn, "Offset", "");
+        auto newValue = _tableWidget->item(row, column)->text().toStdString();
 
-        _tableWidget->blockSignals(true);
-        _tableWidget->item(row, targetColumnIndex)->setText(rows[row][targetColumnIndex].c_str());
-        _tableWidget->blockSignals(false);
+        int targetColumnIndex = _confBlock.getColumnIndex(targetColumn);
+        if (targetColumnIndex != -1)
+        {
+          if (newValue.find("+") != std::string::npos ||
+              newValue.find("-") != std::string::npos)
+          {
+            int currentVal;
+            ConfBlock::strTo(rows[row - 1][targetColumnIndex], currentVal);
+
+            int delta;
+            ConfBlock::strTo(newValue, delta);
+
+            auto newOffsetValue = std::to_string(currentVal + delta);
+            rows[row][targetColumnIndex] = newOffsetValue;
+          }
+          else
+          {
+            rows[row][targetColumnIndex] = newValue;
+          }
+
+          _tableWidget->blockSignals(true);
+          _tableWidget->item(row, targetColumnIndex)->setText(rows[row][targetColumnIndex].c_str());
+          _tableWidget->item(row, targetColumnIndex)->setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+          _tableWidget->blockSignals(false);
+        }
       }
     }
   }
@@ -166,6 +200,7 @@ void ConfBlockWidget::cellSelected(int nRow, int nCol)
 
 void ConfBlockWidget::update()
 {
+  qDebug() << _confBlock.getHeader().c_str() << " update";
   _tableWidget->clear();
   QStringList headers;
   if (_confBlock.isTable())

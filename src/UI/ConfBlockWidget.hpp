@@ -6,16 +6,18 @@
 #include <memory>
 
 #include "ConfBlock.hpp"
+#include "ConfFile.hpp"
 
 class ConfBlockWidget : public QWidget
 {
   Q_OBJECT
 
 public:
-  ConfBlockWidget(ConfBlock& confBlock);
+  ConfBlockWidget(ConfBlock& confBlock, ConfFile& confFile);
   virtual ~ConfBlockWidget();
 
   void update();
+  void metaUpdate();
   void setDebug(bool state);
 
 private slots:
@@ -25,10 +27,9 @@ private slots:
   void removeTableRow();
 
 private:
-  void metaUpdate();
-
   bool isDebug;
   ConfBlock& _confBlock;
+  ConfFile& _confFile;
   std::unique_ptr<QPlainTextEdit> _textView;
   std::unique_ptr<QTableWidget> _tableWidget;
 };
