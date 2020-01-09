@@ -131,6 +131,7 @@ void ConfBlockWidget::metaUpdate()
 
     updateTable();
   }
+  _textView->setPlainText(_confBlock.getConfLines(false).c_str());
 }
 
 void ConfBlockWidget::updateTable()
