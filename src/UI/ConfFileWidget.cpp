@@ -17,14 +17,18 @@ ConfFileWidget::~ConfFileWidget()
 void ConfFileWidget::tabSelected()
 {
   if ((unsigned int)(_tabWidget->currentIndex()) < _confBlockWidgets.size())
-  {
     _confBlockWidgets[_tabWidget->currentIndex()]->metaUpdate();
-  }
 }
 
 ConfFile& ConfFileWidget::getConfFile()
 {
   return _confFile;
+}
+
+void ConfFileWidget::clear()
+{
+  _tabWidget->clear();
+  _confBlockWidgets.clear();
 }
 
 void ConfFileWidget::updateTabs()

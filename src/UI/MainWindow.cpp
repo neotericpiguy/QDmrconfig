@@ -66,6 +66,11 @@ void MainWindow::closeEvent(QCloseEvent* event)
       event->ignore();
     }
   }
+
+  // Prevents weird shutting down issues
+  // It's almost like the destructor hop around different tabs until they are
+  // all gone
+  _confFileWidget->clear();
   event->accept();
 }
 

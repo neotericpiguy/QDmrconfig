@@ -20,6 +20,7 @@ public:
 
   void setDebug(bool state);
   void updateTabs();
+  void clear();
 
   ConfFile& getConfFile();
 

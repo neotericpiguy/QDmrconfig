@@ -65,9 +65,7 @@ bool ConfFile::isModified() const
 void ConfFile::uploadFile()
 {
   if (isModified())
-  {
     saveFile();
-  }
 
   radio_connect();
   radio_download();
