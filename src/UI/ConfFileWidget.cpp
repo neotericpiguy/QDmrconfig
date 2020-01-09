@@ -16,18 +16,6 @@ ConfFileWidget::~ConfFileWidget()
 
 void ConfFileWidget::tabSelected()
 {
-  //  if (_confFile.getConfBlocks()[_tabWidget->currentIndex()].getHeader() == "Scanlist")
-  //  {
-  //    if (_confFile.getNameBlocks().find("Analog") != _confFile.getNameBlocks().end())
-  //    {
-  //      ConfBlock& sourceBlock = *(_confFile.getNameBlocks()["Analog"]);
-  //      ConfBlock& destBlock = *(_confFile.getNameBlocks()["Scanlist"]);
-  //
-  //      _confFile.updateChannelList(sourceBlock, "Scan", destBlock, "Channels");
-  //
-  //      _confBlockWidgets[_tabWidget->currentIndex()]->update();
-  //    }
-  //  }
   if ((unsigned int)(_tabWidget->currentIndex()) < _confBlockWidgets.size())
   {
     _confBlockWidgets[_tabWidget->currentIndex()]->metaUpdate();

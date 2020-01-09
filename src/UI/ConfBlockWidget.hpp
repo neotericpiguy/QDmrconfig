@@ -19,6 +19,7 @@ public:
   void update();
   void metaUpdate();
   void setDebug(bool state);
+  void updateTable();
 
 private slots:
   void itemUpdate(QTableWidgetItem* item);

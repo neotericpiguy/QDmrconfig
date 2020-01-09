@@ -120,77 +120,38 @@ void ConfBlockWidget::itemUpdate(QTableWidgetItem* item)
 
 void ConfBlockWidget::metaUpdate()
 {
-  qDebug() << _confBlock.getHeader().c_str() << " meta update";
-  auto& rows = _confBlock.getRows();
-  std::vector<std::string> rangeUpdates;
-  for (unsigned int row = 0; row < rows.size(); row++)
+  if (_confBlock.isTable())
   {
-    for (unsigned int column = _confBlock.getMetaIndex() + 1; column < _confBlock.getColumnCount(); column++)
+    qDebug() << _confBlock.getHeader().c_str() << " meta update";
+    _confBlock.metaUpdate();
+
+    updateTable();
+  }
+}
+
+void ConfBlockWidget::updateTable()
+{
+  _tableWidget->blockSignals(true);
+  const auto& rows = _confBlock.getRows();
+
+  int modifiedCells = 0;
+
+  qDebug() << "rows: " << _confBlock.getRowCount() << "," << _tableWidget->rowCount();
+  qDebug() << "columns: " << _confBlock.getColumnCount() << "," << _tableWidget->columnCount();
+
+  for (unsigned int i = 0; i < _confBlock.getRowCount(); i++)
+  {
+    for (unsigned int j = 0; j < _confBlock.getColumnCount(); j++)
     {
-      std::string metaColumnName = _confBlock.getColumnNames()[column];
-      std::string targetColumn = metaColumnName;
-
-      if (targetColumn.find("Range") != std::string::npos &&
-          std::find(rangeUpdates.begin(), rangeUpdates.end(), targetColumn) == rangeUpdates.end())
+      if (_tableWidget->item(i, j)->text().toStdString() != rows[i][j])
       {
-        rangeUpdates.push_back(targetColumn);
-        qDebug() << "Range find";
-        std::string srcBlockColumn = targetColumn.substr(targetColumn.rfind("-") + 1, targetColumn.length() - 1 - targetColumn.rfind("-"));
-        std::string srcBlockHeader = targetColumn;
-
-        srcBlockHeader = srcBlockHeader.substr(srcBlockHeader.find("Range-") + 6, srcBlockHeader.length() - 6 - srcBlockHeader.find("Range-"));
-        ConfBlock::replace(srcBlockHeader, "-" + srcBlockColumn, "");
-
-        std::string dstBlockColumn = targetColumn.substr(0, targetColumn.find("Range"));
-
-        if (_confFile.getNameBlocks().find(srcBlockHeader) != _confFile.getNameBlocks().end())
-        {
-          ConfBlock& sourceBlock = *(_confFile.getNameBlocks()[srcBlockHeader]);
-          _confFile.updateChannelList(sourceBlock, srcBlockColumn, _confBlock, dstBlockColumn);
-
-          _tableWidget->blockSignals(true);
-          update();
-          _tableWidget->blockSignals(false);
-        }
-        else
-        {
-          qDebug() << "Cant' find block header" << srcBlockHeader.c_str();
-        }
-      }
-      else if (targetColumn.find("Offset") != std::string::npos)
-      {
-        ConfBlock::replace(targetColumn, "Offset", "");
-        auto newValue = _tableWidget->item(row, column)->text().toStdString();
-
-        int targetColumnIndex = _confBlock.getColumnIndex(targetColumn);
-        if (targetColumnIndex != -1)
-        {
-          if (newValue.find("+") != std::string::npos ||
-              newValue.find("-") != std::string::npos)
-          {
-            int currentVal;
-            ConfBlock::strTo(rows[row - 1][targetColumnIndex], currentVal);
-
-            int delta;
-            ConfBlock::strTo(newValue, delta);
-
-            auto newOffsetValue = std::to_string(currentVal + delta);
-            rows[row][targetColumnIndex] = newOffsetValue;
-          }
-          else
-          {
-            rows[row][targetColumnIndex] = newValue;
-          }
-
-          _tableWidget->blockSignals(true);
-          _tableWidget->item(row, targetColumnIndex)->setText(rows[row][targetColumnIndex].c_str());
-          _tableWidget->item(row, targetColumnIndex)->setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-          _tableWidget->blockSignals(false);
-        }
+        _tableWidget->item(i, j)->setText(rows[i][j].c_str());
+        modifiedCells++;
       }
     }
   }
-  return;
+  qDebug() << "Modified cells: " << modifiedCells;
+  _tableWidget->blockSignals(false);
 }
 
 void ConfBlockWidget::cellSelected(int nRow, int nCol)

@@ -79,31 +79,3 @@ void ConfFile::uploadFile()
   radio_disconnect();
 }
 
-void ConfFile::updateChannelList(const ConfBlock& sourceBlock, const std::string& sourceColumn, ConfBlock& destBlock, const std::string& destColumn)
-{
-  std::map<std::string, std::vector<int>> scanIndexToChanMap;
-
-  auto sourceColumnIndex = sourceBlock.getColumnIndex(sourceColumn);
-  for (const auto& sourceRow : sourceBlock.getLines())  // use getLines because it returns a const vector
-  {
-    const auto& scanlistNumber = sourceRow[sourceColumnIndex];
-    int channel;
-    if (ConfBlock::strTo(sourceRow[0], channel))
-    {
-      scanIndexToChanMap[scanlistNumber].push_back(channel);
-    }
-  }
-
-  auto destColumnIndex = destBlock.getColumnIndex(destColumn);
-  for (auto& destRow : destBlock.getRows())  // use getLines because it returns a const vector
-  {
-    std::string range = "";
-    if (scanIndexToChanMap.find(destRow[0]) != scanIndexToChanMap.end())
-    {
-      range = ConfBlock::rangify(scanIndexToChanMap[destRow[0]]);
-    }
-
-    destRow[destColumnIndex] = range;
-  }
-  return;
-}

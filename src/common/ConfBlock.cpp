@@ -2,6 +2,8 @@
 
 #include <algorithm>
 
+std::map<std::string, ConfBlock*> ConfBlock::_confBlocks;
+
 ConfBlock::ConfBlock() :
     _header(),
     _lines(),
@@ -50,7 +52,8 @@ void ConfBlock::setLines(const std::vector<std::string>& lines)
 
     if (line[0] != ' ')  // Header line
     {
-      if (line.find(':') != std::string::npos)
+      if (line.find(':') != std::string::npos &&
+          line.find("Range") == std::string::npos)
       {
         // Use a map
         auto key = line.substr(0, line.find(':'));
@@ -72,7 +75,6 @@ void ConfBlock::setLines(const std::vector<std::string>& lines)
           auto newIndex = line.find(c, lastIndex);
           _columnStart.push_back(newIndex - lastIndex);
           lastIndex = newIndex;
-          //std::cout << c << " : " << _columnStart.back() << std::endl;
         }
 
         auto metaIter = std::find(_columnName.begin(), _columnName.end(), "#");
@@ -89,6 +91,8 @@ void ConfBlock::setLines(const std::vector<std::string>& lines)
   }
 
   _columnStart.push_back(0);
+
+  _confBlocks[getHeader()] = this;
 
   return;
 }
@@ -221,6 +225,66 @@ bool ConfBlock::isTable() const
   return _isTable;
 }
 
+void ConfBlock::metaUpdate()
+{
+  auto& rows = getRows();
+  std::vector<std::string> rangeUpdates;
+  for (unsigned int row = 0; row < rows.size(); row++)
+  {
+    for (unsigned int column = getMetaIndex() + 1; column < getColumnCount(); column++)
+    {
+      std::string metaColumnName = getColumnNames()[column];
+      std::string targetColumn = metaColumnName;
+
+      if (targetColumn.find("Range") != std::string::npos &&
+          std::find(rangeUpdates.begin(), rangeUpdates.end(), targetColumn) == rangeUpdates.end())
+      {
+        rangeUpdates.push_back(targetColumn);
+        std::string srcBlockColumn = targetColumn.substr(targetColumn.rfind("-") + 1, targetColumn.length() - 1 - targetColumn.rfind("-"));
+        std::string srcBlockHeader = targetColumn;
+
+        srcBlockHeader = srcBlockHeader.substr(srcBlockHeader.find("Range-") + 6, srcBlockHeader.length() - 6 - srcBlockHeader.find("Range-"));
+        ConfBlock::replace(srcBlockHeader, "-" + srcBlockColumn, "");
+
+        std::string dstBlockColumn = targetColumn.substr(0, targetColumn.find("Range"));
+
+        if (_confBlocks.find(srcBlockHeader) != _confBlocks.end())
+        {
+          ConfBlock& sourceBlock = *(_confBlocks.at(srcBlockHeader));
+          updateChannelList(sourceBlock, srcBlockColumn, *this, dstBlockColumn);
+        }
+      }
+      else if (targetColumn.find("Offset") != std::string::npos)
+      {
+        ConfBlock::replace(targetColumn, "Offset", "");
+        // auto newValue = _tableWidget->item(row, column)->text().toStdString();
+        auto newValue = rows[row][column];
+
+        int targetColumnIndex = getColumnIndex(targetColumn);
+        if (targetColumnIndex != -1)
+        {
+          if (newValue.find("+") != std::string::npos ||
+              newValue.find("-") != std::string::npos)
+          {
+            int currentVal;
+            ConfBlock::strTo(rows[row - 1][targetColumnIndex], currentVal);
+
+            int delta;
+            ConfBlock::strTo(newValue, delta);
+
+            auto newOffsetValue = std::to_string(currentVal + delta);
+            rows[row][targetColumnIndex] = newOffsetValue;
+          }
+          else
+          {
+            rows[row][targetColumnIndex] = newValue;
+          }
+        }
+      }
+    }
+  }
+}
+
 void ConfBlock::setModified(bool state)
 {
   _isModified = state;
@@ -327,4 +391,33 @@ std::string ConfBlock::rangify(std::vector<int>& vec)
   if (result.size())
     return vecToStr(result, ",");
   return "";
+}
+
+void ConfBlock::updateChannelList(const ConfBlock& sourceBlock, const std::string& sourceColumn, ConfBlock& destBlock, const std::string& destColumn)
+{
+  std::map<std::string, std::vector<int>> scanIndexToChanMap;
+
+  auto sourceColumnIndex = sourceBlock.getColumnIndex(sourceColumn);
+  for (const auto& sourceRow : sourceBlock.getLines())  // use getLines because it returns a const vector
+  {
+    const auto& scanlistNumber = sourceRow[sourceColumnIndex];
+    int channel;
+    if (ConfBlock::strTo(sourceRow[0], channel))
+    {
+      scanIndexToChanMap[scanlistNumber].push_back(channel);
+    }
+  }
+
+  auto destColumnIndex = destBlock.getColumnIndex(destColumn);
+  for (auto& destRow : destBlock.getRows())  // use getLines because it returns a const vector
+  {
+    std::string range = "";
+    if (scanIndexToChanMap.find(destRow[0]) != scanIndexToChanMap.end())
+    {
+      range = ConfBlock::rangify(scanIndexToChanMap[destRow[0]]);
+    }
+
+    destRow[destColumnIndex] = range;
+  }
+  return;
 }

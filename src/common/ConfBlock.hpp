@@ -39,6 +39,9 @@ public:
   bool isModified() const;
   bool isTable() const;
 
+  void metaUpdate();
+  void updateChannelList(const ConfBlock& sourceBlock, const std::string& sourceColumn, ConfBlock& destBlock, const std::string& destColumn);
+
   template <typename T>
   static bool strTo(const std::string& tempStr, T& retval)
   {
@@ -64,6 +67,8 @@ private:
   std::vector<std::string> _columnName;
 
   std::map<std::string, std::string> _valueMap;
+
+  static std::map<std::string, ConfBlock*> _confBlocks;
 
   bool _isTable;
   bool _isModified;

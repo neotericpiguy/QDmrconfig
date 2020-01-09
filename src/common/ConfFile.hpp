@@ -17,8 +17,6 @@ public:
   void saveFile();
   void uploadFile();
 
-  void updateChannelList(const ConfBlock& sourceBlock, const std::string& sourceColumn, ConfBlock& destBlock, const std::string& destColumn);
-
   bool isModified() const;
 
   std::map<int, ConfBlock>& getConfBlocks();
