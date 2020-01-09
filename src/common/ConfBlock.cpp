@@ -372,12 +372,19 @@ std::string ConfBlock::rangify(std::vector<int>& vec)
       rangeCounter++;
       if (vecIter == vec.end() - 1)
       {
-        result.push_back(std::to_string(startRange) + "-" + std::to_string(rangeCounter));
+        if (startRange != rangeCounter)
+          result.push_back(std::to_string(startRange) + "-" + std::to_string(rangeCounter));
+        else
+          result.push_back(std::to_string(startRange));
       }
     }
     else
     {
-      result.push_back(std::to_string(startRange) + "-" + std::to_string(rangeCounter));
+      if (startRange != rangeCounter)
+        result.push_back(std::to_string(startRange) + "-" + std::to_string(rangeCounter));
+      else
+        result.push_back(std::to_string(startRange));
+
       startRange = *vecIter;
       rangeCounter = startRange;
 
