@@ -1,9 +1,8 @@
 #include "ConfBlockWidget.hpp"
 
-#include <QtWidgets/QtWidgets>
-
 ConfBlockWidget::ConfBlockWidget(ConfBlock& confBlock, QWidget* parent) :
     QWidget(parent),
+    _isDebug(false),
     _confBlock(confBlock),
     _textView(new QPlainTextEdit(this)),
     _tableWidget(new QTableWidget(this))

@@ -2,15 +2,15 @@ BUILD_DIR=build
 
 VERSION         = $(shell git describe --tags --abbrev=0)
 VERSION         = RC
-CXXFLAGS       +=-std=c++17
+CXXFLAGS       += -std=c++17 -Weffc++ 
 CFLAGS         ?= -g -O -Wall -Werror -fPIC -MMD
 CFLAGS         += -DVERSION='"$(VERSION).$(GITCOUNT)"' \
-                  $(shell pkg-config --cflags libusb-1.0) 
+                  $(shell pkg-config --cflags libusb-1.0)
 LDFLAGS        ?= -g -L$(BUILD_DIR)
 LIBS            = $(shell pkg-config --libs --static libusb-1.0)
 QT_LIBS         = -lQt5Core -lQt5Widgets -lQt5Gui
 
-INCPATHS        += -Isrc/dmrconfig -Isrc/ -Isrc/UI -I/usr/include/qt/ -Isrc/common
+INCPATHS       += -Isrc/dmrconfig -Isrc/ -Isrc/UI -I/usr/include/qt/ -Isrc/common
 
 DMRCONFIG_SRCS=$(shell find src/dmrconfig/ -iregex '.*\.c' -not -iregex '.*\(main\|windows\|macos\).*')
 DMRCONFIG_OBJS=$(addprefix $(BUILD_DIR)/,$(DMRCONFIG_SRCS:.c=.o))

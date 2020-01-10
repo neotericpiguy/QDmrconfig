@@ -10,6 +10,7 @@ ConfBlock::ConfBlock() :
     _comments(),
     _columnStart(),
     _columnName(),
+    _valueMap(),
     _isTable(false),
     _isModified(false),
     _metaIndex(0xBEEF)

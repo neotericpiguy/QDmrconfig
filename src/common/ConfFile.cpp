@@ -2,7 +2,10 @@
 
 #include "QDmrconfigEditor.h"
 
-ConfFile::ConfFile()
+ConfFile::ConfFile() :
+    _filename(),
+    _confBlocks(),
+    _confNameBlocks()
 {
 }
 

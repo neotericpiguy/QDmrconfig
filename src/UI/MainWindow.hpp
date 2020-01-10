@@ -3,8 +3,11 @@
 
 #include <stdlib.h>
 
+#pragma GCC diagnostic ignored "-Weffc++"
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QtWidgets>
+#pragma GCC diagnostic pop
+
 #include <memory>
 
 #include "ConfFileWidget.hpp"

@@ -2,6 +2,10 @@
 
 ConfFileWidget::ConfFileWidget(QWidget* parent) :
     QWidget(parent),
+    _confFile(),
+    _isDebug(false),
+    _filename(),
+    _confBlockWidgets(),
     _tabWidget(new QTabWidget(this)),
     _layout(new QVBoxLayout)
 {

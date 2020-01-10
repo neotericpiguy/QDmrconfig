@@ -1,9 +1,13 @@
 #ifndef CONFFILEWIDGET_H
 #define CONFFILEWIDGET_H
 
+#pragma GCC diagnostic ignored "-Weffc++"
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QPlainTextEdit>
 #include <QtWidgets/QtWidgets>
+
+#pragma GCC diagnostic pop
+
 #include <fstream>
 #include <memory>
 
@@ -16,6 +20,8 @@ class ConfFileWidget : public QWidget
 
 public:
   ConfFileWidget(QWidget* parent = 0);
+  ConfFileWidget(const ConfFileWidget&) = delete;
+  ConfFileWidget& operator=(const ConfFileWidget&) = delete;
   virtual ~ConfFileWidget();
 
   void setDebug(bool state);

@@ -1,9 +1,11 @@
 #include <stdlib.h>
 
+#pragma GCC diagnostic ignored "-Weffc++"
 #include <QtCore/QCommandLineOption>
 #include <QtCore/QCommandLineParser>
 #include <QtCore/QtDebug>
 #include <QtWidgets/QApplication>
+#pragma GCC diagnostic pop
 
 #include "MainWindow.hpp"
 

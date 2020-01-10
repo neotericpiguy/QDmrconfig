@@ -1,9 +1,12 @@
 #ifndef CONFBLOCKWIDGET_H
 #define CONFBLOCKWIDGET_H
 
+#pragma GCC diagnostic ignored "-Weffc++"
 #include <QtWidgets/QPlainTextEdit>
 #include <QtWidgets/QTableWidget>
+#include <QtWidgets/QtWidgets>
 #include <memory>
+#pragma GCC diagnostic pop
 
 #include "ConfBlock.hpp"
 #include "ConfFile.hpp"
@@ -14,6 +17,8 @@ class ConfBlockWidget : public QWidget
 
 public:
   ConfBlockWidget(ConfBlock& confBlock, QWidget* parent = 0);
+  ConfBlockWidget(const ConfBlockWidget&) = delete;
+  ConfBlockWidget& operator=(const ConfBlockWidget&) = delete;
   virtual ~ConfBlockWidget();
 
   void update();
