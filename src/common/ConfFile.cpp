@@ -8,6 +8,9 @@ ConfFile::ConfFile()
 
 void ConfFile::loadFile(const std::string& filename)
 {
+  _confBlocks.clear();
+  _confNameBlocks.clear();
+
   std::map<int, std::vector<std::string>> blocks;
 
   int blockId = 0;

@@ -8,10 +8,10 @@ MainWindow::MainWindow() :
 
   QMenu* fileMenu = menuBar()->addMenu(tr("&File"));
 
-  QAction* newAct = new QAction(tr("&New"), this);
-  newAct->setShortcuts(QKeySequence::New);
-  newAct->setStatusTip(tr("Create a new file"));
-  fileMenu->addAction(newAct);
+  QAction* openAct = new QAction(tr("&Open"), this);
+  openAct->setShortcuts(QKeySequence::Open);
+  openAct->setStatusTip(tr("Create a open file"));
+  fileMenu->addAction(openAct);
 
   QAction* saveAct = new QAction(tr("&Save"), this);
   saveAct->setShortcuts(QKeySequence::Save);
@@ -27,6 +27,12 @@ MainWindow::MainWindow() :
   closeAct->setShortcuts(QKeySequence::Close);
   closeAct->setStatusTip(tr("Close"));
   fileMenu->addAction(closeAct);
+
+  connect(openAct, &QAction::triggered, this, [=]() {
+    auto filename = QFileDialog::getOpenFileName(this,
+                                                 tr("Open Config"), "./", tr("Config Files (*.conf)"));
+    loadFile(filename);
+  });
 
   connect(uploadAct, &QAction::triggered, this, [=]() {
     _confFileWidget->getConfFile().uploadFile();

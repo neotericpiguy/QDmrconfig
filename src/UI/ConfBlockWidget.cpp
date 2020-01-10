@@ -2,16 +2,15 @@
 
 #include <QtWidgets/QtWidgets>
 
-ConfBlockWidget::ConfBlockWidget(ConfBlock& confBlock, ConfFile& confFile) :
-    QWidget(),
+ConfBlockWidget::ConfBlockWidget(ConfBlock& confBlock, QWidget* parent) :
+    QWidget(parent),
     _confBlock(confBlock),
-    _confFile(confFile),
-    _textView(new QPlainTextEdit()),
-    _tableWidget(new QTableWidget())
+    _textView(new QPlainTextEdit(this)),
+    _tableWidget(new QTableWidget(this))
 {
   QVBoxLayout* layout = new QVBoxLayout;
-  layout->addWidget(_textView.get());
-  layout->addWidget(_tableWidget.get());
+  layout->addWidget(_textView);
+  layout->addWidget(_tableWidget);
   setLayout(layout);
 
   QFont f("unexistent");
@@ -28,7 +27,7 @@ ConfBlockWidget::ConfBlockWidget(ConfBlock& confBlock, ConfFile& confFile) :
   // Fit contents of table cells
   _tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-  connect(_tableWidget.get(), SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(itemUpdate(QTableWidgetItem*)));
+  connect(_tableWidget, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(itemUpdate(QTableWidgetItem*)));
 
   setContextMenuPolicy(Qt::ActionsContextMenu);
   QAction* duplicateAction = new QAction("Duplicate Row");

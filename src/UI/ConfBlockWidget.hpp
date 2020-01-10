@@ -13,7 +13,7 @@ class ConfBlockWidget : public QWidget
   Q_OBJECT
 
 public:
-  ConfBlockWidget(ConfBlock& confBlock, ConfFile& confFile);
+  ConfBlockWidget(ConfBlock& confBlock, QWidget* parent = 0);
   virtual ~ConfBlockWidget();
 
   void update();
@@ -30,9 +30,9 @@ private slots:
 private:
   bool _isDebug;
   ConfBlock& _confBlock;
-  ConfFile& _confFile;
-  std::unique_ptr<QPlainTextEdit> _textView;
-  std::unique_ptr<QTableWidget> _tableWidget;
+
+  QPlainTextEdit* _textView;
+  QTableWidget* _tableWidget;
 };
 
 #endif

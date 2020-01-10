@@ -15,7 +15,7 @@ class ConfFileWidget : public QWidget
   Q_OBJECT
 
 public:
-  ConfFileWidget();
+  ConfFileWidget(QWidget* parent = 0);
   virtual ~ConfFileWidget();
 
   void setDebug(bool state);
@@ -32,9 +32,9 @@ private:
   bool _isDebug;
 
   std::string _filename;
-  std::unique_ptr<QTabWidget> _tabWidget;
-  std::unique_ptr<QVBoxLayout> _layout;
-  std::vector<std::unique_ptr<ConfBlockWidget>> _confBlockWidgets;
+  std::vector<ConfBlockWidget*> _confBlockWidgets;
+  QTabWidget* _tabWidget;
+  QVBoxLayout* _layout;
 };
 
 #endif
