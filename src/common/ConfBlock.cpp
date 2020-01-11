@@ -358,6 +358,9 @@ template std::string ConfBlock::vecToStr<int>(const std::vector<int>& vec, const
 
 std::string ConfBlock::rangify(std::vector<int>& vec)
 {
+  if (vec.size() == 1)
+    return std::to_string(vec[0]);
+
   std::sort(vec.begin(), vec.end());
 
   std::vector<std::string> result;
