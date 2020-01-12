@@ -46,8 +46,11 @@ void ConfBlockWidget::duplicateTableRow()
   if (_isDebug)
     qDebug() << _tableWidget->currentItem()->text();
 
-  int row = _tableWidget->currentRow();
-  _confBlock.insertRow(row, _confBlock.getRow(row));
+  for (const auto& item : _tableWidget->selectedItems())
+  {
+    int row = item->row();
+    _confBlock.insertRow(row, _confBlock.getRow(row));
+  }
 
   update();
 }
@@ -86,6 +89,7 @@ void ConfBlockWidget::itemUpdate(QTableWidgetItem* item)
     if (_confBlock.isTable())
     {
       auto& rows = _confBlock.getRows();
+      ConfBlock::replace(newValue, " ", "_");
       rows[row][column] = newValue;
       item->setText(newValue.c_str());
 
@@ -169,6 +173,7 @@ void ConfBlockWidget::cellSelected(int nRow, int nCol)
 
 void ConfBlockWidget::update()
 {
+  _tableWidget->blockSignals(true);
   _tableWidget->clear();
   QStringList headers;
   if (_confBlock.isTable())
@@ -206,6 +211,7 @@ void ConfBlockWidget::update()
     }
   }
   _tableWidget->setHorizontalHeaderLabels(headers);
+  _tableWidget->blockSignals(false);
 }
 
 void ConfBlockWidget::setDebug(bool state)
