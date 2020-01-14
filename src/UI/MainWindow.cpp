@@ -23,24 +23,37 @@ MainWindow::MainWindow() :
   uploadAct->setStatusTip(tr("Upload file"));
   fileMenu->addAction(uploadAct);
 
+  QAction* downloadAct = new QAction(tr("&Download"), this);
+  downloadAct->setShortcut(QKeySequence(tr("Ctrl+D")));
+  downloadAct->setStatusTip(tr("Download file"));
+  fileMenu->addAction(downloadAct);
+
   QAction* closeAct = new QAction(tr("&Close"), this);
   closeAct->setShortcuts(QKeySequence::Close);
   closeAct->setStatusTip(tr("Close"));
   fileMenu->addAction(closeAct);
 
   connect(openAct, &QAction::triggered, this, [=]() {
-    auto filename = QFileDialog::getOpenFileName(this,
-                                                 tr("Open Config"), "./", tr("Config Files (*.conf)"));
+    auto filename = QFileDialog::getOpenFileName(this, tr("Open Config"), "./", tr("Config Files (*.conf)"));
     loadFile(filename);
   });
 
   connect(uploadAct, &QAction::triggered, this, [=]() {
     _confFileWidget->getConfFile().uploadFile();
+    statusBar()->showMessage(tr("Uploaded..."), 2000);
+  });
+
+  connect(downloadAct, &QAction::triggered, this, [=]() {
+    auto filename = QFileDialog::getSaveFileName(this, tr("Destination"), "./", tr("Config Files (*.conf)"));
+    _confFileWidget->getConfFile().downloadFile(filename.toStdString());
+    statusBar()->showMessage("Downloaded...", 2000);
+    loadFile(filename);
   });
 
   connect(saveAct, &QAction::triggered, this, [=]() {
     qDebug() << "Saving file";
     _confFileWidget->getConfFile().saveFile();
+    statusBar()->showMessage(tr("Saved..."), 2000);
   });
 
   connect(closeAct, &QAction::triggered, this, [=]() {

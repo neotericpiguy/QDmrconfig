@@ -16,6 +16,7 @@ public:
   void loadFile(const std::string& filename);
   void saveFile();
   void uploadFile();
+  void downloadFile(const std::string& filename);
 
   bool isModified() const;
 

@@ -55,6 +55,7 @@ void ConfFile::saveFile()
   std::ofstream outStream(_filename);
   for (auto& [index, confBlock] : _confBlocks)
   {
+    confBlock.metaUpdate();
     outStream << confBlock.getConfLines() << std::endl;
     confBlock.setModified(false);
   }
@@ -81,5 +82,28 @@ void ConfFile::uploadFile()
   radio_verify_config();
   radio_upload(1);
   radio_disconnect();
+}
+
+void ConfFile::downloadFile(const std::string& filename)
+{
+  std::string imageFilename = filename;
+  ConfBlock::replace(imageFilename, ".conf", ".img");
+
+  radio_connect();
+  radio_download();
+  radio_print_version(stdout);
+  radio_disconnect();
+  radio_save_image(imageFilename.c_str());
+
+  std::cout << "Print configuration to file " << filename << std::endl;
+
+  FILE* conf = fopen(filename.c_str(), "w");
+  if (!conf)
+  {
+    perror(filename.c_str());
+    exit(-1);
+  }
+  radio_print_config(conf, 1);
+  fclose(conf);
 }
 
