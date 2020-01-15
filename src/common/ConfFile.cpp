@@ -53,6 +53,12 @@ std::map<std::string, ConfBlock*>& ConfFile::getNameBlocks()
 void ConfFile::saveFile()
 {
   std::ofstream outStream(_filename);
+
+  for (auto& [index, confBlock] : _confBlocks)
+  {
+    confBlock.metaUpdate();
+  }
+
   for (auto& [index, confBlock] : _confBlocks)
   {
     confBlock.metaUpdate();

@@ -262,10 +262,11 @@ void ConfBlock::metaUpdate()
         auto newValue = rows[row][column];
 
         int targetColumnIndex = getColumnIndex(targetColumn);
+        int temp;
         if (targetColumnIndex != -1)
         {
-          if (newValue.find("+") != std::string::npos ||
-              newValue.find("-") != std::string::npos)
+          if (newValue[0] == '+' ||
+              newValue[0] == '-')
           {
             int currentVal;
             ConfBlock::strTo(rows[row - 1][targetColumnIndex], currentVal);
@@ -276,9 +277,36 @@ void ConfBlock::metaUpdate()
             auto newOffsetValue = std::to_string(currentVal + delta);
             rows[row][targetColumnIndex] = newOffsetValue;
           }
-          else
+          else if (ConfBlock::strTo(newValue, temp))
           {
             rows[row][targetColumnIndex] = newValue;
+          }
+          else
+          {
+            std::string column = newValue.substr(0, newValue.find("-"));
+            std::string srcHeader = newValue.substr(newValue.find("-") + 1, newValue.length() - 1 - newValue.find("-"));
+            std::string srcColumnStr = srcHeader.substr(srcHeader.find("-") + 1, srcHeader.length() - 1 - srcHeader.find("-"));
+            ConfBlock::replace(srcHeader, "-" + srcColumnStr, "");
+
+            if (_confBlocks.find(srcHeader) != _confBlocks.end())
+            {
+              const ConfBlock& srcBlock = *_confBlocks.at(srcHeader);
+              int srcColumn = srcBlock.getColumnIndex(srcColumnStr);
+              int max = 0;
+              if (srcColumn != -1)
+              {
+                int temp;
+                for (const auto& line : srcBlock.getLines())
+                {
+                  if (ConfBlock::strTo(line[srcColumn], temp))
+                  {
+                    if (temp > max)
+                      max = temp;
+                  }
+                }
+              }
+              rows[row][getColumnIndex(column)] = std::to_string(max + 1);
+            }
           }
         }
       }
