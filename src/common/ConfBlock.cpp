@@ -241,19 +241,38 @@ void ConfBlock::metaUpdate()
           std::find(rangeUpdates.begin(), rangeUpdates.end(), targetColumn) == rangeUpdates.end())
       {
         rangeUpdates.push_back(targetColumn);
-        std::string srcBlockColumn = targetColumn.substr(targetColumn.rfind("-") + 1, targetColumn.length() - 1 - targetColumn.rfind("-"));
-        std::string srcBlockHeader = targetColumn;
-
-        srcBlockHeader = srcBlockHeader.substr(srcBlockHeader.find("Range-") + 6, srcBlockHeader.length() - 6 - srcBlockHeader.find("Range-"));
-        ConfBlock::replace(srcBlockHeader, "-" + srcBlockColumn, "");
-
+        std::map<ConfBlock*, std::string> srcBlocks;
         std::string dstBlockColumn = targetColumn.substr(0, targetColumn.find("Range"));
 
-        if (_confBlocks.find(srcBlockHeader) != _confBlocks.end())
+        std::string temp = targetColumn;
+        ConfBlock::replace(temp, dstBlockColumn + "Range-", "");
+
+        while (temp.find("-") != std::string::npos && !temp.empty())
         {
-          ConfBlock& sourceBlock = *(_confBlocks.at(srcBlockHeader));
-          updateChannelList(sourceBlock, srcBlockColumn, *this, dstBlockColumn);
+          auto delim = temp.find("-");
+          if (delim == std::string::npos)
+            break;
+
+          auto endDelim = temp.find("-", delim + 1);
+          if (endDelim == std::string::npos)
+            endDelim = temp.length();
+
+          std::string srcBlockHeader = temp.substr(0, delim);
+          std::string srcBlockColumn = temp.substr(delim + 1, endDelim - delim - 1);
+
+          if (_confBlocks.find(srcBlockHeader) != _confBlocks.end())
+          {
+            auto sourceBlock = _confBlocks.at(srcBlockHeader);
+            srcBlocks[sourceBlock] = srcBlockColumn;
+          }
+
+          ConfBlock::replace(temp, srcBlockHeader + "-" + srcBlockColumn, "");
+          if (!temp.empty() && temp[0] == '-')
+            temp = temp.substr(1, temp.length() - 1);
         }
+
+        if (!srcBlocks.empty())
+          updateChannelList(srcBlocks, *this, dstBlockColumn);
       }
       else if (targetColumn.find("Offset") != std::string::npos)
       {
@@ -432,18 +451,22 @@ std::string ConfBlock::rangify(std::vector<int>& vec)
   return "";
 }
 
-void ConfBlock::updateChannelList(const ConfBlock& sourceBlock, const std::string& sourceColumn, ConfBlock& destBlock, const std::string& destColumn)
+void ConfBlock::updateChannelList(const std::map<ConfBlock*, std::string>& src, ConfBlock& destBlock, const std::string& destColumn)
 {
   std::map<std::string, std::vector<int>> scanIndexToChanMap;
 
-  auto sourceColumnIndex = sourceBlock.getColumnIndex(sourceColumn);
-  for (const auto& sourceRow : sourceBlock.getLines())  // use getLines because it returns a const vector
+  for (const auto& [sourceBlockPtr, sourceColumn] : src)
   {
-    const auto& scanlistNumber = sourceRow[sourceColumnIndex];
-    int channel;
-    if (ConfBlock::strTo(sourceRow[0], channel))
+    auto& sourceBlock = *sourceBlockPtr;
+    auto sourceColumnIndex = sourceBlock.getColumnIndex(sourceColumn);
+    for (const auto& sourceRow : sourceBlock.getLines())  // use getLines because it returns a const vector
     {
-      scanIndexToChanMap[scanlistNumber].push_back(channel);
+      const auto& scanlistNumber = sourceRow[sourceColumnIndex];
+      int channel;
+      if (ConfBlock::strTo(sourceRow[0], channel))
+      {
+        scanIndexToChanMap[scanlistNumber].push_back(channel);
+      }
     }
   }
 

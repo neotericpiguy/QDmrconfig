@@ -40,7 +40,7 @@ public:
   bool isTable() const;
 
   void metaUpdate();
-  void updateChannelList(const ConfBlock& sourceBlock, const std::string& sourceColumn, ConfBlock& destBlock, const std::string& destColumn);
+  void updateChannelList(const std::map<ConfBlock*, std::string>& src, ConfBlock& destBlock, const std::string& destColumn);
 
   template <typename T>
   static bool strTo(const std::string& tempStr, T& retval)
