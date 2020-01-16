@@ -18,6 +18,14 @@ ConfFileWidget::~ConfFileWidget()
 {
 }
 
+void ConfFileWidget::nextTab(int step)
+{
+  int tab = _tabWidget->currentIndex() + 2 * _tabWidget->count();
+  tab = (tab + step) % _tabWidget->count();
+
+  _tabWidget->setCurrentIndex(tab);
+}
+
 void ConfFileWidget::tabSelected()
 {
   if ((unsigned int)(_tabWidget->currentIndex()) < _confBlockWidgets.size())

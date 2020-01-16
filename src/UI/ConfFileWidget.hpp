@@ -28,6 +28,8 @@ public:
   void updateTabs();
   void clear();
 
+  void nextTab(int step);
+
   ConfFile& getConfFile();
 
 private slots:

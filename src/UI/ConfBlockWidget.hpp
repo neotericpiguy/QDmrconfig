@@ -31,6 +31,7 @@ private slots:
   void cellSelected(int nRow, int nCol);
   void duplicateTableRow();
   void removeTableRow();
+  void filterTableColumn();
 
 private:
   bool _isDebug;

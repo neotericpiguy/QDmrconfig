@@ -29,12 +29,19 @@ ConfBlockWidget::ConfBlockWidget(ConfBlock& confBlock, QWidget* parent) :
   connect(_tableWidget, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(itemUpdate(QTableWidgetItem*)));
 
   setContextMenuPolicy(Qt::ActionsContextMenu);
+  QAction* filterAction = new QAction("&Filter Row by");
+  filterAction->setShortcut(QKeySequence(tr("Ctrl+F")));
+  addAction(filterAction);
+
   QAction* duplicateAction = new QAction("Duplicate Row");
+  addAction(duplicateAction);
+
   QAction* removeAction = new QAction("Remove Row");
+  addAction(removeAction);
+
   connect(duplicateAction, SIGNAL(triggered()), this, SLOT(duplicateTableRow()));
   connect(removeAction, SIGNAL(triggered()), this, SLOT(removeTableRow()));
-  addAction(duplicateAction);
-  addAction(removeAction);
+  connect(filterAction, SIGNAL(triggered()), this, SLOT(filterTableColumn()));
 }
 
 ConfBlockWidget::~ConfBlockWidget()
@@ -62,10 +69,7 @@ void ConfBlockWidget::removeTableRow()
 
   static std::vector<std::string> empty;
   for (const auto& item : _tableWidget->selectedItems())
-  {
-    //    _confBlock.removeRow(item->row());
     _confBlock.getRow(item->row()) = empty;
-  }
 
   auto iter = _confBlock.getRows().begin();
 
@@ -76,6 +80,48 @@ void ConfBlockWidget::removeTableRow()
   _confBlock.getRows().erase(removeIter, _confBlock.getRows().end());
 
   update();
+}
+
+void ConfBlockWidget::filterTableColumn()
+{
+  bool ok;
+  QString text = QInputDialog::getText(this, tr("Filter Column by String"),
+                                       tr("Filter Column by  String"), QLineEdit::Normal,
+                                       "", &ok);
+
+  if (!ok)
+    return;
+
+  if (_tableWidget->selectedItems().empty())
+  {
+    for (int i = 0; i < _tableWidget->rowCount(); i++)
+    {
+      _tableWidget->showRow(i);
+    }
+  }
+
+  for (const auto& item : _tableWidget->selectedItems())
+  {
+    int j = item->column();
+    for (int i = 0; i < _tableWidget->rowCount(); i++)
+    {
+      std::string cellText = _tableWidget->item(i, j)->text().toStdString();
+
+      try
+      {
+        std::regex e(text.toStdString());
+
+        if (text == "")
+          _tableWidget->showRow(i);
+        else if (!std::regex_match(cellText, e))
+          _tableWidget->hideRow(i);
+      }
+      catch (const std::exception& e)
+      {
+        //Msg box error to user
+      }
+    }
+  }
 }
 
 void ConfBlockWidget::itemUpdate(QTableWidgetItem* item)

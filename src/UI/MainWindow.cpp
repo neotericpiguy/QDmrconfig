@@ -33,6 +33,14 @@ MainWindow::MainWindow() :
   closeAct->setStatusTip(tr("Close"));
   fileMenu->addAction(closeAct);
 
+  QAction* changeTabAct = new QAction(tr("&Change Tab"), this);
+  changeTabAct->setShortcut(QKeySequence(tr(("Ctrl+Tab"))));
+  this->addAction(changeTabAct);
+
+  QAction* backTabAct = new QAction(tr("&Change Tab"), this);
+  backTabAct->setShortcut(QKeySequence(tr(("Ctrl+Shift+Tab"))));
+  this->addAction(backTabAct);
+
   connect(openAct, &QAction::triggered, this, [=]() {
     auto filename = QFileDialog::getOpenFileName(this, tr("Open Config"), "./", tr("Config Files (*.conf)"));
     loadFile(filename);
@@ -58,6 +66,14 @@ MainWindow::MainWindow() :
 
   connect(closeAct, &QAction::triggered, this, [=]() {
     close();
+  });
+
+  connect(changeTabAct, &QAction::triggered, this, [=]() {
+    _confFileWidget->nextTab(+1);
+  });
+
+  connect(backTabAct, &QAction::triggered, this, [=]() {
+    _confFileWidget->nextTab(-1);
   });
 
   setUnifiedTitleAndToolBarOnMac(true);
