@@ -32,6 +32,7 @@ private slots:
   void duplicateTableRow();
   void removeTableRow();
   void filterTableColumn();
+  void sortTableRow();
 
 private:
   bool _isDebug;

@@ -33,15 +33,19 @@ ConfBlockWidget::ConfBlockWidget(ConfBlock& confBlock, QWidget* parent) :
   filterAction->setShortcut(QKeySequence(tr("Ctrl+F")));
   addAction(filterAction);
 
-  QAction* duplicateAction = new QAction("Duplicate Row");
+  QAction* duplicateAction = new QAction("&Duplicate Row");
   addAction(duplicateAction);
 
-  QAction* removeAction = new QAction("Remove Row");
+  QAction* removeAction = new QAction("&Remove Row");
   addAction(removeAction);
+
+  QAction* sortAction = new QAction("&Sort Rows");
+  addAction(sortAction);
 
   connect(duplicateAction, SIGNAL(triggered()), this, SLOT(duplicateTableRow()));
   connect(removeAction, SIGNAL(triggered()), this, SLOT(removeTableRow()));
   connect(filterAction, SIGNAL(triggered()), this, SLOT(filterTableColumn()));
+  connect(sortAction, SIGNAL(triggered()), this, SLOT(sortTableRow()));
 }
 
 ConfBlockWidget::~ConfBlockWidget()
@@ -59,6 +63,7 @@ void ConfBlockWidget::duplicateTableRow()
     _confBlock.insertRow(row, _confBlock.getRow(row));
   }
 
+  _confBlock.setModified(true);
   update();
 }
 
@@ -79,6 +84,45 @@ void ConfBlockWidget::removeTableRow()
 
   _confBlock.getRows().erase(removeIter, _confBlock.getRows().end());
 
+  _confBlock.setModified(true);
+  update();
+}
+
+void ConfBlockWidget::sortTableRow()
+{
+  if (_isDebug)
+    qDebug() << _tableWidget->currentItem()->text();
+
+  if (_tableWidget->selectedItems().empty())
+    return;
+
+  std::vector<std::vector<std::string>> vecsMap;
+  std::vector<int> original;
+
+  int columnIndex = _tableWidget->selectedItems()[0]->column();
+
+  for (const auto& item : _tableWidget->selectedItems())
+  {
+    // vecsMap[_tableWidget->item(item->row(), columnIndex)->text().toStdString()] = _confBlock.getRow(item->row());
+    vecsMap.push_back(_confBlock.getRow(item->row()));
+    original.push_back(item->row());
+  }
+
+  std::sort(vecsMap.begin(), vecsMap.end(), [columnIndex](std::vector<std::string> a, std::vector<std::string> b) {
+    return a[columnIndex] < b[columnIndex];
+  });
+
+  std::sort(original.begin(), original.end());
+  std::unique(original.begin(), original.end());
+
+  int i = 0;
+  for (const auto& value : vecsMap)
+  {
+    _confBlock.getRow(original[i]) = value;
+    i++;
+  }
+
+  _confBlock.setModified(true);
   update();
 }
 
