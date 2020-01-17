@@ -171,7 +171,7 @@ void ConfBlockWidget::itemUpdate(QTableWidgetItem* item)
 {
   bool needMetaUpdate = false;
   auto newValue = item->text().toStdString();
-  newValue.erase(std::remove_if(newValue.begin(), newValue.end(), std::isspace), newValue.end());
+  newValue.erase(std::remove_if(newValue.begin(), newValue.end(), isspace), newValue.end());
   ConfBlock::replace(newValue, " ", "_");
 
   for (const auto& item : _tableWidget->selectedItems())
