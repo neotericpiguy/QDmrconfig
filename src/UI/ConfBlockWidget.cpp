@@ -54,8 +54,13 @@ ConfBlockWidget::~ConfBlockWidget()
 
 void ConfBlockWidget::duplicateTableRow()
 {
+  if (_tableWidget->selectedItems().empty())
+    return;
+
   if (_isDebug)
     qDebug() << _tableWidget->currentItem()->text();
+
+  int selectedRow = _tableWidget->selectedItems()[0]->row();
 
   for (const auto& item : _tableWidget->selectedItems())
   {
@@ -65,6 +70,8 @@ void ConfBlockWidget::duplicateTableRow()
 
   _confBlock.setModified(true);
   update();
+
+  _tableWidget->selectRow(selectedRow);
 }
 
 void ConfBlockWidget::removeTableRow()
@@ -308,12 +315,5 @@ void ConfBlockWidget::update()
 void ConfBlockWidget::setDebug(bool state)
 {
   _isDebug = state;
-  if (_isDebug)
-  {
-    _textView->setVisible(true);
-  }
-  else
-  {
-    _textView->setVisible(false);
-  }
+  _textView->setVisible(_isDebug);
 }
