@@ -103,7 +103,6 @@ void ConfBlockWidget::sortTableRow()
 
   for (const auto& item : _tableWidget->selectedItems())
   {
-    // vecsMap[_tableWidget->item(item->row(), columnIndex)->text().toStdString()] = _confBlock.getRow(item->row());
     vecsMap.push_back(_confBlock.getRow(item->row()));
     original.push_back(item->row());
   }
@@ -172,6 +171,9 @@ void ConfBlockWidget::itemUpdate(QTableWidgetItem* item)
 {
   bool needMetaUpdate = false;
   auto newValue = item->text().toStdString();
+  newValue.erase(std::remove_if(newValue.begin(), newValue.end(), std::isspace), newValue.end());
+  ConfBlock::replace(newValue, " ", "_");
+
   for (const auto& item : _tableWidget->selectedItems())
   {
     int row = item->row();
@@ -179,7 +181,6 @@ void ConfBlockWidget::itemUpdate(QTableWidgetItem* item)
     if (_confBlock.isTable())
     {
       auto& rows = _confBlock.getRows();
-      ConfBlock::replace(newValue, " ", "_");
       rows[row][column] = newValue;
       item->setText(newValue.c_str());
 
