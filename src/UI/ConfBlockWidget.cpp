@@ -264,7 +264,7 @@ void ConfBlockWidget::updateTable()
   _tableWidget->blockSignals(false);
 }
 
-void ConfBlockWidget::cellSelected(int nRow, int nCol)
+void ConfBlockWidget::cellSelected(int, int)
 {
   QMessageBox::information(this, "", "asdlfasjkfd");
 }
