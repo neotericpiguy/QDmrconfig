@@ -4,7 +4,7 @@ MainWindow::MainWindow() :
     QMainWindow(),
     _confFileWidget(new ConfFileWidget)
 {
-  setCentralWidget(_confFileWidget.get());
+  setCentralWidget(_confFileWidget);
 
   QMenu* fileMenu = menuBar()->addMenu(tr("&File"));
 

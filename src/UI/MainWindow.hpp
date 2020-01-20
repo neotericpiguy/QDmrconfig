@@ -25,7 +25,7 @@ public:
   void setDebug(bool state);
 
 private:
-  std::unique_ptr<ConfFileWidget> _confFileWidget;
+  ConfFileWidget* _confFileWidget;
 };
 
 #endif
