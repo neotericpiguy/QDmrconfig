@@ -76,12 +76,43 @@ MainWindow::MainWindow() :
     _confFileWidget->nextTab(-1);
   });
 
+  QNetworkAccessManager* manager = new QNetworkAccessManager(this);
+
+  QNetworkRequest request;
+  request.setUrl(QUrl("http://www.arrl.org/advanced-call-sign-search"));
+  request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+
+  //  request.setRawHeader("User-Agent", "MyOwnBrowser 1.0");
+
+  QUrlQuery params;
+  params.addQueryItem("data[Search][terms]", "KJ7LEY");
+  params.addQueryItem("data[PubaccEn][entity_name]", "");
+  params.addQueryItem("data[PubaccEn][city]", "");
+  params.addQueryItem("data[PubaccEn][state]", "");
+  params.addQueryItem("data[PubaccEn][zip_code]", "");
+  params.addQueryItem("data[PubaccEn][type]", "");
+
+  connect(manager, &QNetworkAccessManager::finished,
+          this, &MainWindow::slotReadyRead);
+
+  manager->post(request, params.query().toUtf8());
+
+  //  QNetworkReply* reply = manager->get(request);
+  //  connect(reply, SIGNAL(readyRead()), this, SLOT(slotReadyRead()));
   setUnifiedTitleAndToolBarOnMac(true);
   statusBar()->showMessage(tr("Ready"));
 }
 
 MainWindow::~MainWindow()
 {
+}
+
+void MainWindow::slotReadyRead(QNetworkReply* reply)
+{
+  qDebug() << "Ready";
+  QByteArray bts = reply->readAll();
+  QString str(bts);
+  qDebug() << str;
 }
 
 void MainWindow::closeEvent(QCloseEvent* event)
@@ -129,5 +160,17 @@ void MainWindow::loadFile(const QString& filename)
   _confFileWidget->updateTabs();
 
   statusBar()->showMessage(tr("File loaded"), 2000);
+}
+
+bool Parser::startElement(const QString&, const QString&, const QString& qName, const QXmlAttributes& /*att*/)
+{
+  qDebug() << "Start: " << qName;
+  return true;
+}
+
+bool Parser::endElement(const QString& /*namespaceURI*/, const QString& /*localName*/, const QString& qName)
+{
+  qDebug() << "stop: " << qName;
+  return true;
 }
 
