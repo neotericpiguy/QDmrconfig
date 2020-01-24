@@ -61,6 +61,7 @@ $(TARGET_GUI): $(TARGET_LIB) $(GUI_SRCS) $(GUI_HDRS)
 		"SOURCES      += $(GUI_SRCS:%=../../../%)" \
 		"SOURCES      += $(COMMON_SRCS:%=../../../%)" \
 		"HEADERS      += $(GUI_HDRS:%=../../../%)" \
+		"HEADERS      += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
 		"INCLUDEPATH  += $(INCPATHS:-I%=../../../%)" \
 		"LIBS         += $(TARGET_LIB:%=../../../%) $(LIBS)" \
 		"TARGET        = ../../../$(TARGET_GUI)" \
