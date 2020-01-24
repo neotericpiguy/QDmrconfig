@@ -33,24 +33,7 @@ private slots:
 
 private:
   ConfFileWidget* _confFileWidget;
-  QNetworkAccessManager* _networkAccessManager;
-};
-
-class Parser : public QXmlDefaultHandler
-{
-public:
-  Parser()
-  {
-  }
-
-  bool startDocument()
-  {
-    qDebug() << "Searching document for tags";
-    return true;
-  }
-
-  bool startElement(const QString&, const QString&, const QString& qName, const QXmlAttributes& /*att*/);
-  bool endElement(const QString& namespaceURI, const QString& localName, const QString& qName);
+  QNetworkAccessManager* _networkManager;
 };
 
 #endif

@@ -57,6 +57,50 @@ public:
   static std::vector<std::string> strToVec(const std::string& vec, char seperator);
   template <typename T>
   static std::string vecToStr(const std::vector<T>& vec, const std::string& seperator);
+  static std::optional<std::string> replaceRegex(const std::string& string, const std::string& search, const std::string& replace)
+  {
+    std::regex searchRegex;
+
+    try
+    {
+      searchRegex = std::regex(search, std::regex::ECMAScript);
+    }
+    catch (const std::exception& e)
+    {
+      return {};
+    }
+
+    return std::regex_replace(string, searchRegex, replace);
+  }
+
+  static std::vector<std::smatch> getCaptures(const std::regex& regex, const std::string& search)
+  {
+    //Good example for the performance difference between
+    //Initialization and instanciation and assignment
+    //  auto begin = std::sregex_iterator(search.begin(), search.end(), regex);
+    //  auto end = std::sregex_iterator();
+    std::sregex_iterator begin(search.begin(), search.end(), regex);
+    std::sregex_iterator end;
+
+    std::vector<std::smatch> result;
+
+    for (auto i = begin; i != end; i++)
+      result.push_back(*i);
+    return result;
+  }
+  static bool getRegex(std::regex& regex, const std::string& regexStr)
+  {
+    try
+    {
+      regex = std::regex(regexStr, std::regex::ECMAScript);
+    }
+    catch (const std::exception& e)
+    {
+      //      std::cout << DEBUG_ERROR << " " << regexStr << std::endl;
+      return false;
+    }
+    return true;
+  }
 
 private:
   std::string _header;

@@ -2,7 +2,8 @@
 
 MainWindow::MainWindow() :
     QMainWindow(),
-    _confFileWidget(new ConfFileWidget)
+    _confFileWidget(new ConfFileWidget),
+    _networkManager(new QNetworkAccessManager(this))
 {
   setCentralWidget(_confFileWidget);
 
@@ -17,6 +18,11 @@ MainWindow::MainWindow() :
   saveAct->setShortcuts(QKeySequence::Save);
   saveAct->setStatusTip(tr("SaveFile"));
   fileMenu->addAction(saveAct);
+
+  QAction* searchAct = new QAction(tr("S&earch Callsign"), this);
+  searchAct->setShortcut(QKeySequence(tr("Ctrl+E")));
+  searchAct->setStatusTip(tr("Search Fcc"));
+  fileMenu->addAction(searchAct);
 
   QAction* uploadAct = new QAction(tr("&Upload"), this);
   uploadAct->setShortcut(QKeySequence(tr("Ctrl+U")));
@@ -64,6 +70,30 @@ MainWindow::MainWindow() :
     statusBar()->showMessage(tr("Saved..."), 2000);
   });
 
+  connect(searchAct, &QAction::triggered, this, [=]() {
+    bool ok;
+    QString text = QInputDialog::getText(this, tr("Search Fcc callsign"),
+                                         tr("call sign"), QLineEdit::Normal,
+                                         "", &ok);
+    if (!ok)
+      return;
+
+    QNetworkRequest request;
+    request.setUrl(QUrl("http://www.arrl.org/advanced-call-sign-search"));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+
+    QUrlQuery params;
+    params.addQueryItem("data[Search][terms]", text);
+    params.addQueryItem("data[PubaccEn][entity_name]", "");
+    params.addQueryItem("data[PubaccEn][city]", "");
+    params.addQueryItem("data[PubaccEn][state]", "");
+    params.addQueryItem("data[PubaccEn][zip_code]", "");
+    params.addQueryItem("data[PubaccEn][type]", "a");
+
+    _networkManager->post(request, params.query().toUtf8());
+    qDebug() << "Searching fcc";
+  });
+
   connect(closeAct, &QAction::triggered, this, [=]() {
     close();
   });
@@ -76,29 +106,9 @@ MainWindow::MainWindow() :
     _confFileWidget->nextTab(-1);
   });
 
-  QNetworkAccessManager* manager = new QNetworkAccessManager(this);
-
-  QNetworkRequest request;
-  request.setUrl(QUrl("http://www.arrl.org/advanced-call-sign-search"));
-  request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-
-  //  request.setRawHeader("User-Agent", "MyOwnBrowser 1.0");
-
-  QUrlQuery params;
-  params.addQueryItem("data[Search][terms]", "KJ7LEY");
-  params.addQueryItem("data[PubaccEn][entity_name]", "");
-  params.addQueryItem("data[PubaccEn][city]", "");
-  params.addQueryItem("data[PubaccEn][state]", "");
-  params.addQueryItem("data[PubaccEn][zip_code]", "");
-  params.addQueryItem("data[PubaccEn][type]", "");
-
-  connect(manager, &QNetworkAccessManager::finished,
+  connect(_networkManager, &QNetworkAccessManager::finished,
           this, &MainWindow::slotReadyRead);
 
-  manager->post(request, params.query().toUtf8());
-
-  //  QNetworkReply* reply = manager->get(request);
-  //  connect(reply, SIGNAL(readyRead()), this, SLOT(slotReadyRead()));
   setUnifiedTitleAndToolBarOnMac(true);
   statusBar()->showMessage(tr("Ready"));
 }
@@ -109,10 +119,44 @@ MainWindow::~MainWindow()
 
 void MainWindow::slotReadyRead(QNetworkReply* reply)
 {
-  qDebug() << "Ready";
   QByteArray bts = reply->readAll();
   QString str(bts);
-  qDebug() << str;
+
+  //  std::ofstream temp("reply.html");
+  //  temp << str.toStdString() << std::endl;
+  //
+  //  std::ifstream t("reply.html");
+  //  std::string fileStr;
+  //
+  //  t.seekg(0, std::ios::end);
+  //  fileStr.reserve(t.tellg());
+  //  t.seekg(0, std::ios::beg);
+  //
+  //  fileStr.assign((std::istreambuf_iterator<char>(t)),
+  //                 std::istreambuf_iterator<char>());
+  //
+
+  std::string fileStr = str.toStdString();
+  auto spot = fileStr.find("list2");
+  if (spot != std::string::npos)
+  {
+    fileStr = fileStr.substr(spot, fileStr.length() - spot);
+
+    spot = fileStr.find("div");
+    fileStr = fileStr.substr(0, spot);
+
+    fileStr = *ConfBlock::replaceRegex(fileStr, "\\t", "");
+    fileStr = *ConfBlock::replaceRegex(fileStr, "<[^>]*>", "");
+    fileStr = *ConfBlock::replaceRegex(fileStr, ".*>.*", "");
+    fileStr = *ConfBlock::replaceRegex(fileStr, ".*<.*", "");
+    fileStr = *ConfBlock::replaceRegex(fileStr, "\\r\\n\\s*", "\n");
+  }
+  else
+    fileStr = "Not Found!";
+
+  qDebug() << fileStr.c_str();
+
+  reply->deleteLater();
 }
 
 void MainWindow::closeEvent(QCloseEvent* event)
@@ -160,17 +204,5 @@ void MainWindow::loadFile(const QString& filename)
   _confFileWidget->updateTabs();
 
   statusBar()->showMessage(tr("File loaded"), 2000);
-}
-
-bool Parser::startElement(const QString&, const QString&, const QString& qName, const QXmlAttributes& /*att*/)
-{
-  qDebug() << "Start: " << qName;
-  return true;
-}
-
-bool Parser::endElement(const QString& /*namespaceURI*/, const QString& /*localName*/, const QString& qName)
-{
-  qDebug() << "stop: " << qName;
-  return true;
 }
 
