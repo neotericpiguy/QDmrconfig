@@ -91,7 +91,7 @@ MainWindow::MainWindow() :
     params.addQueryItem("data[PubaccEn][type]", "a");
 
     _networkManager->post(request, params.query().toUtf8());
-    qDebug() << "Searching fcc";
+    qDebug() << "Searching fcc: " << text;
   });
 
   connect(closeAct, &QAction::triggered, this, [=]() {
