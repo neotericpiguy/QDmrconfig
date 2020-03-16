@@ -84,7 +84,7 @@ public:
 
     std::vector<std::smatch> result;
 
-    for (auto i = begin; i != end; i++)
+    for (const auto& i = begin; i != end; i++)
       result.push_back(*i);
     return result;
   }
