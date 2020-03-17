@@ -103,7 +103,7 @@ std::string ConfBlock::getHeader() const
   return _header;
 }
 
-std::string ConfBlock::getConfLines(bool withComments) const
+std::string ConfBlock::getConfLines(bool withComments)
 {
   std::string result;
   std::stringstream ss(result);
@@ -117,20 +117,27 @@ std::string ConfBlock::getConfLines(bool withComments) const
   if (isTable())
   {
     const auto& line = getColumnNames();
-    for (unsigned int i = 0; i < line.size(); i++)
+
+    for (unsigned int j = 0; j < getRowCount(); j++)
     {
-      ss << std::left << std::setw(_columnStart[i + 1]) << line[i];
+      const auto& line = _lines.at(j);
+      for (unsigned int i = 0; i < line.size(); i++)
+      {
+        if (_columnStart[i + 1] < (int)line[i].size() + 1)
+        {
+          _columnStart[i + 1] = line[i].size() + 1;
+        }
+      }
     }
+
+    // Write header
+    for (unsigned int i = 0; i < line.size(); i++)
+      ss << std::left << std::setw(_columnStart[i + 1]) << line[i];
     ss << std::endl;
 
     for (unsigned int j = 0; j < getRowCount(); j++)
     {
       const auto& line = _lines.at(j);
-      if (!_isTable)
-      {
-        ss << vecToStr(line, " ") << std::endl;
-        continue;
-      }
 
       for (unsigned int i = 0; i < line.size(); i++)
       {
