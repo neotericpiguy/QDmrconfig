@@ -3,7 +3,8 @@
 MainWindow::MainWindow() :
     QMainWindow(),
     _confFileWidget(new ConfFileWidget),
-    _networkManager(new QNetworkAccessManager(this))
+    _networkManager(new QNetworkAccessManager(this)),
+    _repeaterBookNetworkManager(new QNetworkAccessManager(this))
 {
   setCentralWidget(_confFileWidget);
 
@@ -23,6 +24,10 @@ MainWindow::MainWindow() :
   searchAct->setShortcut(QKeySequence(tr("Ctrl+E")));
   searchAct->setStatusTip(tr("Search Fcc"));
   fileMenu->addAction(searchAct);
+
+  QAction* repeaterBookAct = new QAction(tr("Download Repeaterbook"), this);
+  repeaterBookAct->setShortcut(QKeySequence(tr("Ctrl+r")));
+  fileMenu->addAction(repeaterBookAct);
 
   QAction* uploadAct = new QAction(tr("&Upload"), this);
   uploadAct->setShortcut(QKeySequence(tr("Ctrl+U")));
@@ -94,6 +99,27 @@ MainWindow::MainWindow() :
     qDebug() << "Searching fcc: " << text;
   });
 
+  connect(repeaterBookAct, &QAction::triggered, this, [=]() {
+    bool ok;
+    QString text = QInputDialog::getText(this, tr("Search Fcc callsign"),
+                                         tr("call sign"), QLineEdit::Normal,
+                                         "", &ok);
+    if (!ok)
+      return;
+
+    QNetworkRequest request;
+    //    request.setUrl(QUrl("https://www.repeaterbook.com/repeaters/location_search.php?state_id=04&loc=Pima&type=county"));
+    request.setUrl(QUrl(text));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+
+    QUrlQuery params;
+    _repeaterBookNetworkManager->post(request, params.query().toUtf8());
+
+    connect(_repeaterBookNetworkManager, &QNetworkAccessManager::finished,
+            this, &MainWindow::repeaterBookSlotReadyRead);
+    qDebug() << "Searching repeaterbook: ";
+  });
+
   connect(closeAct, &QAction::triggered, this, [=]() {
     close();
   });
@@ -111,6 +137,18 @@ MainWindow::MainWindow() :
 
   setUnifiedTitleAndToolBarOnMac(true);
   statusBar()->showMessage(tr("Ready"));
+
+  //  QNetworkRequest request;
+  //  request.setUrl(QUrl("https://www.repeaterbook.com/repeaters/location_search.php?state_id=04&loc=Pima&type=county"));
+  //  request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+  //
+  //  QUrlQuery params;
+  //  _repeaterBookNetworkManager->post(request, params.query().toUtf8());
+  //
+  //  connect(_repeaterBookNetworkManager, &QNetworkAccessManager::finished,
+  //          this, &MainWindow::repeaterBookSlotReadyRead);
+
+  //  repeaterBookSlotReadyRead(NULL);
 }
 
 MainWindow::~MainWindow()
@@ -155,6 +193,148 @@ void MainWindow::slotReadyRead(QNetworkReply* reply)
     fileStr = "Not Found!";
 
   qDebug() << fileStr.c_str();
+
+  reply->deleteLater();
+}
+
+void MainWindow::repeaterBookSlotReadyRead(QNetworkReply* reply)
+{
+  //////////////////////////////////////////////////////////////////////////
+  QByteArray bts = reply->readAll();
+  QString str(bts);
+
+  //////////////////////////////////////////////////////////////////////////
+  std::ifstream t("reply.html");
+  std::string fileStr;
+
+  t.seekg(0, std::ios::end);
+  fileStr.reserve(t.tellg());
+  t.seekg(0, std::ios::beg);
+
+  fileStr.assign((std::istreambuf_iterator<char>(t)),
+                 std::istreambuf_iterator<char>());
+  //////////////////////////////////////////////////////////////////////////
+
+  auto spot = fileStr.find("Tone In / Out");
+  if (spot != std::string::npos)
+  {
+    fileStr = fileStr.substr(spot, fileStr.length() - spot);
+    spot = fileStr.rfind("administrator");
+    fileStr = fileStr.substr(0, spot);
+
+    fileStr = *ConfBlock::replaceRegex(fileStr, "<font[^>]*>", "");
+    fileStr = *ConfBlock::replaceRegex(fileStr, "</font>", "");
+    fileStr = *ConfBlock::replaceRegex(fileStr, ".*more details\">", "");
+    fileStr = *ConfBlock::replaceRegex(fileStr, ".*nowrap>", "");
+    fileStr = *ConfBlock::replaceRegex(fileStr, "<td>", "");
+    fileStr = *ConfBlock::replaceRegex(fileStr, "</td>", "");
+    fileStr = *ConfBlock::replaceRegex(fileStr, "<a>", "");
+    fileStr = *ConfBlock::replaceRegex(fileStr, "</a>", "");
+    fileStr = *ConfBlock::replaceRegex(fileStr, " MHz", "");
+    fileStr = *ConfBlock::replaceRegex(fileStr, ".*<.*", "");
+    fileStr = *ConfBlock::replaceRegex(fileStr, "\\r\\n\\s*", "\n");
+    fileStr = *ConfBlock::replaceRegex(fileStr, "\\n+", "\n");
+  }
+  else
+    fileStr = "Not Found!";
+
+  //  qDebug() << fileStr.c_str();
+
+  std::stringstream ss(fileStr);
+  std::string temp;
+  std::vector<std::vector<std::string>> entries;
+  entries.push_back({});
+  while (std::getline(ss, temp))
+  {
+    if (!temp.empty())
+      entries.back().push_back(temp);
+    if (temp.find("OPEN") != std::string::npos)
+      entries.push_back({});
+    if (temp.find("CLOSE") != std::string::npos)
+      entries.back() = {};
+  }
+
+  entries.erase(std::remove_if(entries.begin(), entries.end(), [=](const auto& vec) {
+                  float offset;
+                  if (vec.size() < 2 || !ConfBlock::strTo(vec[1], offset))
+                    return true;
+
+                  offset = std::fabs(offset);
+                  static std::vector<float> badOffsets = {0.1, 0.5, 1, 1.6, 25, 12};
+                  if (std::find(badOffsets.begin(), badOffsets.end(), offset) != badOffsets.end())
+                    return true;
+
+                  if (std::find(vec.begin(), vec.end(), "DSTR") != vec.end())
+                    return true;
+
+                  if (vec.size() == 7 && vec[2].find("CC") != std::string::npos)
+                    return true;
+
+                  return false;
+                }),
+                entries.end());
+
+  //Analog  Name             Receive   Transmit Power Scan TOT RO Admit  Squelch RxTone TxTone Width # AnalogOffset            Zone
+  //    8   SMPLX_CALL       146.520   +0       Low   6    -   -  -      Normal  -      -      25    # Analog-Digital-Digital  1
+  for (auto& i : entries)
+  {
+    std::vector<std::string> newEntry(16);
+    newEntry[0] = "0";
+    newEntry[1] = i[i.size() - 2];  //Name
+    newEntry[2] = i[0];             //Frequency
+    newEntry[3] = i[1];             //Offset
+    newEntry[4] = "Low";            // Power
+    newEntry[5] = "1";              // Scan
+    newEntry[6] = "-";              // TOT
+    newEntry[7] = "-";              // RO
+    newEntry[8] = "-";              // Admit
+    newEntry[9] = "Normal";         // Squelch
+    newEntry[10] = "-";             // RxTone
+    newEntry[11] = "-";             // TxTone
+    newEntry[12] = "25";            // Width
+    newEntry[13] = "#";             // #
+    newEntry[14] = "+1";            // +1
+    newEntry[15] = "1";             // Zone
+
+    if (i.size() == 7)
+    {
+      // if the PL has a rx and tx
+      if (i[2].find("/") != std::string::npos)
+      {
+        std::stringstream ss(i[2]);
+        char temp;
+        ss >> newEntry[10] >> temp >> newEntry[11];
+      }
+      else if (i[2].find("CC") != std::string::npos)
+      {
+        newEntry = {};
+      }
+      else
+      {
+        newEntry[10] = i[2];
+        newEntry[11] = i[2];
+      }
+    }
+
+    i = newEntry;
+  }
+
+  for (const auto& i : entries)
+  {
+    std::string line = std::to_string(i.size()) + ":";
+    for (const auto& j : i)
+      line += j + "|";
+    std::cout << line << std::endl;
+  }
+
+  const auto& confBlocks = _confFileWidget->getConfFile().getNameBlocks();
+  if (confBlocks.find("Analog") != confBlocks.end())
+  {
+    auto& confBlock = *confBlocks.at("Analog");
+    auto& lines = confBlock.getRows();
+    for (const auto& i : entries)
+      lines.push_back(i);
+  }
 
   reply->deleteLater();
 }

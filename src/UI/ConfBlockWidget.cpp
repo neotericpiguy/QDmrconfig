@@ -247,6 +247,9 @@ void ConfBlockWidget::updateTable()
     qDebug() << "columns: " << _confBlock.getColumnCount() << "," << _tableWidget->columnCount();
   }
 
+  if ((int)_confBlock.getRowCount() != _tableWidget->rowCount())
+    update();
+
   for (unsigned int i = 0; i < _confBlock.getRowCount(); i++)
   {
     for (unsigned int j = 0; j < _confBlock.getColumnCount(); j++)

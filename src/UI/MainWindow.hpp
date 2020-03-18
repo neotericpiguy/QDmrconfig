@@ -30,10 +30,12 @@ public:
 
 private slots:
   void slotReadyRead(QNetworkReply* reply);
+  void repeaterBookSlotReadyRead(QNetworkReply* reply);
 
 private:
   ConfFileWidget* _confFileWidget;
   QNetworkAccessManager* _networkManager;
+  QNetworkAccessManager* _repeaterBookNetworkManager;
 };
 
 #endif
