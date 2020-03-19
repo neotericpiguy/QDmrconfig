@@ -203,16 +203,18 @@ void MainWindow::repeaterBookSlotReadyRead(QNetworkReply* reply)
   QByteArray bts = reply->readAll();
   QString str(bts);
 
+  std::string fileStr = str.toStdString();
+
   //////////////////////////////////////////////////////////////////////////
-  std::ifstream t("reply.html");
-  std::string fileStr;
-
-  t.seekg(0, std::ios::end);
-  fileStr.reserve(t.tellg());
-  t.seekg(0, std::ios::beg);
-
-  fileStr.assign((std::istreambuf_iterator<char>(t)),
-                 std::istreambuf_iterator<char>());
+  //  std::ifstream t("reply.html");
+  //  std::string fileStr;
+  //
+  //  t.seekg(0, std::ios::end);
+  //  fileStr.reserve(t.tellg());
+  //  t.seekg(0, std::ios::beg);
+  //
+  //  fileStr.assign((std::istreambuf_iterator<char>(t)),
+  //                 std::istreambuf_iterator<char>());
   //////////////////////////////////////////////////////////////////////////
 
   auto spot = fileStr.find("Tone In / Out");
@@ -280,21 +282,23 @@ void MainWindow::repeaterBookSlotReadyRead(QNetworkReply* reply)
   {
     std::vector<std::string> newEntry(16);
     newEntry[0] = "0";
-    newEntry[1] = i[i.size() - 2];  //Name
-    newEntry[2] = i[0];             //Frequency
-    newEntry[3] = i[1];             //Offset
-    newEntry[4] = "Low";            // Power
-    newEntry[5] = "1";              // Scan
-    newEntry[6] = "-";              // TOT
-    newEntry[7] = "-";              // RO
-    newEntry[8] = "-";              // Admit
-    newEntry[9] = "Normal";         // Squelch
-    newEntry[10] = "-";             // RxTone
-    newEntry[11] = "-";             // TxTone
-    newEntry[12] = "25";            // Width
-    newEntry[13] = "#";             // #
-    newEntry[14] = "+1";            // +1
-    newEntry[15] = "1";             // Zone
+    newEntry[1] = i[i.size() - 2] + "-" + i[0];  //Name
+    newEntry[2] = i[0];                          //Frequency
+    newEntry[3] = i[1];                          //Offset
+    newEntry[4] = "Low";                         // Power
+    newEntry[5] = "1";                           // Scan
+    newEntry[6] = "-";                           // TOT
+    newEntry[7] = "-";                           // RO
+    newEntry[8] = "-";                           // Admit
+    newEntry[9] = "Normal";                      // Squelch
+    newEntry[10] = "-";                          // RxTone
+    newEntry[11] = "-";                          // TxTone
+    newEntry[12] = "25";                         // Width
+    newEntry[13] = "#";                          // #
+    newEntry[14] = "+1";                         // +1
+    newEntry[15] = "1";                          // Zone
+
+    newEntry[1].erase(newEntry[1].find_last_not_of('0') + 1, std::string::npos);  // remove trailing 0s
 
     if (i.size() == 7)
     {
