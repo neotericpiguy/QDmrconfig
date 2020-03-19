@@ -114,25 +114,32 @@ std::string ConfBlock::getConfLines(bool withComments)
       ss << comment << "\n";
   }
 
+  std::vector<int> columnStart = _columnStart;
+
+  std::cout << getHeader() << " - col: " << columnStart.size() << std::endl;
   if (isTable())
   {
     const auto& line = getColumnNames();
+    for (unsigned int i = 2; i < line.size(); i++)
+    {
+      columnStart[i + 1] = line[i].size() + 1;
+    }
 
     for (unsigned int j = 0; j < getRowCount(); j++)
     {
       const auto& line = _lines.at(j);
       for (unsigned int i = 0; i < line.size(); i++)
       {
-        if (_columnStart[i + 1] < (int)line[i].size() + 1)
+        if (columnStart[i + 1] < (int)line[i].size() + 1)
         {
-          _columnStart[i + 1] = line[i].size() + 1;
+          columnStart[i + 1] = line[i].size() + 1;
         }
       }
     }
 
     // Write header
     for (unsigned int i = 0; i < line.size(); i++)
-      ss << std::left << std::setw(_columnStart[i + 1]) << line[i];
+      ss << std::left << std::setw(columnStart[i + 1]) << line[i];
     ss << std::endl;
 
     for (unsigned int j = 0; j < getRowCount(); j++)
@@ -151,11 +158,11 @@ std::string ConfBlock::getConfLines(bool withComments)
         if (i == 0)
         {
           ss << std::setw(5);
-          ss << line[i] << std::string(_columnStart[i + 1] - 5, ' ');
+          ss << line[i] << std::string(columnStart[i + 1] - 5, ' ');
         }
         else
         {
-          ss << std::setw(_columnStart[i + 1]);
+          ss << std::setw(columnStart[i + 1]);
           ss << line[i];
         }
       }
