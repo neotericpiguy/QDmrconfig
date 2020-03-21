@@ -465,6 +465,40 @@ std::string ConfBlock::rangify(std::vector<int>& vec)
   return "";
 }
 
+std::vector<int> ConfBlock::unrangify(const std::string& range)
+{
+  std::stringstream ss(range);
+  std::vector<int> result;
+  int temp;
+
+  if (range == "-")
+    return {};
+  else if (range.find_first_of(",-") == std::string::npos)
+  {
+    ss >> temp;
+    return {temp};
+  }
+
+  while (!ss.eof())
+  {
+    char c;
+    ss >> temp;
+    ss >> c;
+    if (c == ',')
+      result.push_back(temp);
+    else if (c == '-')
+    {
+      int start = temp;
+      int end;
+      ss >> end;
+      for (int i = start; i <= end; i++)
+        result.push_back(i);
+    }
+  }
+
+  return result;
+}
+
 void ConfBlock::updateChannelList(const std::map<ConfBlock*, std::string>& src, ConfBlock& destBlock, const std::string& destColumn)
 {
   std::map<std::string, std::vector<int>> scanIndexToChanMap;
@@ -475,13 +509,14 @@ void ConfBlock::updateChannelList(const std::map<ConfBlock*, std::string>& src, 
     auto sourceColumnIndex = sourceBlock.getColumnIndex(sourceColumn);
     for (const auto& sourceRow : sourceBlock.getLines())  // use getLines because it returns a const vector
     {
-      for (const auto& scanlistNumber : ConfBlock::strToVec(sourceRow[sourceColumnIndex], ','))
+      for (const auto& scanlistNumber : ConfBlock::unrangify(sourceRow[sourceColumnIndex]))
       {
         int channel;
         if (!ConfBlock::strTo(sourceRow[0], channel))
           continue;
 
-        scanIndexToChanMap[scanlistNumber].push_back(channel);
+        auto scanlistNumberStr = std::to_string(scanlistNumber);
+        scanIndexToChanMap[scanlistNumberStr].push_back(channel);
       }
     }
   }

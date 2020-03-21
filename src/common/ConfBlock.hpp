@@ -54,6 +54,7 @@ public:
   }
   static void replace(std::string& str, const std::string& from, const std::string& to);
   static std::string rangify(std::vector<int>& vec);
+  static std::vector<int> unrangify(const std::string& range);
   static std::vector<std::string> strToVec(const std::string& vec, char seperator);
   template <typename T>
   static std::string vecToStr(const std::vector<T>& vec, const std::string& seperator);
