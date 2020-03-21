@@ -142,13 +142,8 @@ void ConfBlockWidget::filterTableColumn()
   if (!ok)
     return;
 
-  if (_tableWidget->selectedItems().empty())
-  {
-    for (int i = 0; i < _tableWidget->rowCount(); i++)
-    {
-      _tableWidget->showRow(i);
-    }
-  }
+  for (int i = 0; _tableWidget->selectedItems().empty() && i < _tableWidget->rowCount(); i++)
+    _tableWidget->showRow(i);
 
   for (const auto& item : _tableWidget->selectedItems())
   {
@@ -159,7 +154,7 @@ void ConfBlockWidget::filterTableColumn()
 
       try
       {
-        std::regex e(text.toStdString());
+        std::regex e(".*" + text.toStdString() + ".*", std::regex_constants::icase);
 
         if (text == "")
           _tableWidget->showRow(i);
