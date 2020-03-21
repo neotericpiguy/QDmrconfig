@@ -475,10 +475,12 @@ void ConfBlock::updateChannelList(const std::map<ConfBlock*, std::string>& src, 
     auto sourceColumnIndex = sourceBlock.getColumnIndex(sourceColumn);
     for (const auto& sourceRow : sourceBlock.getLines())  // use getLines because it returns a const vector
     {
-      const auto& scanlistNumber = sourceRow[sourceColumnIndex];
-      int channel;
-      if (ConfBlock::strTo(sourceRow[0], channel))
+      for (const auto& scanlistNumber : ConfBlock::strToVec(sourceRow[sourceColumnIndex], ','))
       {
+        int channel;
+        if (!ConfBlock::strTo(sourceRow[0], channel))
+          continue;
+
         scanIndexToChanMap[scanlistNumber].push_back(channel);
       }
     }
