@@ -34,6 +34,7 @@ private slots:
   void filterTableColumn();
   void sortTableRow();
   void removeValueAction();
+  void addValueAction();
 
 private:
   bool _isDebug;

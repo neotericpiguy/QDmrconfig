@@ -46,11 +46,15 @@ ConfBlockWidget::ConfBlockWidget(ConfBlock& confBlock, QWidget* parent) :
   QAction* removeValueAction = new QAction("&Remove value");
   addAction(removeValueAction);
 
+  QAction* addValueAction = new QAction("&Add value");
+  addAction(addValueAction);
+
   connect(duplicateAction, SIGNAL(triggered()), this, SLOT(duplicateTableRow()));
   connect(removeAction, SIGNAL(triggered()), this, SLOT(removeTableRow()));
   connect(filterAction, SIGNAL(triggered()), this, SLOT(filterTableColumn()));
   connect(sortAction, SIGNAL(triggered()), this, SLOT(sortTableRow()));
   connect(removeValueAction, SIGNAL(triggered()), this, SLOT(removeValueAction()));
+  connect(addValueAction, SIGNAL(triggered()), this, SLOT(addValueAction()));
 }
 
 ConfBlockWidget::~ConfBlockWidget()
@@ -186,6 +190,7 @@ void ConfBlockWidget::removeValueAction()
 
   std::string textToRemove = text.toStdString();
 
+  _tableWidget->blockSignals(true);
   for (const auto& item : _tableWidget->selectedItems())
   {
     //    std::string cellText = _tableWidget->item(i, j)->text().toStdString();
@@ -194,11 +199,39 @@ void ConfBlockWidget::removeValueAction()
     if (auto newValue = ConfBlock::replaceRegex(cellText, "(^|,)" + textToRemove + "(,|$)", ""); newValue)
     {
       item->setText((*newValue).c_str());
-      std::cout << "newValue: " << *newValue << std::endl;
+      _confBlock.getRows()[item->row()][item->column()] = *newValue;
     }
-
-    std::cout << "cellText: " << cellText << std::endl;
   }
+  _tableWidget->blockSignals(false);
+}
+
+void ConfBlockWidget::addValueAction()
+{
+  bool ok;
+  QString text = QInputDialog::getText(this, tr("Value to add"),
+                                       tr("Value to add"), QLineEdit::Normal,
+                                       "", &ok);
+
+  if (!ok)
+    return;
+
+  QString textToAdd(text);
+
+  _tableWidget->blockSignals(true);
+  for (const auto& item : _tableWidget->selectedItems())
+  {
+    auto cellText = item->text();
+
+    cellText.append(",");
+    cellText.append(textToAdd);
+
+    if (cellText[0] == ',')
+      cellText = cellText.right(cellText.length() - 1);
+
+    item->setText(cellText);
+    _confBlock.getRows()[item->row()][item->column()] = cellText.toStdString();
+  }
+  _tableWidget->blockSignals(false);
 }
 
 void ConfBlockWidget::itemUpdate(QTableWidgetItem* item)
