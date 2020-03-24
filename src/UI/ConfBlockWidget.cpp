@@ -29,23 +29,28 @@ ConfBlockWidget::ConfBlockWidget(ConfBlock& confBlock, QWidget* parent) :
   connect(_tableWidget, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(itemUpdate(QTableWidgetItem*)));
 
   setContextMenuPolicy(Qt::ActionsContextMenu);
+
   QAction* filterAction = new QAction("&Filter Row by");
   filterAction->setShortcut(QKeySequence(tr("Ctrl+F")));
   addAction(filterAction);
 
-  QAction* duplicateAction = new QAction("&Duplicate Row");
+  QAction* duplicateAction = new QAction("Dupl&icate Row");
   addAction(duplicateAction);
 
-  QAction* removeAction = new QAction("&Remove Row");
+  QAction* removeAction = new QAction("&Delete Row");
   addAction(removeAction);
 
   QAction* sortAction = new QAction("&Sort Rows");
   addAction(sortAction);
 
+  QAction* removeValueAction = new QAction("&Remove value");
+  addAction(removeValueAction);
+
   connect(duplicateAction, SIGNAL(triggered()), this, SLOT(duplicateTableRow()));
   connect(removeAction, SIGNAL(triggered()), this, SLOT(removeTableRow()));
   connect(filterAction, SIGNAL(triggered()), this, SLOT(filterTableColumn()));
   connect(sortAction, SIGNAL(triggered()), this, SLOT(sortTableRow()));
+  connect(removeValueAction, SIGNAL(triggered()), this, SLOT(removeValueAction()));
 }
 
 ConfBlockWidget::~ConfBlockWidget()
@@ -166,6 +171,33 @@ void ConfBlockWidget::filterTableColumn()
         //Msg box error to user
       }
     }
+  }
+}
+
+void ConfBlockWidget::removeValueAction()
+{
+  bool ok;
+  QString text = QInputDialog::getText(this, tr("Value to remove"),
+                                       tr("Value to remove"), QLineEdit::Normal,
+                                       "", &ok);
+
+  if (!ok)
+    return;
+
+  std::string textToRemove = text.toStdString();
+
+  for (const auto& item : _tableWidget->selectedItems())
+  {
+    //    std::string cellText = _tableWidget->item(i, j)->text().toStdString();
+    std::string cellText = item->text().toStdString();
+
+    if (auto newValue = ConfBlock::replaceRegex(cellText, "(^|,)" + textToRemove + "(,|$)", ""); newValue)
+    {
+      item->setText((*newValue).c_str());
+      std::cout << "newValue: " << *newValue << std::endl;
+    }
+
+    std::cout << "cellText: " << cellText << std::endl;
   }
 }
 

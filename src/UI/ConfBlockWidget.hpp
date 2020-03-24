@@ -33,6 +33,7 @@ private slots:
   void removeTableRow();
   void filterTableColumn();
   void sortTableRow();
+  void removeValueAction();
 
 private:
   bool _isDebug;
