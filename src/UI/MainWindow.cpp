@@ -183,11 +183,11 @@ void MainWindow::slotReadyRead(QNetworkReply* reply)
     spot = fileStr.find("div");
     fileStr = fileStr.substr(0, spot);
 
-    fileStr = *ConfBlock::replaceRegex(fileStr, "\\t", "");
-    fileStr = *ConfBlock::replaceRegex(fileStr, "<[^>]*>", "");
-    fileStr = *ConfBlock::replaceRegex(fileStr, ".*>.*", "");
-    fileStr = *ConfBlock::replaceRegex(fileStr, ".*<.*", "");
-    fileStr = *ConfBlock::replaceRegex(fileStr, "\\r\\n\\s*", "\n");
+    ConfBlock::replaceRegex(fileStr, "\\t", "");
+    ConfBlock::replaceRegex(fileStr, "<[^>]*>", "");
+    ConfBlock::replaceRegex(fileStr, ".*>.*", "");
+    ConfBlock::replaceRegex(fileStr, ".*<.*", "");
+    ConfBlock::replaceRegex(fileStr, "\\r\\n\\s*", "\n");
   }
   else
     fileStr = "Not Found!";
@@ -224,18 +224,18 @@ void MainWindow::repeaterBookSlotReadyRead(QNetworkReply* reply)
     spot = fileStr.rfind("administrator");
     fileStr = fileStr.substr(0, spot);
 
-    fileStr = *ConfBlock::replaceRegex(fileStr, "<font[^>]*>", "");
-    fileStr = *ConfBlock::replaceRegex(fileStr, "</font>", "");
-    fileStr = *ConfBlock::replaceRegex(fileStr, ".*more details\">", "");
-    fileStr = *ConfBlock::replaceRegex(fileStr, ".*nowrap>", "");
-    fileStr = *ConfBlock::replaceRegex(fileStr, "<td>", "");
-    fileStr = *ConfBlock::replaceRegex(fileStr, "</td>", "");
-    fileStr = *ConfBlock::replaceRegex(fileStr, "<a>", "");
-    fileStr = *ConfBlock::replaceRegex(fileStr, "</a>", "");
-    fileStr = *ConfBlock::replaceRegex(fileStr, " MHz", "");
-    fileStr = *ConfBlock::replaceRegex(fileStr, ".*<.*", "");
-    fileStr = *ConfBlock::replaceRegex(fileStr, "\\r\\n\\s*", "\n");
-    fileStr = *ConfBlock::replaceRegex(fileStr, "\\n+", "\n");
+    ConfBlock::replaceRegex(fileStr, "<font[^>]*>", "");
+    ConfBlock::replaceRegex(fileStr, "</font>", "");
+    ConfBlock::replaceRegex(fileStr, ".*more details\">", "");
+    ConfBlock::replaceRegex(fileStr, ".*nowrap>", "");
+    ConfBlock::replaceRegex(fileStr, "<td>", "");
+    ConfBlock::replaceRegex(fileStr, "</td>", "");
+    ConfBlock::replaceRegex(fileStr, "<a>", "");
+    ConfBlock::replaceRegex(fileStr, "</a>", "");
+    ConfBlock::replaceRegex(fileStr, " MHz", "");
+    ConfBlock::replaceRegex(fileStr, ".*<.*", "");
+    ConfBlock::replaceRegex(fileStr, "\\r\\n\\s*", "\n");
+    ConfBlock::replaceRegex(fileStr, "\\n+", "\n");
   }
   else
     fileStr = "Not Found!";

@@ -58,7 +58,23 @@ public:
   static std::vector<std::string> strToVec(const std::string& vec, char seperator);
   template <typename T>
   static std::string vecToStr(const std::vector<T>& vec, const std::string& seperator);
-  static std::optional<std::string> replaceRegex(const std::string& string, const std::string& search, const std::string& replace)
+  //  static std::optional<std::string> replaceRegex(const std::string& string, const std::string& search, const std::string& replace)
+  //  {
+  //    std::regex searchRegex;
+  //
+  //    try
+  //    {
+  //      searchRegex = std::regex(search, std::regex::ECMAScript);
+  //    }
+  //    catch (const std::exception& e)
+  //    {
+  //      return {};
+  //    }
+  //
+  //    return std::regex_replace(string, searchRegex, replace);
+  //  }
+
+  static void replaceRegex(std::string& string, const std::string& search, const std::string& replace)
   {
     std::regex searchRegex;
 
@@ -68,10 +84,11 @@ public:
     }
     catch (const std::exception& e)
     {
-      return {};
+      return;
     }
 
-    return std::regex_replace(string, searchRegex, replace);
+    string = std::regex_replace(string, searchRegex, replace);
+    return;
   }
 
   static std::vector<std::smatch> getCaptures(const std::regex& regex, const std::string& search)

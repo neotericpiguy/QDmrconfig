@@ -196,11 +196,14 @@ void ConfBlockWidget::removeValueAction()
     //    std::string cellText = _tableWidget->item(i, j)->text().toStdString();
     std::string cellText = item->text().toStdString();
 
-    if (auto newValue = ConfBlock::replaceRegex(cellText, "(^|,)" + textToRemove + "(,|$)", ""); newValue)
-    {
-      item->setText((*newValue).c_str());
-      _confBlock.getRows()[item->row()][item->column()] = *newValue;
-    }
+    ConfBlock::replaceRegex(cellText, "^" + textToRemove + "$", "");
+    ConfBlock::replaceRegex(cellText, "^" + textToRemove + ",", "");
+    ConfBlock::replaceRegex(cellText, "," + textToRemove + ",", ",");
+    ConfBlock::replaceRegex(cellText, "," + textToRemove + "(,|$)", "");
+    if(cellText == "")
+      cellText = "-";
+    item->setText(cellText.c_str());
+    _confBlock.getRows()[item->row()][item->column()] = cellText;
   }
   _tableWidget->blockSignals(false);
 }
