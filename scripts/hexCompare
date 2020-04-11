@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -x
+
+main() {
+  ./dmrconfig -r
+  xxd device.img > ${1}.hex
+  cp device.img  ${1}.img
+}
+
+main $@
