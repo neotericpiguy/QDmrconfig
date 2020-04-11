@@ -80,7 +80,7 @@ void ConfFile::uploadFile()
   if (isModified())
     saveFile();
 
-  radio_connect();
+  radio_connect(-1);
   radio_download();
   radio_print_version(stdout);
   radio_save_image("backup.img");
@@ -95,7 +95,7 @@ void ConfFile::downloadFile(const std::string& filename)
   std::string imageFilename = filename;
   ConfBlock::replace(imageFilename, ".conf", ".img");
 
-  radio_connect();
+  radio_connect(-1);
   radio_download();
   radio_print_version(stdout);
   radio_disconnect();

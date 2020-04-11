@@ -11,7 +11,7 @@ const char* copyright;
 extern char* optarg;
 extern int optind;
 
-extern "C" void radio_connect();
+extern "C" void radio_connect(int);
 extern "C" void radio_download(void);
 extern "C" void radio_print_version(FILE* out);
 extern "C" void radio_print_version(FILE* out);
