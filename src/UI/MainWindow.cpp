@@ -315,7 +315,6 @@ void MainWindow::repeaterBookSlotReadyRead(QNetworkReply* reply)
       }
       else
       {
-        newEntry[10] = i[2];
         newEntry[11] = i[2];
       }
     }
