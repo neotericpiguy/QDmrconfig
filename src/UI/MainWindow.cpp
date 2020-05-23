@@ -216,8 +216,14 @@ void MainWindow::repeaterBookSlotReadyRead(QNetworkReply* reply)
   //  fileStr.assign((std::istreambuf_iterator<char>(t)),
   //                 std::istreambuf_iterator<char>());
   //////////////////////////////////////////////////////////////////////////
+  std::ofstream t("reply.html");
 
-  auto spot = fileStr.find("Tone In / Out");
+  t << fileStr << std::endl;
+
+  std::cout << "parsing" << std::endl;
+  std::cout << fileStr << std::endl;
+
+  auto spot = fileStr.find("Tone ");
   if (spot != std::string::npos)
   {
     fileStr = fileStr.substr(spot, fileStr.length() - spot);
