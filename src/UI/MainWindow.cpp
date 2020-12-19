@@ -76,33 +76,42 @@ MainWindow::MainWindow() :
   });
 
   connect(searchAct, &QAction::triggered, this, [=]() {
-    bool ok;
-    QString text = QInputDialog::getText(this, tr("Search Fcc callsign"),
-                                         tr("call sign"), QLineEdit::Normal,
-                                         "", &ok);
-    if (!ok)
-      return;
+    // bool ok;
+    // QString text = QInputDialog::getText(this, tr("Search Fcc callsign"),
+    //                                      tr("call sign"), QLineEdit::Normal,
+    //                                      "", &ok);
+    // if (!ok)
+    //   return;
 
+    QString text("KJ7LEY");
     QNetworkRequest request;
-    request.setUrl(QUrl("http://www.arrl.org/advanced-call-sign-search"));
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    // request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    // request.setRawHeader("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.60 Safari/537.17");
+    // request.setRawHeader("Content-Type", "application/json");
+    // request.setHeader(QNetworkRequest::ServerHeader, "application/json");
 
-    QUrlQuery params;
-    params.addQueryItem("data[Search][terms]", text);
-    params.addQueryItem("data[PubaccEn][entity_name]", "");
-    params.addQueryItem("data[PubaccEn][city]", "");
-    params.addQueryItem("data[PubaccEn][state]", "");
-    params.addQueryItem("data[PubaccEn][zip_code]", "");
-    params.addQueryItem("data[PubaccEn][type]", "a");
+    // QSslConfiguration config = QSslConfiguration::defaultConfiguration();
+    // config.setProtocol(QSsl::TlsV1_2);
+    // request.setSslConfiguration(config);
+    request.setUrl(QUrl("https://data.fcc.gov/api/license-view/basicSearch/getLicenses?searchValue=KJ7LEY&format=json"));
+    //request.setUrl(QUrl("https://data.fcc.gov/api/license-view/basicSearch/getLicenses"));
 
-    _networkManager->post(request, params.query().toUtf8());
-    qDebug() << "Searching fcc: " << text;
+    // QUrlQuery params;
+    // params.addQueryItem("searchValue", text);
+    // params.addQueryItem("format", "json");
+
+    _networkManager->get(request);
+    // _networkManager->post(request, params.query().toUtf8());
+    qDebug() << "Searching fcc callsign: " << text;
   });
+
+  connect(_networkManager, &QNetworkAccessManager::finished,
+          this, &MainWindow::slotReadyRead);
 
   connect(repeaterBookAct, &QAction::triggered, this, [=]() {
     bool ok;
-    QString text = QInputDialog::getText(this, tr("Search Fcc callsign"),
-                                         tr("call sign"), QLineEdit::Normal,
+    QString text = QInputDialog::getText(this, tr("Search Repeater"),
+                                         tr("Search Repeater"), QLineEdit::Normal,
                                          "", &ok);
     if (!ok)
       return;
@@ -132,9 +141,6 @@ MainWindow::MainWindow() :
     _confFileWidget->nextTab(-1);
   });
 
-  connect(_networkManager, &QNetworkAccessManager::finished,
-          this, &MainWindow::slotReadyRead);
-
   setUnifiedTitleAndToolBarOnMac(true);
   statusBar()->showMessage(tr("Ready"));
 
@@ -160,6 +166,8 @@ void MainWindow::slotReadyRead(QNetworkReply* reply)
   QByteArray bts = reply->readAll();
   QString str(bts);
 
+  qDebug() << "Str: " << str;
+
   //  std::ofstream temp("reply.html");
   //  temp << str.toStdString() << std::endl;
   //
@@ -175,22 +183,24 @@ void MainWindow::slotReadyRead(QNetworkReply* reply)
   //
 
   std::string fileStr = str.toStdString();
-  auto spot = fileStr.find("list2");
-  if (spot != std::string::npos)
-  {
-    fileStr = fileStr.substr(spot, fileStr.length() - spot);
-
-    spot = fileStr.find("div");
-    fileStr = fileStr.substr(0, spot);
-
-    ConfBlock::replaceRegex(fileStr, "\\t", "");
-    ConfBlock::replaceRegex(fileStr, "<[^>]*>", "");
-    ConfBlock::replaceRegex(fileStr, ".*>.*", "");
-    ConfBlock::replaceRegex(fileStr, ".*<.*", "");
-    ConfBlock::replaceRegex(fileStr, "\\r\\n\\s*", "\n");
-  }
-  else
-    fileStr = "Not Found!";
+  //  auto spot = fileStr.find("list2");
+  //  if (spot != std::string::npos)
+  //  {
+  //    fileStr = fileStr.substr(spot, fileStr.length() - spot);
+  //
+  //    spot = fileStr.find("div");
+  //    fileStr = fileStr.substr(0, spot);
+  //
+  //    ConfBlock::replaceRegex(fileStr, "\\t", "");
+  //    ConfBlock::replaceRegex(fileStr, "<[^>]*>", "");
+  //    ConfBlock::replaceRegex(fileStr, ".*>.*", "");
+  //    ConfBlock::replaceRegex(fileStr, ".*<.*", "");
+  //    ConfBlock::replaceRegex(fileStr, "\\r\\n\\s*", "\n");
+  //  }
+  //  else
+  //  {
+  //    fileStr = "Not Found!";
+  //  }
 
   qDebug() << fileStr.c_str();
 
