@@ -4,18 +4,19 @@ VERSION            = $(shell git describe --tags --abbrev=0)
 HASH               = $(shell git rev-parse --short HEAD)
 DMRCONFIG_VERSION  = $(shell git submodule status)
 GITCOUNT           = $(shell git rev-list HEAD --count)
+
 CFLAGS            ?= -g -O -Wall -Werror -fPIC -MMD -fcommon
-CFLAGS            += -DVERSION='"$(VERSION).$(HASH)"' \
-                  $(shell pkg-config --cflags libusb-1.0)
+CFLAGS            += -DVERSION='"$(VERSION).$(HASH)"' 
 LDFLAGS           ?= -g -L$(BUILD_PATH)
-LIBS               = $(shell pkg-config --libs --static libusb-1.0)
+LIBS               = $(shell pkg-config --libs --static libusb-1.0 libmongoc-1.0) 
 
 CXXFLAGS       += $(CFLAGS) -std=c++17 -Weffc++ 
 
 QT_LIBS         = $(shell pkg-config --libs Qt5Widgets)
 QT_CFLAGS       = $(shell pkg-config --cflags Qt5Widgets)
 
-INCPATHS       += -Isrc/dmrconfig -Isrc/ -Isrc/UI -Isrc/common
+INCPATHS       += -Isrc/dmrconfig -Isrc/ -Isrc/UI -Isrc/common -Isrc/common/BSONDoc
+LINCPATHS       += $(shell pkg-config --cflags libmongoc-1.0 libusb-1.0)
 
 DMRCONFIG_SRCS=$(shell find src/dmrconfig/ -iregex '.*\.c' -not -iregex '.*\(main\|windows\|macos\).*')
 DMRCONFIG_OBJS=$(addprefix $(BUILD_PATH)/,$(DMRCONFIG_SRCS:.c=.o))
@@ -64,7 +65,7 @@ $(TARGET_GUI): $(TARGET_LIB) $(GUI_SRCS) $(GUI_HDRS) $(COMMON_OBJS)
 		"SOURCES      += $(COMMON_SRCS:%=../../../%)" \
 		"HEADERS      += $(GUI_HDRS:%=../../../%)" \
 		"HEADERS      += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
-		"INCLUDEPATH  += $(INCPATHS:-I%=../../../%)" \
+		"INCLUDEPATH  += $(INCPATHS:-I%=../../../%) $(LINCPATHS:-I%=%)" \
 		"LIBS         += $(TARGET_LIB:%=../../../%) $(LIBS)" \
 		"TARGET        = ../../../$(TARGET_GUI)" \
 		$(GUI_PRO) -o $(BUILD_PATH)/src/UI/Makefile
@@ -72,7 +73,7 @@ $(TARGET_GUI): $(TARGET_LIB) $(GUI_SRCS) $(GUI_HDRS) $(COMMON_OBJS)
 
 $(BUILD_PATH)/%.o: %.c
 	@mkdir -p `dirname $@`
-	$(CC) -c $(CFLAGS) $(INCPATHS) -o $@ $<
+	$(CC) -c $(CFLAGS) $(INCPATHS) $(LINCPATHS) -o $@ $<
 
 $(BUILD_PATH)/moc/%.moc.cpp: %.hpp
 	@mkdir -p `dirname $@`
@@ -84,7 +85,7 @@ $(BUILD_PATH)/moc/%.moc.cpp: %.hpp
 
 $(BUILD_PATH)/%.o: %.cpp
 	@mkdir -p `dirname $@`
-	$(CC) -c $(CXXFLAGS) $(QT_CFLAGS) $(INCPATHS) -o $@ $<
+	$(CC) -c $(CXXFLAGS) $(INCPATHS) $(LINCPATHS) -o $@ $<
 
 clean:
 	-rm -rf $(BUILD_PATH) 

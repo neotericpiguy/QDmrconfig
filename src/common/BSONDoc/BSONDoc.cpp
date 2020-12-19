@@ -156,8 +156,7 @@ bool BSONDoc::getString(std::string& result, const std::string& path) const
   {
     switch (bson_iter_type(&baz))
     {
-      case BSON_TYPE_OID:
-      {
+      case BSON_TYPE_OID: {
         char str[25];
         const bson_oid_t* oid = bson_iter_oid(&baz);
         bson_oid_to_string(oid, str);
@@ -236,14 +235,28 @@ bool BSONDoc::getDocuments(std::vector<BSONDoc>& result, const std::string& path
   bson_iter_t iter;
   bson_iter_t sub_iter;
 
-  if (bson_iter_init_find(&iter, _doc, path.c_str()))
+  printf("getDoc: ");
+  printf(path.c_str());
+  printf("\n");
+  if (bson_has_field(_doc, path.c_str()))
   {
+    printf("has key\n");
+  }
+  if (bson_iter_init(&iter, _doc))
+  {
+    printf("iter init\n");
+  }
+  if (bson_iter_find(&iter, path.c_str()))
+  {
+    printf("init_find\n");
     if (BSON_ITER_HOLDS_ARRAY(&iter))
     {
+      printf("iterholdsarra");
       if (bson_iter_recurse(&iter, &sub_iter))
       {
         while (bson_iter_next(&sub_iter))
         {
+          printf("in\n");
           const uint8_t* document;
           uint32_t document_len;
           bson_t temp;
@@ -253,10 +266,15 @@ bool BSONDoc::getDocuments(std::vector<BSONDoc>& result, const std::string& path
           result.push_back(BSONDoc(&temp));
         }
       }
+      return true;
     }
   }
+  else
+  {
+    printf("Could not find \"%s\"\n", path.c_str());
+  }
 
-  return true;
+  return false;
 }
 
 BSONDoc& BSONDoc::append(const std::string& key, const std::vector<std::string>& vector)

@@ -14,6 +14,7 @@
 
 #include <memory>
 
+#include "BSONDoc.hpp"
 #include "ConfFileWidget.hpp"
 
 class MainWindow : public QMainWindow
