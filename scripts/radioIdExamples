@@ -1,0 +1,12 @@
+#!/bin/bash
+
+https://database.radioid.net/database/api#!
+curl "https://database.radioid.net/api/dmr/repeater/?city=tucson" | jq | less
+curl "https://database.radioid.net/api/dmr/user/?city=tucson" | jq | less
+
+#https://www.repeaterbook.com/wiki/doku.php?id=api
+curl "https://www.repeaterbook.com/api/export.php?country=United%20States&country=Canada"
+curl "https://www.repeaterbook.com/api/export.php?city=tucson&state=arizona"
+
+
+
