@@ -1,12 +1,14 @@
 BUILD_PATH=build
 
-VERSION         = $(shell git describe --tags --abbrev=0)
-VERSION         = RC
-CFLAGS         ?= -g -O -Wall -Werror -fPIC -MMD -fcommon
-CFLAGS         += -DVERSION='"$(VERSION).$(GITCOUNT)"' \
+VERSION            = $(shell git describe --tags --abbrev=0)
+HASH               = $(shell git rev-parse --short HEAD)
+DMRCONFIG_VERSION  = $(shell git submodule status)
+GITCOUNT           = $(shell git rev-list HEAD --count)
+CFLAGS            ?= -g -O -Wall -Werror -fPIC -MMD -fcommon
+CFLAGS            += -DVERSION='"$(VERSION).$(HASH)"' \
                   $(shell pkg-config --cflags libusb-1.0)
-LDFLAGS        ?= -g -L$(BUILD_PATH)
-LIBS            = $(shell pkg-config --libs --static libusb-1.0)
+LDFLAGS           ?= -g -L$(BUILD_PATH)
+LIBS               = $(shell pkg-config --libs --static libusb-1.0)
 
 CXXFLAGS       += $(CFLAGS) -std=c++17 -Weffc++ 
 
