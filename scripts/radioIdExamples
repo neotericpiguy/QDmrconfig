@@ -8,5 +8,10 @@ curl "https://database.radioid.net/api/dmr/user/?city=tucson" | jq | less
 curl "https://www.repeaterbook.com/api/export.php?country=United%20States&country=Canada"
 curl "https://www.repeaterbook.com/api/export.php?city=tucson&state=arizona"
 
+curl -H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.89 Safari/537.36" "http://data.fcc.gov/api/license-view/basicSearch/getLicenses?searchValue=KJ7LEY&format=json"
+
+https://www.fcc.gov/reports-research/developers/license-view-api
+curl "https://data.fcc.gov/api/license-view/basicSearch/getLicenses?searchValue=KJ7LEY&format=json"
+
 
 
