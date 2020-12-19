@@ -2,7 +2,7 @@ BUILD_PATH=build
 
 VERSION         = $(shell git describe --tags --abbrev=0)
 VERSION         = RC
-CFLAGS         ?= -g -O -Wall -Werror -fPIC -MMD
+CFLAGS         ?= -g -O -Wall -Werror -fPIC -MMD -fcommon
 CFLAGS         += -DVERSION='"$(VERSION).$(GITCOUNT)"' \
                   $(shell pkg-config --cflags libusb-1.0)
 LDFLAGS        ?= -g -L$(BUILD_PATH)
