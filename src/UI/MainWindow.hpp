@@ -29,7 +29,7 @@ public:
   void setDebug(bool state);
 
 private slots:
-  void slotReadyRead(QNetworkReply* reply);
+  void callsignSearchReady(QNetworkReply* reply);
   void repeaterBookSlotReadyRead(QNetworkReply* reply);
 
 private:
