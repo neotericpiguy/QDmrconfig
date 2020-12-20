@@ -88,7 +88,7 @@ $(BUILD_PATH)/src/dmrconfig/%.o: src/dmrconfig/%.c
 # Build libcommon
 $(BUILD_PATH)/src/common/%.o: src/common/%.cpp
 	@mkdir -p `dirname $@`
-	$(CC) -o $@ -c $(CXXFLAGS) $(INCPATHS) $(LINCPATHS) $(LIBMONGOCINCPATH) $<
+	$(CC) -o $@ -c $(CXXFLAGS) $(LINCPATHS) $(LIBMONGOCINCPATH) $<
 
 $(BUILD_PATH)/%.o: %.cpp
 	@mkdir -p `dirname $@`

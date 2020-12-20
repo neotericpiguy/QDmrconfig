@@ -234,51 +234,47 @@ bool BSONDoc::getDocuments(std::vector<BSONDoc>& result, const std::string& path
   //return a vector of the contents of a key with a array of documents
   bson_iter_t iter;
   bson_iter_t sub_iter;
+  bson_iter_t baz;
 
-  printf("getDoc: ");
-  printf(path.c_str());
-  printf("\n");
-  if (bson_has_field(_doc, path.c_str()))
+  if (!bson_has_field(_doc, path.c_str()))
   {
-    printf("has key\n");
-  }
-  if (bson_iter_init(&iter, _doc))
-  {
-    printf("iter init\n");
-  }
-  if (bson_iter_find(&iter, "Licenses.Licenses"))
-  {
-    printf("init_find\n");
-    if (BSON_ITER_HOLDS_ARRAY(&iter))
-    {
-      printf("iterholdsarra");
-      if (bson_iter_recurse(&iter, &sub_iter))
-      {
-        while (bson_iter_next(&sub_iter))
-        {
-          printf("in\n");
-          const uint8_t* document;
-          uint32_t document_len;
-          bson_t temp;
-          bson_iter_document(&sub_iter, &document_len, &document);
-          if (!bson_init_static(&temp, document, document_len))
-            continue;
-          result.push_back(BSONDoc(&temp));
-        }
-      }
-      return true;
-    }
-    else
-    {
-      printf("Not an array\n");
-    }
-  }
-  else
-  {
-    printf("Could not find \"%s\"\n", path.c_str());
+    printf("Field not found: \"%s\"\n", path.c_str());
+    return false;
   }
 
-  return false;
+  if (!(bson_iter_init(&iter, _doc) && bson_iter_find_descendant(&iter, path.c_str(), &baz)))
+  {
+    printf("Path not found: \"%s\"\n", path.c_str());
+    printf("\"%s\"\n", toString().c_str());
+    return false;
+  }
+
+  if (!BSON_ITER_HOLDS_ARRAY(&baz))
+  {
+    printf("Path not an ARRAY: \"%s\"\n", path.c_str());
+    return false;
+  }
+
+  printf("%s\n", bson_iter_key(&baz));
+
+  if (bson_iter_recurse(&baz, &sub_iter))
+  {
+    printf("sub_iter init failed: \"%s\"\n", path.c_str());
+    return false;
+  }
+
+  while (bson_iter_next(&sub_iter))
+  {
+    printf("in\n");
+    const uint8_t* document;
+    uint32_t document_len;
+    bson_t temp;
+    bson_iter_document(&sub_iter, &document_len, &document);
+    if (!bson_init_static(&temp, document, document_len))
+      continue;
+    result.push_back(BSONDoc(&temp));
+  }
+  return true;
 }
 
 BSONDoc& BSONDoc::append(const std::string& key, const std::vector<std::string>& vector)
