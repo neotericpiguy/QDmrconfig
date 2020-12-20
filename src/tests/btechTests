@@ -25,38 +25,31 @@ cleanup() {
   rm -rf $tmpConf $originalImageHex
 }
 
-channelNameDisplay() {
-  local hex=0x00071601
+paramFlagTest() {
+  local base=${1?"Base address"}
+  local offset=${2?"Offset"}
+  local paramName=${3?"Param Name"}
   local size=1
-  local image=$originalImage
+  local hex=`printf "0x%X\n" $(($base + $offset))`
 
-  ./dmrconfig $image > $tmpConf
-  egrep '^Ch Name' $tmpConf
-  sed -r -i 's/^Ch Name:.*/Ch Name: 0/g' $tmpConf
-  egrep '^Ch Name' $tmpConf
-  ./dmrconfig -c $image $tmpConf
+  ./dmrconfig $originalImage > $tmpConf
+  egrep "^$paramName" $tmpConf
+  sed -r -i "s/^$paramName:.*/$paramName: 1/g" $tmpConf
+  egrep "^$paramName" $tmpConf
+  ./dmrconfig -c $originalImage $tmpConf
+  xxd device.img | diff $originalImageHex - || true
+  #vim -d $originalImageHex <(xxd device.img) 
+  val=`xxd -s $hex -l $size device.img | awk '{print $2}'`
+  _testEq "01" "$val" "$paramName 1"
+
+  ./dmrconfig $originalImage > $tmpConf
+  egrep "^$paramName" $tmpConf
+  sed -r -i "s/^$paramName:.*/$paramName: 0/g" $tmpConf
+  egrep "^$paramName" $tmpConf
+  ./dmrconfig -c $originalImage $tmpConf
   xxd device.img | diff $originalImageHex - || true
   val=`xxd -s $hex -l $size device.img | awk '{print $2}'`
-  _testEq "00" "$val" "${FUNCNAME[0]} 0"
-
-  ./dmrconfig $image > $tmpConf
-  egrep '^Ch Name' $tmpConf
-  sed -r -i 's/^Ch Name:.*/Ch Name: 1/g' $tmpConf
-  egrep '^Ch Name' $tmpConf
-  ./dmrconfig -c $image $tmpConf
-  xxd device.img | diff $originalImageHex - || true
-  val=`xxd -s $hex -l $size device.img | awk '{print $2}'`
-  _testEq "01" "$val" "${FUNCNAME[0]} 1"
-
-#  echo
-#  image=device.img
-#  ./dmrconfig $image > $tmpConf
-#  egrep '^Ch Name' $tmpConf
-#  sed -r -i 's/^Ch Name:.*/Ch Name: 1/g' $tmpConf
-#  egrep '^Ch Name' $tmpConf
-#  ./dmrconfig -c $image $tmpConf
-#  diff <(xxd $image) <(xxd device.img) || true
-#  xxd -s $hex -l $size device.img 
+  _testEq "00" "$val" "$paramName 0"
 }
 
 touchTest() {
@@ -77,7 +70,11 @@ touchTest() {
 main () {
   xxd $originalImage > $originalImageHex
   touchTest
-  channelNameDisplay
+  paramFlagTest "0x0071600" "0x1" "Ch Name"
+  paramFlagTest "0x0071600" "0xbc" "GPS Units"
+#  gpsUnitsTest
+
+  echo -e "\e[32mALL TEST PASS\e[0m"
 }
 
 main $@
