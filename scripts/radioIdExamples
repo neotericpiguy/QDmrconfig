@@ -8,5 +8,326 @@ curl "https://database.radioid.net/api/dmr/user/?city=tucson" | jq | less
 curl "https://www.repeaterbook.com/api/export.php?country=United%20States&country=Canada"
 curl "https://www.repeaterbook.com/api/export.php?city=tucson&state=arizona"
 
+curl -H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.89 Safari/537.36" "http://data.fcc.gov/api/license-view/basicSearch/getLicenses?searchValue=KJ7LEY&format=json"
 
-
+https://www.fcc.gov/reports-research/developers/license-view-api
+curl "https://data.fcc.gov/api/license-view/basicSearch/getLicenses?searchValue=KJ7LEY&format=json"
+{
+  "status": "OK",
+  "Licenses": {
+    "page": "1",
+    "rowPerPage": "100",
+    "totalRows": "1",
+    "lastUpdate": "Dec 19, 2020",
+    "License": [
+      {
+        "licName": "Annua, Jonathan Lee O",
+        "frn": "0029046729",
+        "callsign": "KJ7LEY",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/12/2029",
+        "licenseID": "4232049",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4232049"
+      }
+    ]
+  }
+}
+{
+  "status": "OK",
+  "Licenses": {
+    "page": "1",
+    "rowPerPage": "100",
+    "totalRows": "26",
+    "lastUpdate": "Dec 19, 2020",
+    "License": [
+      {
+        "licName": "Allemang, Chris",
+        "frn": "0030010516",
+        "callsign": "KJ7SYT",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/15/2030",
+        "licenseID": "4364160",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4364160"
+      },
+      {
+        "licName": "Ames, Cody L",
+        "frn": "0030239008",
+        "callsign": "KJ7SYX",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/16/2030",
+        "licenseID": "4364440",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4364440"
+      },
+      {
+        "licName": "Ball, Brian F",
+        "frn": "0030242424",
+        "callsign": "KJ7SYP",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/15/2030",
+        "licenseID": "4364142",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4364142"
+      },
+      {
+        "licName": "Bicknell, Luke",
+        "frn": "0030237424",
+        "callsign": "KJ7SYB",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/15/2030",
+        "licenseID": "4364061",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4364061"
+      },
+      {
+        "licName": "GILMORE, JOSEPH A",
+        "frn": "0030282883",
+        "callsign": "KJ7SYG",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/15/2030",
+        "licenseID": "4364090",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4364090"
+      },
+      {
+        "licName": "GRANT, GREGORY S",
+        "frn": "0029373297",
+        "callsign": "KJ7SYY",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/16/2030",
+        "licenseID": "4364455",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4364455"
+      },
+      {
+        "licName": "Getz, Kenneth D",
+        "frn": "0030215420",
+        "callsign": "KJ7SYQ",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/15/2030",
+        "licenseID": "4364145",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4364145"
+      },
+      {
+        "licName": "Ialenti, Daniel C",
+        "frn": "0030248074",
+        "callsign": "KJ7SYU",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/15/2030",
+        "licenseID": "4364225",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4364225"
+      },
+      {
+        "licName": "KARCH, CASEY J",
+        "frn": "0030252431",
+        "callsign": "KJ7SYK",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/15/2030",
+        "licenseID": "4364094",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4364094"
+      },
+      {
+        "licName": "Keifer, Matthew C",
+        "frn": "0009364738",
+        "callsign": "KJ7SYR",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/15/2030",
+        "licenseID": "4364146",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4364146"
+      },
+      {
+        "licName": "LOPEZ, EDWARD M",
+        "frn": "0030077408",
+        "callsign": "KJ7SYF",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/15/2030",
+        "licenseID": "4364089",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4364089"
+      },
+      {
+        "licName": "Landsiedel, Chris",
+        "frn": "0030257943",
+        "callsign": "KJ7SYS",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/15/2030",
+        "licenseID": "4364147",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4364147"
+      },
+      {
+        "licName": "MARTINEZ, RENE",
+        "frn": "0030252464",
+        "callsign": "KJ7SYI",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/15/2030",
+        "licenseID": "4364092",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4364092"
+      },
+      {
+        "licName": "MCLAUGHLIN, DANIEL P",
+        "frn": "0030148548",
+        "callsign": "KJ7SYM",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/15/2030",
+        "licenseID": "4364096",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4364096"
+      },
+      {
+        "licName": "POLLOCK, ANDREW H",
+        "frn": "0030289854",
+        "callsign": "KJ7SYH",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/15/2030",
+        "licenseID": "4364091",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4364091"
+      },
+      {
+        "licName": "PRICE, ALBERT L",
+        "frn": "0030281604",
+        "callsign": "KJ7SYE",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/15/2030",
+        "licenseID": "4364088",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4364088"
+      },
+      {
+        "licName": "Pratt, Randall S",
+        "frn": "0030272579",
+        "callsign": "KJ7SYA",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/14/2030",
+        "licenseID": "4363385",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4363385"
+      },
+      {
+        "licName": "ROSENBERG, MARVIN L",
+        "frn": "0030265789",
+        "callsign": "KJ7SYN",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/15/2030",
+        "licenseID": "4364099",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4364099"
+      },
+      {
+        "licName": "SPANN, GARY R",
+        "frn": "0030240485",
+        "callsign": "KJ7SYL",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/15/2030",
+        "licenseID": "4364095",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4364095"
+      },
+      {
+        "licName": "STONE, DARREL",
+        "frn": "0030125561",
+        "callsign": "KJ7SYJ",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/15/2030",
+        "licenseID": "4364093",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4364093"
+      },
+      {
+        "licName": "Smith, Jonathan K",
+        "frn": "0030179014",
+        "callsign": "KJ7SYW",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/16/2030",
+        "licenseID": "4364439",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4364439"
+      },
+      {
+        "licName": "Solomon, Timothy L",
+        "frn": "0030279574",
+        "callsign": "KJ7SYZ",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/16/2030",
+        "licenseID": "4364475",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4364475"
+      },
+      {
+        "licName": "TAYLOR, CHRISTOPHER A",
+        "frn": "0030284251",
+        "callsign": "KJ7SYC",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/15/2030",
+        "licenseID": "4364086",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4364086"
+      },
+      {
+        "licName": "VRAVIS, GREG C",
+        "frn": "0030222418",
+        "callsign": "KJ7SYD",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/15/2030",
+        "licenseID": "4364087",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4364087"
+      },
+      {
+        "licName": "WINN, SAMANTHA R",
+        "frn": "0030133607",
+        "callsign": "KJ7SYO",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/15/2030",
+        "licenseID": "4364100",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4364100"
+      },
+      {
+        "licName": "Wigen, Brian A",
+        "frn": "0029015096",
+        "callsign": "KJ7SYV",
+        "categoryDesc": "Personal Use",
+        "serviceDesc": "Amateur",
+        "statusDesc": "Active",
+        "expiredDate": "12/16/2030",
+        "licenseID": "4364438",
+        "licDetailURL": "http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4364438"
+      }
+    ]
+  }
+}

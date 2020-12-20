@@ -156,8 +156,7 @@ bool BSONDoc::getString(std::string& result, const std::string& path) const
   {
     switch (bson_iter_type(&baz))
     {
-      case BSON_TYPE_OID:
-      {
+      case BSON_TYPE_OID: {
         char str[25];
         const bson_oid_t* oid = bson_iter_oid(&baz);
         bson_oid_to_string(oid, str);
@@ -234,28 +233,50 @@ bool BSONDoc::getDocuments(std::vector<BSONDoc>& result, const std::string& path
 {
   //return a vector of the contents of a key with a array of documents
   bson_iter_t iter;
-  bson_iter_t sub_iter;
+  bson_iter_t baz;
 
-  if (bson_iter_init_find(&iter, _doc, path.c_str()))
+  if (!bson_has_field(_doc, path.c_str()))
   {
-    if (BSON_ITER_HOLDS_ARRAY(&iter))
-    {
-      if (bson_iter_recurse(&iter, &sub_iter))
-      {
-        while (bson_iter_next(&sub_iter))
-        {
-          const uint8_t* document;
-          uint32_t document_len;
-          bson_t temp;
-          bson_iter_document(&sub_iter, &document_len, &document);
-          if (!bson_init_static(&temp, document, document_len))
-            continue;
-          result.push_back(BSONDoc(&temp));
-        }
-      }
-    }
+    printf("Field not found: \"%s\"\n", path.c_str());
+    return false;
   }
 
+  if (!(bson_iter_init(&iter, _doc) && bson_iter_find_descendant(&iter, path.c_str(), &baz)))
+  {
+    printf("Path not found: \"%s\"\n", path.c_str());
+    printf("\"%s\"\n", toString().c_str());
+    return false;
+  }
+
+  if (!BSON_ITER_HOLDS_ARRAY(&baz))
+  {
+    printf("Path not an ARRAY: \"%s\"\n", path.c_str());
+    return false;
+  }
+
+  uint32_t array_len = 0;
+  const uint8_t* array = nullptr;
+  bson_iter_array(&baz, &array_len, &array);
+
+  BSONDoc temp(bson_new_from_data(array, array_len));
+  bson_iter_t sub_iter;
+  if (!(bson_iter_init(&sub_iter, temp.get()) && bson_iter_find_descendant(&sub_iter, "0", &baz)))
+  {
+    printf("Path not found: \"0\"\n");
+    printf("\"%s\"\n", temp.toString().c_str());
+    return false;
+  }
+
+  do
+  {
+    const uint8_t* document;
+    uint32_t document_len;
+    bson_t temp;
+    bson_iter_document(&sub_iter, &document_len, &document);
+    if (!bson_init_static(&temp, document, document_len))
+      continue;
+    result.push_back(BSONDoc(&temp));
+  } while (bson_iter_next(&baz));
   return true;
 }
 

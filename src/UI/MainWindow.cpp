@@ -83,26 +83,22 @@ MainWindow::MainWindow() :
     if (!ok)
       return;
 
+    QString url("https://data.fcc.gov/api/license-view/basicSearch/getLicenses?format=json&searchValue=" + text);
+
     QNetworkRequest request;
-    request.setUrl(QUrl("http://www.arrl.org/advanced-call-sign-search"));
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    request.setUrl(QUrl(url));
 
-    QUrlQuery params;
-    params.addQueryItem("data[Search][terms]", text);
-    params.addQueryItem("data[PubaccEn][entity_name]", "");
-    params.addQueryItem("data[PubaccEn][city]", "");
-    params.addQueryItem("data[PubaccEn][state]", "");
-    params.addQueryItem("data[PubaccEn][zip_code]", "");
-    params.addQueryItem("data[PubaccEn][type]", "a");
-
-    _networkManager->post(request, params.query().toUtf8());
-    qDebug() << "Searching fcc: " << text;
+    _networkManager->get(request);
+    qDebug() << "Searching fcc callsign: " << text;
   });
+
+  connect(_networkManager, &QNetworkAccessManager::finished,
+          this, &MainWindow::callsignSearchReady);
 
   connect(repeaterBookAct, &QAction::triggered, this, [=]() {
     bool ok;
-    QString text = QInputDialog::getText(this, tr("Search Fcc callsign"),
-                                         tr("call sign"), QLineEdit::Normal,
+    QString text = QInputDialog::getText(this, tr("Search Repeater"),
+                                         tr("Search Repeater"), QLineEdit::Normal,
                                          "", &ok);
     if (!ok)
       return;
@@ -115,10 +111,11 @@ MainWindow::MainWindow() :
     QUrlQuery params;
     _repeaterBookNetworkManager->post(request, params.query().toUtf8());
 
-    connect(_repeaterBookNetworkManager, &QNetworkAccessManager::finished,
-            this, &MainWindow::repeaterBookSlotReadyRead);
     qDebug() << "Searching repeaterbook: ";
   });
+
+  connect(_repeaterBookNetworkManager, &QNetworkAccessManager::finished,
+          this, &MainWindow::repeaterBookSlotReadyRead);
 
   connect(closeAct, &QAction::triggered, this, [=]() {
     close();
@@ -132,69 +129,42 @@ MainWindow::MainWindow() :
     _confFileWidget->nextTab(-1);
   });
 
-  connect(_networkManager, &QNetworkAccessManager::finished,
-          this, &MainWindow::slotReadyRead);
-
   setUnifiedTitleAndToolBarOnMac(true);
   statusBar()->showMessage(tr("Ready"));
-
-  //  QNetworkRequest request;
-  //  request.setUrl(QUrl("https://www.repeaterbook.com/repeaters/location_search.php?state_id=04&loc=Pima&type=county"));
-  //  request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-  //
-  //  QUrlQuery params;
-  //  _repeaterBookNetworkManager->post(request, params.query().toUtf8());
-  //
-  //  connect(_repeaterBookNetworkManager, &QNetworkAccessManager::finished,
-  //          this, &MainWindow::repeaterBookSlotReadyRead);
-
-  //  repeaterBookSlotReadyRead(NULL);
 }
 
 MainWindow::~MainWindow()
 {
 }
 
-void MainWindow::slotReadyRead(QNetworkReply* reply)
+void MainWindow::callsignSearchReady(QNetworkReply* reply)
 {
-  QByteArray bts = reply->readAll();
-  QString str(bts);
-
-  //  std::ofstream temp("reply.html");
-  //  temp << str.toStdString() << std::endl;
-  //
-  //  std::ifstream t("reply.html");
-  //  std::string fileStr;
-  //
-  //  t.seekg(0, std::ios::end);
-  //  fileStr.reserve(t.tellg());
-  //  t.seekg(0, std::ios::beg);
-  //
-  //  fileStr.assign((std::istreambuf_iterator<char>(t)),
-  //                 std::istreambuf_iterator<char>());
-  //
-
-  std::string fileStr = str.toStdString();
-  auto spot = fileStr.find("list2");
-  if (spot != std::string::npos)
-  {
-    fileStr = fileStr.substr(spot, fileStr.length() - spot);
-
-    spot = fileStr.find("div");
-    fileStr = fileStr.substr(0, spot);
-
-    ConfBlock::replaceRegex(fileStr, "\\t", "");
-    ConfBlock::replaceRegex(fileStr, "<[^>]*>", "");
-    ConfBlock::replaceRegex(fileStr, ".*>.*", "");
-    ConfBlock::replaceRegex(fileStr, ".*<.*", "");
-    ConfBlock::replaceRegex(fileStr, "\\r\\n\\s*", "\n");
-  }
-  else
-    fileStr = "Not Found!";
-
-  qDebug() << fileStr.c_str();
-
+  QString replyStr(reply->readAll());
   reply->deleteLater();
+
+  Mongo::BSONDoc results(replyStr.toStdString());
+
+  if (results.hasField("Errors"))
+  {
+    qDebug() << "Has Errors try again later: " << results.toString().c_str();
+    return;
+  }
+
+  if (!results.hasField("status") || results.getString("status") != "OK")
+  {
+    qDebug() << "Has Errors try again later: " << results.toString().c_str();
+    return;
+  }
+
+  std::vector<Mongo::BSONDoc> licenses = results.getDocuments("Licenses.License");
+  for (const auto& license : licenses)
+  {
+    const auto& fields = {"callsign", "licName", "frn", "expiredDate"};
+    for (const auto& field : fields)
+    {
+      std::cout << field << " : " << license.getString(field) << std::endl;
+    }
+  }
 }
 
 void MainWindow::repeaterBookSlotReadyRead(QNetworkReply* reply)
