@@ -242,6 +242,7 @@ bool BSONDoc::getDocuments(std::vector<BSONDoc>& result, const std::string& path
     return false;
   }
 
+  //if (!bson_iter_init_find(&iter, _doc, path.c_str()))
   if (!(bson_iter_init(&iter, _doc) && bson_iter_find_descendant(&iter, path.c_str(), &baz)))
   {
     printf("Path not found: \"%s\"\n", path.c_str());
@@ -255,17 +256,26 @@ bool BSONDoc::getDocuments(std::vector<BSONDoc>& result, const std::string& path
     return false;
   }
 
+  uint32_t array_len = 0;
+  const uint8_t* array = nullptr;
   printf("%s\n", bson_iter_key(&baz));
+  bson_iter_array(&baz, &array_len, &array);
 
-  if (bson_iter_recurse(&baz, &sub_iter))
+  printf("array_len: %d\n", array_len);
+  BSONDoc temp(bson_new_from_data(array, array_len));
+
+  printf("temp: %s\n", temp.toString().c_str());
+
+  if (!(bson_iter_init(&sub_iter, temp.get()) && bson_iter_find_descendant(&sub_iter, "0", &baz)))
   {
-    printf("sub_iter init failed: \"%s\"\n", path.c_str());
+    printf("Path not found: \"0\"\n");
+    printf("\"%s\"\n", temp.toString().c_str());
     return false;
   }
 
-  while (bson_iter_next(&sub_iter))
+  do
   {
-    printf("in\n");
+    printf("index: %s\n", bson_iter_key(&baz));
     const uint8_t* document;
     uint32_t document_len;
     bson_t temp;
@@ -273,7 +283,25 @@ bool BSONDoc::getDocuments(std::vector<BSONDoc>& result, const std::string& path
     if (!bson_init_static(&temp, document, document_len))
       continue;
     result.push_back(BSONDoc(&temp));
-  }
+  } while (bson_iter_next(&baz));
+  //
+  //  if (bson_iter_recurse(&baz, &sub_iter))
+  //  {
+  //    printf("sub_iter init failed: \"%s\"\n", path.c_str());
+  //    return false;
+  //  }
+  //
+  //  while (bson_iter_next(&sub_iter))
+  //  {
+  //    printf("in\n");
+  //    const uint8_t* document;
+  //    uint32_t document_len;
+  //    bson_t temp;
+  //    bson_iter_document(&sub_iter, &document_len, &document);
+  //    if (!bson_init_static(&temp, document, document_len))
+  //      continue;
+  //    result.push_back(BSONDoc(&temp));
+  //  }
   return true;
 }
 
