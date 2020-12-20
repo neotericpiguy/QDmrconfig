@@ -71,8 +71,7 @@ main () {
   xxd $originalImage > $originalImageHex
   touchTest
   paramFlagTest "0x0071600" "0x1" "Ch Name"
-  paramFlagTest "0x0071600" "0xbc" "GPS Units"
-#  gpsUnitsTest
+  paramFlagTest "0x0071600" "188" "GPS Units"
 
   echo -e "\e[32mALL TEST PASS\e[0m"
 }
