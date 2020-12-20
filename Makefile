@@ -75,7 +75,7 @@ $(TARGET_GUI): $(TARGET_LIB) $(GUI_SRCS) $(GUI_HDRS) $(COMMON_LIB)
 		"HEADERS        += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
 		"INCLUDEPATH    += $(INCPATHS:-I%=../../../%) $(LINCPATHS:-I%=%)" \
 		"PRE_TARGETDEPS += ../../../$(COMMON_LIB) ../../../$(TARGET_LIB)" \
-		"LIBS           += $(TARGET_LIB:%=../../../%) ../../../$(COMMON_LIB) $(LIBS)" \
+		"LIBS           += ../../../$(COMMON_LIB) ../../../$(TARGET_LIB) $(LIBS)" \
 		"TARGET         = ../../../$(TARGET_GUI)" \
 		$(GUI_PRO) -o $(BUILD_PATH)/src/UI/Makefile
 	$(MAKE) -C $(BUILD_PATH)/src/UI
