@@ -5,18 +5,16 @@ HASH               = $(shell git rev-parse --short HEAD)
 DMRCONFIG_VERSION  = $(shell git submodule status)
 GITCOUNT           = $(shell git rev-list HEAD --count)
 
-CFLAGS            ?= -g -O -Wall -Werror -fPIC -MMD -fcommon
-CFLAGS            += -DVERSION='"$(VERSION).$(HASH)"' 
+CFLAGS   ?= -g -O -Wall -Werror -fPIC -MMD -fcommon
+CFLAGS   += -DVERSION='"$(VERSION).$(HASH)"'
+CXXFLAGS += $(CFLAGS) -std=c++17 -Weffc++
+LDFLAGS  ?= -g -L$(BUILD_PATH)
 
-LDFLAGS           ?= -g -L$(BUILD_PATH)
-LIBS               = $(shell pkg-config --libs --static libusb-1.0 libmongoc-1.0) 
+LIBS      = $(shell pkg-config --libs --static libusb-1.0 libmongoc-1.0)
+QT_LIBS   = $(shell pkg-config --libs Qt5Widgets)
+QT_CFLAGS = $(shell pkg-config --cflags Qt5Widgets)
 
-CXXFLAGS        += $(CFLAGS) -std=c++17 -Weffc++ 
-
-QT_LIBS         = $(shell pkg-config --libs Qt5Widgets)
-QT_CFLAGS       = $(shell pkg-config --cflags Qt5Widgets)
-
-INCPATHS        += -Isrc/dmrconfig -Isrc/ -Isrc/UI -Isrc/common -Isrc/common/BSONDoc
+INCPATHS         += -Isrc/dmrconfig -Isrc/ -Isrc/UI -Isrc/common -Isrc/common/BSONDoc
 LIBMONGOCINCPATH += $(shell pkg-config --cflags libmongoc-1.0)
 LIBUSBPATH       += $(shell pkg-config --cflags libusb-1.0)
 LINCPATHS        += $(LIBMONGOCINCPATH) $(LIBUSBPATH)
@@ -34,6 +32,9 @@ GUI_PRO+=$(shell find src/UI -iname '*.pro')
 
 COMMON_SRCS=$(shell find src/common -iname '*.cpp')
 COMMON_OBJS=$(addprefix $(BUILD_PATH)/,$(COMMON_SRCS:.cpp=.o))
+
+TESTS_SRCS=$(shell find src/tests -iname '*.cpp')
+TESTS_OBJS=$(addprefix $(BUILD_PATH)/,$(TESTS_SRCS:.cpp=.o))
 
 UI_SRCS=$(shell find src/UI -iname '*.cpp')
 UI_OBJS=$(addprefix $(BUILD_PATH)/,$(UI_SRCS:.cpp=.o))
@@ -63,7 +64,7 @@ $(COMMON_LIB): $(COMMON_OBJS)
 	ranlib $@
 
 $(TARGET_CLI): $(MAIN_CLI_OBJ) $(TARGET_LIB) 
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(INCPATHS) -o $@ $^ $(LIBS)
+	$(CXX) -o $@ $(CXXFLAGS) $(LDFLAGS) $(INCPATHS) $^ $(LIBS)
 
 $(TARGET_GUI): $(TARGET_LIB) $(GUI_SRCS) $(GUI_HDRS) $(COMMON_LIB)
 	@mkdir -p $(BUILD_PATH)/src/UI
@@ -82,16 +83,16 @@ $(TARGET_GUI): $(TARGET_LIB) $(GUI_SRCS) $(GUI_HDRS) $(COMMON_LIB)
 # Build dmrconfig
 $(BUILD_PATH)/src/dmrconfig/%.o: src/dmrconfig/%.c
 	@mkdir -p `dirname $@`
-	$(CC) -o $@ -c $(CFLAGS) $(LINCPATHS) $<
+	$(CC) -o $@ -c $(CFLAGS) $(LIBUSBPATH) $<
 
+# Build libcommon
 $(BUILD_PATH)/src/common/%.o: src/common/%.cpp
 	@mkdir -p `dirname $@`
-	@echo Building common
-	$(CC) -c $(CXXFLAGS) $(INCPATHS) $(LINCPATHS) $(LIBMONGOCINCPATH) -o $@ $<
+	$(CC) -o $@ -c $(CXXFLAGS) $(INCPATHS) $(LINCPATHS) $(LIBMONGOCINCPATH) $<
 
 $(BUILD_PATH)/%.o: %.cpp
 	@mkdir -p `dirname $@`
-	$(CC) -c $(CXXFLAGS) $(INCPATHS) $(LINCPATHS) -o $@ $<
+	$(CC) -o $@ -c $(CXXFLAGS) $(INCPATHS) $(LINCPATHS) $<
 
 clean:
 	-rm -rf $(BUILD_PATH) 
@@ -101,6 +102,9 @@ distclean: clean
 
 repoclean: distclean
 	git clean -ffd
+
+tests: $(TESTS_OBJS) $(COMMON_LIB)
+	$(CXX) -o $@ $(CXXFLAGS) $^ $(LIBS)
 
 -include $(DMRCONFIG_OBJS:%.o=%.d) 
 -include $(MAIN_CLI_OBJ:%.o=%.d) 
