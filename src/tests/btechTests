@@ -1,0 +1,83 @@
+#!/bin/bash
+
+set -e
+
+originalImage=${1?"Original image to test change"}
+originalImageHex=`mktemp`
+
+tmpConf=`mktemp`
+
+trap cleanup 0 SIGTERM SIGKILL
+
+_testEq() {
+  if [ "$1" == "$2" ]; then
+    echo -en "\e[32m[PASS] "
+  else
+    echo -en "\e[31m[FAIL] $1 != $2"
+    echo -e "\e[0m $3"
+    exit 1
+  fi
+  echo -e "\e[0m $3"
+}
+
+cleanup() {
+  echo "Cleaning"
+  rm -rf $tmpConf $originalImageHex
+}
+
+channelNameDisplay() {
+  local hex=0x00071601
+  local size=1
+  local image=$originalImage
+
+  ./dmrconfig $image > $tmpConf
+  egrep '^Ch Name' $tmpConf
+  sed -r -i 's/^Ch Name:.*/Ch Name: 0/g' $tmpConf
+  egrep '^Ch Name' $tmpConf
+  ./dmrconfig -c $image $tmpConf
+  xxd device.img | diff $originalImageHex - || true
+  val=`xxd -s $hex -l $size device.img | awk '{print $2}'`
+  _testEq "00" "$val" "${FUNCNAME[0]} 0"
+
+  ./dmrconfig $image > $tmpConf
+  egrep '^Ch Name' $tmpConf
+  sed -r -i 's/^Ch Name:.*/Ch Name: 1/g' $tmpConf
+  egrep '^Ch Name' $tmpConf
+  ./dmrconfig -c $image $tmpConf
+  xxd device.img | diff $originalImageHex - || true
+  val=`xxd -s $hex -l $size device.img | awk '{print $2}'`
+  _testEq "01" "$val" "${FUNCNAME[0]} 1"
+
+#  echo
+#  image=device.img
+#  ./dmrconfig $image > $tmpConf
+#  egrep '^Ch Name' $tmpConf
+#  sed -r -i 's/^Ch Name:.*/Ch Name: 1/g' $tmpConf
+#  egrep '^Ch Name' $tmpConf
+#  ./dmrconfig -c $image $tmpConf
+#  diff <(xxd $image) <(xxd device.img) || true
+#  xxd -s $hex -l $size device.img 
+}
+
+touchTest() {
+  local image=$originalImage
+
+  ./dmrconfig $image > $tmpConf
+  ./dmrconfig -c $image $tmpConf
+  #  xxd $image | grep -i $hex
+  #  xxd device.img | grep -i $hex
+  if  cmp $image device.img; then
+    echo -en "\e[32mPASS"
+  else
+    echo -en "\e[32mFAIL"
+  fi
+  echo -e "\e[0m ${FUNCNAME[0]}"
+}
+
+main () {
+  xxd $originalImage > $originalImageHex
+  touchTest
+  channelNameDisplay
+}
+
+main $@
