@@ -46,6 +46,7 @@ TARGET_GUI=QDmrconfig
 TARGET_CLI=dmrconfig
 
 TARGET_LIB=$(BUILD_PATH)/lib$(TARGET_CLI).a
+COMMON_LIB=$(BUILD_PATH)/libcommon.a
 
 all: $(TARGET_GUI) $(TARGET_CLI)
 	@echo -e "\e[032m$^\e[0m"
@@ -54,19 +55,22 @@ $(TARGET_LIB): $(DMRCONFIG_OBJS)
 	ar rcs $@ $^
 	ranlib $@
 
+$(COMMON_LIB): $(COMMON_OBJS)
+	ar rcs $@ $^
+	ranlib $@
+
 $(TARGET_CLI): $(MAIN_CLI_OBJ) $(TARGET_LIB) 
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(INCPATHS) -o $@ $^ $(LIBS)
 
-$(TARGET_GUI): $(TARGET_LIB) $(GUI_SRCS) $(GUI_HDRS) $(COMMON_OBJS)
+$(TARGET_GUI): $(TARGET_LIB) $(GUI_SRCS) $(GUI_HDRS) $(COMMON_LIB)
 	@mkdir -p $(BUILD_PATH)/src/UI
 	qmake \
 		"DEFINES      += VERSION=\'\\\"$(VERSION)\\\"\'" \
 		"SOURCES      += $(GUI_SRCS:%=../../../%)" \
-		"SOURCES      += $(COMMON_SRCS:%=../../../%)" \
 		"HEADERS      += $(GUI_HDRS:%=../../../%)" \
 		"HEADERS      += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
 		"INCLUDEPATH  += $(INCPATHS:-I%=../../../%) $(LINCPATHS:-I%=%)" \
-		"LIBS         += $(TARGET_LIB:%=../../../%) $(LIBS)" \
+		"LIBS         += $(TARGET_LIB:%=../../../%) $(LIBS) ../../../$(COMMON_LIB) ../../../$(TARGET_LIB)" \
 		"TARGET        = ../../../$(TARGET_GUI)" \
 		$(GUI_PRO) -o $(BUILD_PATH)/src/UI/Makefile
 	$(MAKE) -C $(BUILD_PATH)/src/UI

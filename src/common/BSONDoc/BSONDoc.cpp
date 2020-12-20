@@ -246,7 +246,7 @@ bool BSONDoc::getDocuments(std::vector<BSONDoc>& result, const std::string& path
   {
     printf("iter init\n");
   }
-  if (bson_iter_find(&iter, path.c_str()))
+  if (bson_iter_find(&iter, "Licenses"))
   {
     printf("init_find\n");
     if (BSON_ITER_HOLDS_ARRAY(&iter))
@@ -267,6 +267,10 @@ bool BSONDoc::getDocuments(std::vector<BSONDoc>& result, const std::string& path
         }
       }
       return true;
+    }
+    else
+    {
+      printf("Not an array\n");
     }
   }
   else

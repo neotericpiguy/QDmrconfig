@@ -150,14 +150,16 @@ void MainWindow::callsignSearchReady(QNetworkReply* reply)
 
   Mongo::BSONDoc results(str.toStdString());
 
-  std::cout << "results: " << results.toString();
+  std::cout << "results: " << results.toString() << std::endl;
 
   if (results.hasField("status") && results.getString("status") == "OK")
   {
-    std::cout << "results.count()" << results.count() << std::endl;
-    std::cout << "has Liceenses" << results.hasField("Licenses") << std::endl;
-    std::cout << "has Liceenses.License" << results.hasField("Licenses.License") << std::endl;
-    std::cout << "has Liceenses.page" << results.hasField("Licenses.page") << std::endl;
+    std::cout << "results.count(): " << results.count() << std::endl;
+    std::cout << "has Liceenses: " << results.hasField("Licenses") << std::endl;
+    std::cout << "has Liceenses.lastUpdate: " << results.getString("Licenses.lastUpdate") << std::endl;
+    std::cout << "has Liceenses.page: " << results.hasField("Licenses.page") << std::endl;
+
+    std::cout << "has Liceenses.License: " << results.hasField("Licenses.License") << std::endl;
 
     std::vector<Mongo::BSONDoc> licenses;
     if (results.getDocuments(licenses, "Licenses.License"))
