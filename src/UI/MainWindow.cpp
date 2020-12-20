@@ -54,6 +54,10 @@ MainWindow::MainWindow() :
 
   connect(openAct, &QAction::triggered, this, [=]() {
     auto filename = QFileDialog::getOpenFileName(this, tr("Open Config"), "./", tr("Config Files (*.conf)"));
+    if (filename.length() <= 0)
+    {
+      return;
+    }
     loadFile(filename);
   });
 
@@ -89,7 +93,7 @@ MainWindow::MainWindow() :
     request.setUrl(QUrl(url));
 
     _networkManager->get(request);
-    qDebug() << "Searching fcc callsign: " << text;
+    statusBar()->showMessage("Searching fcc callsign: " + text);
   });
 
   connect(_networkManager, &QNetworkAccessManager::finished,
@@ -146,13 +150,13 @@ void MainWindow::callsignSearchReady(QNetworkReply* reply)
 
   if (results.hasField("Errors"))
   {
-    qDebug() << "Has Errors try again later: " << results.toString().c_str();
+    statusBar()->showMessage(QString("Has Errors try again later: ") + QString::fromStdString(results.toString()), 10000);
     return;
   }
 
   if (!results.hasField("status") || results.getString("status") != "OK")
   {
-    qDebug() << "Has Errors try again later: " << results.toString().c_str();
+    statusBar()->showMessage(QString("Has Errors try again later: ") + QString::fromStdString(results.toString()), 10000);
     return;
   }
 

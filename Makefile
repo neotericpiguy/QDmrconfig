@@ -69,7 +69,7 @@ $(TARGET_CLI): $(MAIN_CLI_OBJ) $(TARGET_LIB)
 $(TARGET_GUI): $(TARGET_LIB) $(GUI_SRCS) $(GUI_HDRS) $(COMMON_LIB)
 	@mkdir -p $(BUILD_PATH)/src/UI
 	qmake \
-		"DEFINES        += VERSION=\'\\\"$(VERSION)\\\"\'" \
+		"DEFINES        += VERSION=\'\\\"$(VERSION).$(HASH)\\\"\'" \
 		"SOURCES        += $(GUI_SRCS:%=../../../%)" \
 		"HEADERS        += $(GUI_HDRS:%=../../../%)" \
 		"HEADERS        += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
