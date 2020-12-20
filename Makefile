@@ -7,16 +7,19 @@ GITCOUNT           = $(shell git rev-list HEAD --count)
 
 CFLAGS            ?= -g -O -Wall -Werror -fPIC -MMD -fcommon
 CFLAGS            += -DVERSION='"$(VERSION).$(HASH)"' 
+
 LDFLAGS           ?= -g -L$(BUILD_PATH)
 LIBS               = $(shell pkg-config --libs --static libusb-1.0 libmongoc-1.0) 
 
-CXXFLAGS       += $(CFLAGS) -std=c++17 -Weffc++ 
+CXXFLAGS        += $(CFLAGS) -std=c++17 -Weffc++ 
 
 QT_LIBS         = $(shell pkg-config --libs Qt5Widgets)
 QT_CFLAGS       = $(shell pkg-config --cflags Qt5Widgets)
 
-INCPATHS       += -Isrc/dmrconfig -Isrc/ -Isrc/UI -Isrc/common -Isrc/common/BSONDoc
-LINCPATHS       += $(shell pkg-config --cflags libmongoc-1.0 libusb-1.0)
+INCPATHS        += -Isrc/dmrconfig -Isrc/ -Isrc/UI -Isrc/common -Isrc/common/BSONDoc
+LIBMONGOCINCPATH += $(shell pkg-config --cflags libmongoc-1.0)
+LIBUSBPATH       += $(shell pkg-config --cflags libusb-1.0)
+LINCPATHS        += $(LIBMONGOCINCPATH) $(LIBUSBPATH)
 
 DMRCONFIG_SRCS=$(shell find src/dmrconfig/ -iregex '.*\.c' -not -iregex '.*\(main\|windows\|macos\).*')
 DMRCONFIG_OBJS=$(addprefix $(BUILD_PATH)/,$(DMRCONFIG_SRCS:.c=.o))
@@ -65,27 +68,26 @@ $(TARGET_CLI): $(MAIN_CLI_OBJ) $(TARGET_LIB)
 $(TARGET_GUI): $(TARGET_LIB) $(GUI_SRCS) $(GUI_HDRS) $(COMMON_LIB)
 	@mkdir -p $(BUILD_PATH)/src/UI
 	qmake \
-		"DEFINES      += VERSION=\'\\\"$(VERSION)\\\"\'" \
-		"SOURCES      += $(GUI_SRCS:%=../../../%)" \
-		"HEADERS      += $(GUI_HDRS:%=../../../%)" \
-		"HEADERS      += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
-		"INCLUDEPATH  += $(INCPATHS:-I%=../../../%) $(LINCPATHS:-I%=%)" \
-		"LIBS         += $(TARGET_LIB:%=../../../%) $(LIBS) ../../../$(COMMON_LIB) ../../../$(TARGET_LIB)" \
-		"TARGET        = ../../../$(TARGET_GUI)" \
+		"DEFINES        += VERSION=\'\\\"$(VERSION)\\\"\'" \
+		"SOURCES        += $(GUI_SRCS:%=../../../%)" \
+		"HEADERS        += $(GUI_HDRS:%=../../../%)" \
+		"HEADERS        += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
+		"INCLUDEPATH    += $(INCPATHS:-I%=../../../%) $(LINCPATHS:-I%=%)" \
+		"PRE_TARGETDEPS += ../../../$(COMMON_LIB) ../../../$(TARGET_LIB)" \
+		"LIBS           += $(TARGET_LIB:%=../../../%) ../../../$(COMMON_LIB) $(LIBS)" \
+		"TARGET         = ../../../$(TARGET_GUI)" \
 		$(GUI_PRO) -o $(BUILD_PATH)/src/UI/Makefile
 	$(MAKE) -C $(BUILD_PATH)/src/UI
 
-$(BUILD_PATH)/%.o: %.c
+# Build dmrconfig
+$(BUILD_PATH)/src/dmrconfig/%.o: src/dmrconfig/%.c
 	@mkdir -p `dirname $@`
-	$(CC) -c $(CFLAGS) $(INCPATHS) $(LINCPATHS) -o $@ $<
+	$(CC) -o $@ -c $(CFLAGS) $(LINCPATHS) $<
 
-$(BUILD_PATH)/moc/%.moc.cpp: %.hpp
+$(BUILD_PATH)/src/common/%.o: src/common/%.cpp
 	@mkdir -p `dirname $@`
-	moc $< -o $@
-
-%.moc.o: %.moc.cpp
-	@mkdir -p `dirname $@`
-	$(CC) -c $(CXXFLAGS) $(QT_CFLAGS) $(INCPATHS) -o $@ $<
+	@echo Building common
+	$(CC) -c $(CXXFLAGS) $(INCPATHS) $(LINCPATHS) $(LIBMONGOCINCPATH) -o $@ $<
 
 $(BUILD_PATH)/%.o: %.cpp
 	@mkdir -p `dirname $@`

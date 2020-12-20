@@ -158,7 +158,6 @@ void MainWindow::callsignSearchReady(QNetworkReply* reply)
     std::cout << "has Liceenses: " << results.hasField("Licenses") << std::endl;
     std::cout << "has Liceenses.lastUpdate: " << results.getString("Licenses.lastUpdate") << std::endl;
     std::cout << "has Liceenses.page: " << results.hasField("Licenses.page") << std::endl;
-
     std::cout << "has Liceenses.License: " << results.hasField("Licenses.License") << std::endl;
 
     std::vector<Mongo::BSONDoc> licenses;

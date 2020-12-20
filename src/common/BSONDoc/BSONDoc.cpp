@@ -246,7 +246,7 @@ bool BSONDoc::getDocuments(std::vector<BSONDoc>& result, const std::string& path
   {
     printf("iter init\n");
   }
-  if (bson_iter_find(&iter, "Licenses"))
+  if (bson_iter_find(&iter, "Licenses.Licenses"))
   {
     printf("init_find\n");
     if (BSON_ITER_HOLDS_ARRAY(&iter))

@@ -1,7 +1,5 @@
 #include "ConfFile.hpp"
 
-#include "QDmrconfigEditor.h"
-
 ConfFile::ConfFile() :
     _filename(),
     _confBlocks(),
@@ -80,14 +78,14 @@ void ConfFile::uploadFile()
   if (isModified())
     saveFile();
 
-  radio_connect(-1);
-  radio_download();
-  radio_print_version(stdout);
-  radio_save_image("backup.img");
-  radio_parse_config(_filename.c_str());
-  radio_verify_config();
-  radio_upload(1);
-  radio_disconnect();
+//  radio_connect(-1);
+//  radio_download();
+//  radio_print_version(stdout);
+//  radio_save_image("backup.img");
+//  radio_parse_config(_filename.c_str());
+//  radio_verify_config();
+//  radio_upload(1);
+//  radio_disconnect();
 }
 
 void ConfFile::downloadFile(const std::string& filename)
@@ -95,11 +93,11 @@ void ConfFile::downloadFile(const std::string& filename)
   std::string imageFilename = filename;
   ConfBlock::replace(imageFilename, ".conf", ".img");
 
-  radio_connect(-1);
-  radio_download();
-  radio_print_version(stdout);
-  radio_disconnect();
-  radio_save_image(imageFilename.c_str());
+//  radio_connect(-1);
+//  radio_download();
+//  radio_print_version(stdout);
+//  radio_disconnect();
+//  radio_save_image(imageFilename.c_str());
 
   std::cout << "Print configuration to file " << filename << std::endl;
 
@@ -109,7 +107,7 @@ void ConfFile::downloadFile(const std::string& filename)
     perror(filename.c_str());
     exit(-1);
   }
-  radio_print_config(conf, 1);
+//  radio_print_config(conf, 1);
   fclose(conf);
 }
 
