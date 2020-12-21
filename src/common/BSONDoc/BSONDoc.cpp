@@ -110,7 +110,7 @@ bool BSONDoc::clear()
   return true;
 }
 
-const std::string BSONDoc::toString() const
+std::string BSONDoc::toString() const
 {
   char* str;
   str = bson_as_json(_doc, NULL);
@@ -501,6 +501,20 @@ BSONDoc BSONDoc::fromFile(const std::string& filename, const std::string& path)
   result.append("filename", filename);
   result.append("file", fileContents);
 
+  return result;
+}
+
+std::vector<std::string> BSONDoc::getKeys() const
+{
+  bson_iter_t iter;
+  std::vector<std::string> result;
+  if (bson_iter_init(&iter, _doc))
+  {
+    while (bson_iter_next(&iter))
+    {
+      result.push_back(bson_iter_key(&iter));
+    }
+  }
   return result;
 }
 }  // namespace Mongo

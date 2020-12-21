@@ -1,10 +1,9 @@
 #ifndef BSONDOC_HPP
 #define BSONDOC_HPP
 
-#include <ctime>  // date conversion
-
 #include <mongoc.h>
 
+#include <ctime>  // date conversion
 #include <fstream>
 #include <functional>
 
@@ -113,7 +112,10 @@ public:
   static BSONDoc fromFile(const std::string& filename, const std::string& path);
 
   /** Display BSONDoc as  a pretty string */
-  const std::string toString() const;
+  std::string toString() const;
+
+  /** Display keys in BSONDoc */
+  std::vector<std::string> getKeys() const;
 
   /** Display the number of child fields */
   unsigned count() const;

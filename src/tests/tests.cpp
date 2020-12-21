@@ -28,6 +28,7 @@ bool simpleDoc()
   std::cout << "licenses.size() " << licenses.size() << std::endl;
   return true;
 }
+
 bool bsondocVectorTest()
 {
   std::string str = "{ \"status\" : \"OK\", \"Licenses\" : { \"page\" : \"1\", \"rowPerPage\" : \"100\", \"totalRows\" : \"1\", \"lastUpdate\" : \"Dec 19, 2020\", \"License\" : [ { \"licName\" : \"Annua, Jonathan Lee O\", \"frn\" : \"0029046729\", \"callsign\" : \"KJ7LEY\", \"categoryDesc\" : \"Personal Use\", \"serviceDesc\" : \"Amateur\", \"statusDesc\" : \"Active\", \"expiredDate\" : \"12/12/2029\", \"licenseID\" : \"4232049\", \"licDetailURL\" : \"http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4232049\" } ] } }";
@@ -53,6 +54,25 @@ bool bsondocVectorTest()
   return false;
 }
 
+bool keyTest()
+{
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
+  std::string str = "{ \"status\" : \"OK\", \"Licenses\" : { \"page\" : \"1\", \"rowPerPage\" : \"100\", \"totalRows\" : \"1\", \"lastUpdate\" : \"Dec 19, 2020\", \"License\" : [ { \"licName\" : \"Annua, Jonathan Lee O\", \"frn\" : \"0029046729\", \"callsign\" : \"KJ7LEY\", \"categoryDesc\" : \"Personal Use\", \"serviceDesc\" : \"Amateur\", \"statusDesc\" : \"Active\", \"expiredDate\" : \"12/12/2029\", \"licenseID\" : \"4232049\", \"licDetailURL\" : \"http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4232049\" } ] } }";
+
+  Mongo::BSONDoc results(str);
+  std::cout << "results: " << results.toString() << std::endl;
+
+  auto keys = results.getKeys();
+
+  std::cout << "keys.size(): " << keys.size() << std::endl;
+  for (const auto& key : keys)
+  {
+    std::cout << key << std::endl;
+  }
+
+  return false;
+}
+
 int main()
 {
   std::cout << "Tests" << std::endl;
@@ -64,5 +84,6 @@ int main()
   {
     std::cout << "bsondocVectorTest FAILED" << std::endl;
   }
+  keyTest();
   return 0;
 }
