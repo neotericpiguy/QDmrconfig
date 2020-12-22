@@ -481,7 +481,7 @@ bool BSONDoc::isString(const std::string& path) const
 }
 
 template <>
-std::string BSONDoc::get<std::string>(const std::string& path)
+std::string BSONDoc::get<std::string>(const std::string& path) const
 {
   bson_iter_t iter;
   bson_iter_t baz;
@@ -491,16 +491,12 @@ std::string BSONDoc::get<std::string>(const std::string& path)
     {
       return std::string(bson_iter_utf8(&baz, nullptr));
     }
-    //    else if (std::is_same<T, int32_t>::value && BSON_ITER_HOLDS_INT32(&iter))
-    //    {
-    //      return bson_iter_int32(&baz);
-    //    }
   }
   return "";
 }
 
 template <>
-int32_t BSONDoc::get<int32_t>(const std::string& path)
+int32_t BSONDoc::get<int32_t>(const std::string& path) const
 {
   bson_iter_t iter;
   bson_iter_t baz;
@@ -516,7 +512,7 @@ int32_t BSONDoc::get<int32_t>(const std::string& path)
 }
 
 template <>
-BSONDoc BSONDoc::get<BSONDoc>(const std::string& path)
+BSONDoc BSONDoc::get<BSONDoc>(const std::string& path) const
 {
   bson_iter_t iter;
   bson_iter_t baz;
@@ -541,7 +537,7 @@ BSONDoc BSONDoc::get<BSONDoc>(const std::string& path)
 }
 
 template <>
-std::vector<BSONDoc> BSONDoc::get<std::vector<BSONDoc>>(const std::string& path)
+std::vector<BSONDoc> BSONDoc::get<std::vector<BSONDoc>>(const std::string& path) const
 {
   bson_iter_t iter;
   bson_iter_t baz;

@@ -22,7 +22,7 @@ _testEq() {
 
 cleanup() {
   echo "Cleaning"
-  rm -rf $tmpConf $originalImageHex
+  rm -rf $tmpConf $originalImageHex device.img
 }
 
 paramFlagTest() {

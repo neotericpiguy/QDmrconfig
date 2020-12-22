@@ -148,25 +148,25 @@ void MainWindow::callsignSearchReady(QNetworkReply* reply)
 
   Mongo::BSONDoc results(replyStr.toStdString());
 
-  if (results.hasField("Errors"))
+  if (results.has("Errors"))
   {
     statusBar()->showMessage(QString("Has Errors try again later: ") + QString::fromStdString(results.toString()), 10000);
     return;
   }
 
-  if (!results.hasField("status") || results.getString("status") != "OK")
+  if (!results.has("status") || results.get<std::string>("status") != "OK")
   {
     statusBar()->showMessage(QString("Has Errors try again later: ") + QString::fromStdString(results.toString()), 10000);
     return;
   }
 
-  std::vector<Mongo::BSONDoc> licenses = results.getDocuments("Licenses.License");
+  std::vector<Mongo::BSONDoc> licenses = results.get<std::vector<Mongo::BSONDoc>>("Licenses.License");
   for (const auto& license : licenses)
   {
     const auto& fields = {"callsign", "licName", "frn", "expiredDate"};
     for (const auto& field : fields)
     {
-      std::cout << field << " : " << license.getString(field) << std::endl;
+      std::cout << field << " : " << license.get<std::string>(field) << std::endl;
     }
   }
 }

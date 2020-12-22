@@ -36,13 +36,6 @@ COMMON_OBJS=$(addprefix $(BUILD_PATH)/,$(COMMON_SRCS:.cpp=.o))
 TESTS_SRCS=$(shell find src/tests -iname '*.cpp')
 TESTS_OBJS=$(addprefix $(BUILD_PATH)/,$(TESTS_SRCS:.cpp=.o))
 
-UI_SRCS=$(shell find src/UI -iname '*.cpp')
-UI_OBJS=$(addprefix $(BUILD_PATH)/,$(UI_SRCS:.cpp=.o))
-
-MOC_SRCS=$(shell find src/UI -iname '*.hpp')
-MOC_CPPS=$(addprefix $(BUILD_PATH)/moc/,$(MOC_SRCS:.hpp=.moc.cpp))
-UI_OBJS+=$(MOC_CPPS:.cpp=.o)
-
 .SECONDARY: $(MOC_CPPS)
 .PHONY: all clean
 
@@ -106,13 +99,16 @@ repoclean: distclean
 tests: $(TESTS_OBJS) $(COMMON_LIB)
 	$(CXX) -o $@ $(CXXFLAGS) $^ $(LIBS)
 
-check: $(TARGET_CLI) tests
+run-tests: tests
 	./tests
+
+run-dmrconfig-tests: $(TARGET_CLI)
 	./src/tests/btechTests examples/btech6x2.img.bak
+
+check: run-tests run-dmrconfig-tests $(TARGET_GUI)
+	@echo Check Passed 
 
 -include $(DMRCONFIG_OBJS:%.o=%.d) 
 -include $(MAIN_CLI_OBJ:%.o=%.d) 
 -include $(MAIN_GUI_OBJ:%.o=%.d) 
 -include $(COMMON_OBJS:%.o=%.d) 
--include $(UI_OBJS:%.o=%.d) 
--include $(MOC_OBJS:%.o=%.d) 

@@ -64,7 +64,7 @@ public:
   /** Get a vector of BSONDoc at the path */
 
   template <typename T>
-  T get(const std::string& path);
+  T get(const std::string& path) const;
 
   /** Get the epoch? */
   int64_t getDateTime(const std::string& key) const;
