@@ -52,7 +52,7 @@ static std::vector<std::string> failFuncs;
             << "=========================================" \
             << "\e[0m" << std::endl;
 
-std::string str = "{ \"status\" : \"OK\", \"Licenses\" : { \"page\" : 1, \"rowPerPage\" : \"100\", \"totalRows\" : \"1\", \"lastUpdate\" : \"Dec 19, 2020\", \"License\" : [ { \"licName\" : \"Annua, Jonathan Lee O\", \"frn\" : \"0029046729\", \"callsign\" : \"KJ7LEY\", \"categoryDesc\" : \"Personal Use\", \"serviceDesc\" : \"Amateur\", \"statusDesc\" : \"Active\", \"expiredDate\" : \"12/12/2029\", \"licenseID\" : \"4232049\", \"licDetailURL\" : \"http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4232049\" } ] } }";
+std::string str = "{ \"status\" : \"OK\", \"Licenses\" : { \"page\" : 1, \"rowPerPage\" : \"100\", \"totalRows\" : \"1\", \"lastUpdate\" : \"Dec 19, 2020\", \"License\" : [ { \"licName\" : \"Annua, Jonathan Lee O\", \"frn\" : \"0029046729\", \"callsign\" : \"KJ7LEY\", \"categoryDesc\" : \"Personal Use\", \"serviceDesc\" : \"Amateur\", \"statusDesc\" : \"Active\", \"expiredDate\" : \"12/12/2029\", \"licenseID\" : \"4232049\", \"licDetailURL\" : \"http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4232049\" },{\"licName\" :\"another\"} ] } }";
 bool simpleDoc()
 {
   START_TEST();
@@ -74,7 +74,10 @@ bool simpleDoc()
   std::cout << "results2: " << results2.toString() << std::endl;
 
   std::vector<Mongo::BSONDoc> licenses = results2.get<std::vector<Mongo::BSONDoc>>("Licenses.License");
-  TEST(licenses.size(), ==, 1);
+  TEST(licenses.size(), ==, 2);
+  TEST(licenses[0].get<std::string>("frn"), ==, "0029046729");
+  TEST(licenses[1].get<std::string>("licName"), ==, "another");
+
   return true;
 }
 
@@ -95,7 +98,7 @@ bool bsondocVectorTest()
   TEST(results.has("Licenses.License"), ==, true);
 
   std::vector<Mongo::BSONDoc> licenses = results.get<std::vector<Mongo::BSONDoc>>("Licenses.License");
-  TEST(licenses.size(), ==, 1);
+  TEST(licenses.size(), ==, 2);
   return true;
 }
 
@@ -166,10 +169,10 @@ bool templateTest()
 int main()
 {
   bsondocVectorTest();
-  simpleDoc();
   keyTest();
   templateTest();
   getDocumentTest();
+  simpleDoc();
 
   std::cout << "\e[32m" << passCount << " PASS\e[0m " << std::endl;
   std::cout << "\e[31m" << failCount << " FAIL\e[0m " << std::endl;

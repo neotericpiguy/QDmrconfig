@@ -101,7 +101,7 @@ $(BUILD_PATH)/tests: $(TESTS_OBJS) $(COMMON_LIB)
 	$(CXX) -o $@ $(CXXFLAGS) $^ $(LIBS)
 
 $(BUILD_PATH)/run-tests: $(BUILD_PATH)/tests
-	./$^ | tee $@
+	$(BUILD_PATH)/tests | tee $@
 
 $(BUILD_PATH)/run-dmrconfig-tests: $(TARGET_CLI) $(TEST_SCRIPTS)
 	./src/tests/btechTests examples/btech6x2.img.bak | tee $@
