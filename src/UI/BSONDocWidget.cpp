@@ -1,9 +1,9 @@
 #include "BSONDocWidget.hpp"
 
-BSONDocWidget::BSONDocWidget(Mongo::BSONDoc& confBlock, QWidget* parent) :
+BSONDocWidget::BSONDocWidget(std::vector<Mongo::BSONDoc>& bsonDocs, QWidget* parent) :
     QWidget(parent),
     _isDebug(false),
-    _bsonDoc(confBlock),
+    _bsonDocs(bsonDocs),
     //    _textView(new QPlainTextEdit(this)),
     _tableWidget(new QTableWidget(this))
 {
@@ -24,7 +24,7 @@ BSONDocWidget::BSONDocWidget(Mongo::BSONDoc& confBlock, QWidget* parent) :
   //_tableWidget->verticalHeader()->setVisible(false);
 
   // Fit contents of table cells
-  //_tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+  _tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
   //
   //  connect(_tableWidget, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(itemUpdate(QTableWidgetItem*)));
   //
@@ -339,25 +339,26 @@ void BSONDocWidget::update()
 {
   _tableWidget->blockSignals(true);
   _tableWidget->clear();
-  std::cout << "_bsonDoc: " << _bsonDoc.toString() << std::endl;
-  _tableWidget->setRowCount(_bsonDoc.getKeys().size());
-  _tableWidget->setColumnCount(2);
-  int i = 0;
-  for (const auto& key : _bsonDoc.getKeys())
+
+  const std::vector<std::string> keys = {"callsign", "licName", "frn", "expiredDate"};
+  _tableWidget->setRowCount(_bsonDocs.size());
+  _tableWidget->setColumnCount(keys.size());
+  QStringList headers;
+  for (uint16_t column = 0; column < keys.size(); ++column)
   {
-    if (_bsonDoc.isString(key))
+    headers << keys.at(column).c_str();
+  }
+  _tableWidget->setHorizontalHeaderLabels(headers);
+  for (uint16_t row = 0; row < _bsonDocs.size(); ++row)
+  {
+    const auto& doc = _bsonDocs.at(row);
+    for (uint16_t column = 0; column < keys.size(); ++column)
     {
-      _tableWidget->setItem(i, 0, new QTableWidgetItem(key.c_str()));
-      _tableWidget->setItem(i++, 1, new QTableWidgetItem(_bsonDoc.get<std::string>(key).c_str()));
-      std::cout << key << " : " << _bsonDoc.getString(key) << std::endl;
-      // _tableWidget->setItem(i, j, new QTableWidgetItem(line[j].c_str()));
-    }
-    else if (_bsonDoc.isDocument(key))
-    {
-      Mongo::BSONDoc childDoc = _bsonDoc.get<Mongo::BSONDoc>(key);
-      std::cout << childDoc.toString() << std::endl;
-      _tableWidget->setItem(i, 0, new QTableWidgetItem(key.c_str()));
-      //      _tableWidget->setItem(i++, 1, new QTableWidgetItem(BSONDocWidget(childDoc)));
+      const auto& key = keys.at(column);
+      if (doc.has(key))
+      {
+        _tableWidget->setItem(row, column, new QTableWidgetItem(doc.get<std::string>(key).c_str()));
+      }
     }
   }
   //  QStringList headers;

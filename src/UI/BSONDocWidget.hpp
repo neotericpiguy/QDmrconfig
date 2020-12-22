@@ -17,7 +17,7 @@ class BSONDocWidget : public QWidget
   Q_OBJECT
 
 public:
-  BSONDocWidget(Mongo::BSONDoc& confBlock, QWidget* parent = 0);
+  BSONDocWidget(std::vector<Mongo::BSONDoc>& bsonDocs, QWidget* parent = 0);
   BSONDocWidget(const BSONDocWidget&) = delete;
   BSONDocWidget& operator=(const BSONDocWidget&) = delete;
   virtual ~BSONDocWidget();
@@ -39,7 +39,7 @@ private slots:
 
 private:
   bool _isDebug;
-  Mongo::BSONDoc& _bsonDoc;
+  std::vector<Mongo::BSONDoc>& _bsonDocs;
 
   //  QPlainTextEdit* _textView;
   QTableWidget* _tableWidget;

@@ -10,7 +10,12 @@ MainWindow::MainWindow() :
   std::string temp = "{ \"status\": \"OK\", \"Licenses\": { \"page\": \"1\", \"rowPerPage\": \"100\", \"totalRows\": \"1\", \"lastUpdate\": \"Dec 19, 2020\", \"License\": [ { \"licName\": \"Annua, Jonathan Lee O\", \"frn\": \"0029046729\", \"callsign\": \"KJ7LEY\", \"categoryDesc\": \"Personal Use\", \"serviceDesc\": \"Amateur\", \"statusDesc\": \"Active\", \"expiredDate\": \"12/12/2029\", \"licenseID\": \"4232049\", \"licDetailURL\": \"http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4232049\" } ] } }";
 
   Mongo::BSONDoc doc(temp);
-  _bsonDocWidget = new BSONDocWidget(doc);
+  if (doc.has("Licenses.License"))
+  {
+    auto licenses = doc.get<std::vector<Mongo::BSONDoc>>("Licenses.License");
+    std::cout << licenses.size() << std::endl;
+    _bsonDocWidget = new BSONDocWidget(licenses);
+  }
 
   setCentralWidget(_bsonDocWidget);
   //  setCentralWidget(_confFileWidget);
