@@ -99,9 +99,14 @@ repoclean: distclean
 tests: $(TESTS_OBJS) $(COMMON_LIB)
 	$(CXX) -o $@ $(CXXFLAGS) $^ $(LIBS)
 
-check: $(TARGET_CLI) tests
+run-tests: tests
 	./tests
+
+run-dmrconfig-tests: $(TARGET_CLI)
 	./src/tests/btechTests examples/btech6x2.img.bak
+
+check: run-tests run-dmrconfig-tests $(TARGET_GUI)
+	@echo Check Passed 
 
 -include $(DMRCONFIG_OBJS:%.o=%.d) 
 -include $(MAIN_CLI_OBJ:%.o=%.d) 
