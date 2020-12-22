@@ -1,9 +1,32 @@
 #include <iostream>
+#include <sstream>
 
 #include "BSONDoc.hpp"
 
 static uint32_t passCount = 0;
 static uint32_t failCount = 0;
+static std::vector<std::string> failFuncs;
+
+#define TEST(lparam, op, rparam)                                \
+  if (lparam == rparam)                                         \
+  {                                                             \
+    std::cout << "\e[32m[PASS]\e[0m "                           \
+              << __PRETTY_FUNCTION__ << ":" << __LINE__         \
+              << " " << #lparam << " " << #op << " " << #rparam \
+              << std::endl;                                     \
+    passCount++;                                                \
+  }                                                             \
+  else                                                          \
+  {                                                             \
+    std::stringstream ss;                                       \
+    ss << "\e[31m[FAIL]\e[0m "                                  \
+       << __PRETTY_FUNCTION__ << ":" << __LINE__                \
+       << " " << #lparam << " " << #op << " " << #rparam        \
+       << " -> " << lparam << " " << #op << " " << #rparam;     \
+    std::cout << ss.str() << std::endl;                         \
+    failFuncs.push_back(ss.str());                              \
+    failCount++;                                                \
+  }
 
 #define TEST_EQ(lparam, rparam)                            \
   if (lparam == rparam)                                    \
@@ -50,14 +73,8 @@ bool simpleDoc()
   Mongo::BSONDoc results2(str);
   std::cout << "results2: " << results2.toString() << std::endl;
 
-  std::vector<Mongo::BSONDoc> licenses;
-  results2.getDocuments(licenses, "Licenses.License");
-  std::cout << "Licenses: " << licenses.size() << std::endl;
-  std::cout << "licenses.size() " << licenses.size() << std::endl;
-  if (licenses.size() != 2)
-  {
-    std::cout << "FAILED" << std::endl;
-  }
+  std::vector<Mongo::BSONDoc> licenses = results2.get<std::vector<Mongo::BSONDoc>>("Licenses.License");
+  TEST(licenses.size(), ==, 1);
   return true;
 }
 
@@ -69,23 +86,17 @@ bool bsondocVectorTest()
 
   std::cout << "results: " << results.toString() << std::endl;
 
-  if (results.hasField("status") && results.getString("status") == "OK")
-  {
-    std::cout << "results.count(): " << results.count() << std::endl;
-    TEST_EQ(results.count(), 2);
-    std::cout << "has Licenses: " << results.hasField("Licenses") << std::endl;
-    std::cout << "has Licenses.lastUpdate: " << results.getString("Licenses.lastUpdate") << std::endl;
-    std::cout << "has Licenses.page: " << results.hasField("Licenses.page") << std::endl;
-    std::cout << "has Licenses.License: " << results.hasField("Licenses.License") << std::endl;
+  TEST(results.has("status"), ==, true);
+  TEST(results.getString("status"), ==, "OK");
+  TEST(results.count(), ==, 2);
+  TEST(results.has("Licenses"), ==, true);
+  TEST(results.get<std::string>("Licenses.lastUpdate"), ==, "Dec 19, 2020");
+  TEST(results.has("Licenses.page"), ==, true);
+  TEST(results.has("Licenses.License"), ==, true);
 
-    std::vector<Mongo::BSONDoc> licenses;
-    results.getDocuments(licenses, "Licenses.0.License.licName");
-    std::cout << "Licenses: " << licenses.size() << std::endl;
-    std::cout << "licenses.size() " << licenses.size() << std::endl;
-    TEST_EQ(licenses.size(), 0);
-    return true;
-  }
-  return false;
+  std::vector<Mongo::BSONDoc> licenses = results.get<std::vector<Mongo::BSONDoc>>("Licenses.License");
+  TEST(licenses.size(), ==, 1);
+  return true;
 }
 
 bool keyTest()
@@ -103,7 +114,7 @@ bool keyTest()
     std::cout << key << ": " << results.isDocument(key) << std::endl;
   }
 
-  TEST_EQ(keys.size(), 2);
+  TEST(keys.size(), ==, 2);
   return false;
 }
 
@@ -117,7 +128,7 @@ bool getDocumentTest()
   auto keys = results.getKeys();
 
   std::cout << "keys.size(): " << keys.size() << std::endl;
-  TEST_EQ(keys.size(), 2);
+  TEST(keys.size(), ==, 2);
   for (const auto& key : keys)
   {
     std::cout << key << ": " << results.isDocument(key) << std::endl;
@@ -125,8 +136,8 @@ bool getDocumentTest()
     {
       Mongo::BSONDoc licenses = results.get<Mongo::BSONDoc>(key);
       std::cout << licenses.toString() << std::endl;
-      TEST_EQ(licenses.hasField("page"), true);
-      TEST_EQ(licenses.get<int32_t>("page"), 1);
+      TEST(licenses.has("page"), ==, true);
+      TEST(licenses.get<int32_t>("page"), ==, 1);
     }
   }
 
@@ -140,14 +151,14 @@ bool templateTest()
   Mongo::BSONDoc results(str);
   std::cout << "results: " << results.toString() << std::endl;
 
-  TEST_EQ(results.has("status"), true);
-  TEST_EQ(results.get<std::string>("status"), "OK");
-  TEST_EQ(results.has("Licenses"), true);
-  TEST_EQ(results.has("Licenses.page"), true);
+  TEST(results.has("status"), ==, true);
+  TEST(results.get<std::string>("status"), ==, "OK");
+  TEST(results.has("Licenses"), ==, true);
+  TEST(results.has("Licenses.page"), ==, true);
   // http://mongoc.org/libbson/current/bson_type_t.html
-  TEST_EQ(results.getType("Licenses"), 0x3);
-  TEST_EQ(results.getType("status"), 0x2);
-  TEST_EQ(results.getType("Licenses.page"), 0x10);
+  TEST(results.getType("Licenses"), ==, 0x3);
+  TEST(results.getType("status"), ==, 0x2);
+  TEST(results.getType("Licenses.page"), ==, 0x10);
 
   return false;
 }
@@ -162,5 +173,8 @@ int main()
 
   std::cout << "\e[32m" << passCount << " PASS\e[0m " << std::endl;
   std::cout << "\e[31m" << failCount << " FAIL\e[0m " << std::endl;
-  return 0;
+  for (const auto& func : failFuncs)
+    std::cout << func << std::endl;
+
+  return failFuncs.size() > 0;
 }
