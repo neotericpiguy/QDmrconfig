@@ -80,7 +80,6 @@ BSONDoc::BSONDoc(const BSONDoc& val) :
 
 BSONDoc::~BSONDoc()
 {
-  //  std::cout <<"bson_destroy" << std::endl;
   bson_destroy(_doc);
 }
 
@@ -594,7 +593,6 @@ int32_t BSONDoc::get<int32_t>(const std::string& path)
   bson_iter_t baz;
   if (bson_iter_init(&iter, _doc) && bson_iter_find_descendant(&iter, path.c_str(), &baz))
   {
-    printf("in");
     if (BSON_ITER_HOLDS_INT32(&baz))
     {
       return int32_t(bson_iter_int32(&baz));
@@ -629,7 +627,7 @@ BSONDoc BSONDoc::get<BSONDoc>(const std::string& path)
   return empty;
 }
 
-int BSONDoc::getType(const std::string& path)
+int BSONDoc::getType(const std::string& path) const
 {
   bson_iter_t iter;
   bson_iter_t baz;

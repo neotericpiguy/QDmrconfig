@@ -73,8 +73,7 @@ public:
   T get(const std::string& path);
 
   /** Get the epoch? */
-  int64_t
-  getDateTime(const std::string& key) const;
+  int64_t getDateTime(const std::string& key) const;
   /** Get Date and time as a string */
   std::string getDateTimeStr(const std::string& key) const;
   /** Get Date in month day, year */
@@ -134,7 +133,7 @@ public:
   bool hasField(const std::string& key) const;
   bool has(const std::string& key) const;
 
-  int getType(const std::string& path);
+  int getType(const std::string& path) const;
 
   /** \deprecated Kind of a dangerous function */
   bson_t* get() const;

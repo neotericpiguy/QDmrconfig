@@ -2,25 +2,29 @@
 
 #include "BSONDoc.hpp"
 
+static uint32_t passCount = 0;
+static uint32_t failCount = 0;
+
 #define TEST_EQ(lparam, rparam)                            \
   if (lparam == rparam)                                    \
   {                                                        \
-    std::cout << "\e[32mPASS\e[0m "                        \
+    std::cout << "\e[32m[PASS]\e[0m "                      \
               << __PRETTY_FUNCTION__ << ":" << __LINE__    \
               << " " << #lparam << " == " << #rparam << "" \
               << std::endl;                                \
+    passCount++;                                           \
   }                                                        \
   else                                                     \
   {                                                        \
-    std::cout << "\e[31mFAIL\e[0m "                        \
+    std::cout << "\e[31m[FAIL]\e[0m "                      \
               << __PRETTY_FUNCTION__ << ":" << __LINE__    \
               << " " << #lparam << " == " << #rparam       \
               << std::endl;                                \
-    exit(1);                                               \
+    failCount++;                                           \
   }
 
 #define START_TEST()                                       \
-  std::cout << "\e[35m" << __PRETTY_FUNCTION__             \
+  std::cout << "\n\e[35m" << __PRETTY_FUNCTION__           \
             << "\n=======================================" \
             << "=========================================" \
             << "\e[0m" << std::endl;
@@ -28,7 +32,7 @@
 std::string str = "{ \"status\" : \"OK\", \"Licenses\" : { \"page\" : 1, \"rowPerPage\" : \"100\", \"totalRows\" : \"1\", \"lastUpdate\" : \"Dec 19, 2020\", \"License\" : [ { \"licName\" : \"Annua, Jonathan Lee O\", \"frn\" : \"0029046729\", \"callsign\" : \"KJ7LEY\", \"categoryDesc\" : \"Personal Use\", \"serviceDesc\" : \"Amateur\", \"statusDesc\" : \"Active\", \"expiredDate\" : \"12/12/2029\", \"licenseID\" : \"4232049\", \"licDetailURL\" : \"http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4232049\" } ] } }";
 bool simpleDoc()
 {
-  START_TEST()
+  START_TEST();
   bson_t* b;
   bson_iter_t iter;
   bson_iter_t baz;
@@ -59,7 +63,7 @@ bool simpleDoc()
 
 bool bsondocVectorTest()
 {
-  START_TEST()
+  START_TEST();
 
   Mongo::BSONDoc results(str);
 
@@ -86,7 +90,7 @@ bool bsondocVectorTest()
 
 bool keyTest()
 {
-  START_TEST()
+  START_TEST();
 
   Mongo::BSONDoc results(str);
   std::cout << "results: " << results.toString() << std::endl;
@@ -105,7 +109,7 @@ bool keyTest()
 
 bool getDocumentTest()
 {
-  START_TEST()
+  START_TEST();
 
   Mongo::BSONDoc results(str);
   std::cout << "results: " << results.toString() << std::endl;
@@ -131,7 +135,7 @@ bool getDocumentTest()
 
 bool templateTest()
 {
-  START_TEST()
+  START_TEST();
 
   Mongo::BSONDoc results(str);
   std::cout << "results: " << results.toString() << std::endl;
@@ -156,6 +160,7 @@ int main()
   templateTest();
   getDocumentTest();
 
-  std::cout << "\e[32mALL PASS\e[0m " << std::endl;
+  std::cout << "\e[32m" << passCount << " PASS\e[0m " << std::endl;
+  std::cout << "\e[31m" << failCount << " FAIL\e[0m " << std::endl;
   return 0;
 }
