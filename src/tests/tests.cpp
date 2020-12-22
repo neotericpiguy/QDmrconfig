@@ -2,25 +2,33 @@
 
 #include "BSONDoc.hpp"
 
-#define TEST_EQ(lparam, rparam)                                   \
-  if (lparam == rparam)                                           \
-  {                                                               \
-    std::cout << "\e[32mPASS\e[0m "                               \
-              << __PRETTY_FUNCTION__ << ":" << __LINE__           \
-              << " \'" << #lparam << "\' == \'" << rparam << "\'" \
-              << std::endl;                                       \
-  }                                                               \
-  else                                                            \
-  {                                                               \
-    std::cout << "\e[31mFAIL\e[0m "                               \
-              << __PRETTY_FUNCTION__ << ":" << __LINE__           \
-              << " \'" << #lparam << "\' == \'" << rparam << "\'" \
-              << std::endl;                                       \
-    exit(1);                                                      \
+#define TEST_EQ(lparam, rparam)                            \
+  if (lparam == rparam)                                    \
+  {                                                        \
+    std::cout << "\e[32mPASS\e[0m "                        \
+              << __PRETTY_FUNCTION__ << ":" << __LINE__    \
+              << " " << #lparam << " == " << #rparam << "" \
+              << std::endl;                                \
+  }                                                        \
+  else                                                     \
+  {                                                        \
+    std::cout << "\e[31mFAIL\e[0m "                        \
+              << __PRETTY_FUNCTION__ << ":" << __LINE__    \
+              << " " << #lparam << " == " << #rparam       \
+              << std::endl;                                \
+    exit(1);                                               \
   }
 
+#define START_TEST()                                       \
+  std::cout << "\e[35m" << __PRETTY_FUNCTION__             \
+            << "\n=======================================" \
+            << "=========================================" \
+            << "\e[0m" << std::endl;
+
+std::string str = "{ \"status\" : \"OK\", \"Licenses\" : { \"page\" : 1, \"rowPerPage\" : \"100\", \"totalRows\" : \"1\", \"lastUpdate\" : \"Dec 19, 2020\", \"License\" : [ { \"licName\" : \"Annua, Jonathan Lee O\", \"frn\" : \"0029046729\", \"callsign\" : \"KJ7LEY\", \"categoryDesc\" : \"Personal Use\", \"serviceDesc\" : \"Amateur\", \"statusDesc\" : \"Active\", \"expiredDate\" : \"12/12/2029\", \"licenseID\" : \"4232049\", \"licDetailURL\" : \"http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4232049\" } ] } }";
 bool simpleDoc()
 {
+  START_TEST()
   bson_t* b;
   bson_iter_t iter;
   bson_iter_t baz;
@@ -35,7 +43,6 @@ bool simpleDoc()
   {
     printf("baz = %d\n", bson_iter_int32(&baz));
   }
-  std::string str = "{\"Licenses\" : {\"License\" : [{\"licName\" : \"Jonathan\"},{\"licName\":\"another\"}], \"other\" : \"asdf\"}}";
   Mongo::BSONDoc results2(str);
   std::cout << "results2: " << results2.toString() << std::endl;
 
@@ -52,7 +59,7 @@ bool simpleDoc()
 
 bool bsondocVectorTest()
 {
-  std::string str = "{ \"status\" : \"OK\", \"Licenses\" : { \"page\" : \"1\", \"rowPerPage\" : \"100\", \"totalRows\" : \"1\", \"lastUpdate\" : \"Dec 19, 2020\", \"License\" : [ { \"licName\" : \"Annua, Jonathan Lee O\", \"frn\" : \"0029046729\", \"callsign\" : \"KJ7LEY\", \"categoryDesc\" : \"Personal Use\", \"serviceDesc\" : \"Amateur\", \"statusDesc\" : \"Active\", \"expiredDate\" : \"12/12/2029\", \"licenseID\" : \"4232049\", \"licDetailURL\" : \"http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4232049\" } ] } }";
+  START_TEST()
 
   Mongo::BSONDoc results(str);
 
@@ -79,8 +86,7 @@ bool bsondocVectorTest()
 
 bool keyTest()
 {
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
-  std::string str = "{ \"status\" : \"OK\", \"Licenses\" : { \"page\" : \"1\", \"rowPerPage\" : \"100\", \"totalRows\" : \"1\", \"lastUpdate\" : \"Dec 19, 2020\", \"License\" : [ { \"licName\" : \"Annua, Jonathan Lee O\", \"frn\" : \"0029046729\", \"callsign\" : \"KJ7LEY\", \"categoryDesc\" : \"Personal Use\", \"serviceDesc\" : \"Amateur\", \"statusDesc\" : \"Active\", \"expiredDate\" : \"12/12/2029\", \"licenseID\" : \"4232049\", \"licDetailURL\" : \"http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4232049\" } ] } }";
+  START_TEST()
 
   Mongo::BSONDoc results(str);
   std::cout << "results: " << results.toString() << std::endl;
@@ -99,8 +105,7 @@ bool keyTest()
 
 bool getDocumentTest()
 {
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
-  std::string str = "{ \"status\" : \"OK\", \"Licenses\" : { \"page\" : \"1\", \"rowPerPage\" : \"100\", \"totalRows\" : \"1\", \"lastUpdate\" : \"Dec 19, 2020\", \"License\" : [ { \"licName\" : \"Annua, Jonathan Lee O\", \"frn\" : \"0029046729\", \"callsign\" : \"KJ7LEY\", \"categoryDesc\" : \"Personal Use\", \"serviceDesc\" : \"Amateur\", \"statusDesc\" : \"Active\", \"expiredDate\" : \"12/12/2029\", \"licenseID\" : \"4232049\", \"licDetailURL\" : \"http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4232049\" } ] } }";
+  START_TEST()
 
   Mongo::BSONDoc results(str);
   std::cout << "results: " << results.toString() << std::endl;
@@ -117,7 +122,7 @@ bool getDocumentTest()
       Mongo::BSONDoc licenses = results.get<Mongo::BSONDoc>(key);
       std::cout << licenses.toString() << std::endl;
       TEST_EQ(licenses.hasField("page"), true);
-      TEST_EQ(licenses.get<std::string>("page"), "1");
+      TEST_EQ(licenses.get<int32_t>("page"), 1);
     }
   }
 
@@ -126,8 +131,7 @@ bool getDocumentTest()
 
 bool templateTest()
 {
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
-  std::string str = "{ \"status\" : \"OK\", \"Licenses\" : { \"page\" : 1, \"rowPerPage\" : 100, \"totalRows\" : \"1\", \"lastUpdate\" : \"Dec 19, 2020\", \"License\" : [ { \"licName\" : \"Annua, Jonathan Lee O\", \"frn\" : \"0029046729\", \"callsign\" : \"KJ7LEY\", \"categoryDesc\" : \"Personal Use\", \"serviceDesc\" : \"Amateur\", \"statusDesc\" : \"Active\", \"expiredDate\" : \"12/12/2029\", \"licenseID\" : \"4232049\", \"licDetailURL\" : \"http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4232049\" } ] } }";
+  START_TEST()
 
   Mongo::BSONDoc results(str);
   std::cout << "results: " << results.toString() << std::endl;
@@ -146,11 +150,12 @@ bool templateTest()
 
 int main()
 {
-  std::cout << "Tests" << std::endl;
   bsondocVectorTest();
   simpleDoc();
   keyTest();
   templateTest();
   getDocumentTest();
+
+  std::cout << "\e[32mALL PASS\e[0m " << std::endl;
   return 0;
 }
