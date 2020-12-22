@@ -574,7 +574,7 @@ std::vector<BSONDoc> BSONDoc::get<std::vector<BSONDoc>>(const std::string& path)
     const uint8_t* document;
     uint32_t document_len;
     bson_t temp;
-    bson_iter_document(&sub_iter, &document_len, &document);
+    bson_iter_document(&baz, &document_len, &document);
     if (!bson_init_static(&temp, document, document_len))
       continue;
     result.push_back(BSONDoc(&temp));
