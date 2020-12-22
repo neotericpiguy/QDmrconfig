@@ -20,15 +20,15 @@ BSONDocWidget::BSONDocWidget(Mongo::BSONDoc& confBlock, QWidget* parent) :
   //  _textView->setPlainText(_bsonDoc.getConfLines(false).c_str());
 
   update();
-  //
-  //  _tableWidget->verticalHeader()->setVisible(false);
-  //
-  //  // Fit contents of table cells
-  //  _tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+  //_tableWidget->verticalHeader()->setVisible(false);
+
+  // Fit contents of table cells
+  //_tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
   //
   //  connect(_tableWidget, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(itemUpdate(QTableWidgetItem*)));
   //
-  //  setContextMenuPolicy(Qt::ActionsContextMenu);
+  // setContextMenuPolicy(Qt::ActionsContextMenu);
   //
   //  QAction* filterAction = new QAction("&Filter Row by");
   //  filterAction->setShortcut(QKeySequence(tr("Ctrl+F")));
@@ -339,7 +339,27 @@ void BSONDocWidget::update()
 {
   _tableWidget->blockSignals(true);
   _tableWidget->clear();
-  std::cout << "_bsonDoc.count(): " << _bsonDoc.count() << std::endl;
+  std::cout << "_bsonDoc: " << _bsonDoc.toString() << std::endl;
+  _tableWidget->setRowCount(_bsonDoc.getKeys().size());
+  _tableWidget->setColumnCount(2);
+  int i = 0;
+  for (const auto& key : _bsonDoc.getKeys())
+  {
+    if (_bsonDoc.isString(key))
+    {
+      _tableWidget->setItem(i, 0, new QTableWidgetItem(key.c_str()));
+      _tableWidget->setItem(i++, 1, new QTableWidgetItem(_bsonDoc.get<std::string>(key).c_str()));
+      std::cout << key << " : " << _bsonDoc.getString(key) << std::endl;
+      // _tableWidget->setItem(i, j, new QTableWidgetItem(line[j].c_str()));
+    }
+    else if (_bsonDoc.isDocument(key))
+    {
+      Mongo::BSONDoc childDoc = _bsonDoc.get<Mongo::BSONDoc>(key);
+      std::cout << childDoc.toString() << std::endl;
+      _tableWidget->setItem(i, 0, new QTableWidgetItem(key.c_str()));
+      //      _tableWidget->setItem(i++, 1, new QTableWidgetItem(BSONDocWidget(childDoc)));
+    }
+  }
   //  QStringList headers;
   //  if (_bsonDoc.isTable())
   //  {

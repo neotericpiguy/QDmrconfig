@@ -16,6 +16,7 @@
 
 #include "BSONDoc.hpp"
 #include "ConfFileWidget.hpp"
+#include "BSONDocWidget.hpp"
 
 class MainWindow : public QMainWindow
 {
@@ -35,6 +36,7 @@ private slots:
 
 private:
   ConfFileWidget* _confFileWidget;
+  BSONDocWidget* _bsonDocWidget;
   QNetworkAccessManager* _networkManager;
   QNetworkAccessManager* _repeaterBookNetworkManager;
 };
