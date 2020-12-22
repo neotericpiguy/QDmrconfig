@@ -66,9 +66,6 @@ public:
   /** Get a vector of BSONDoc at the path */
   bool getDocuments(std::vector<Mongo::BSONDoc>& result, const std::string& path) const;
 
-  BSONDoc getDocument(const std::string& path) const;
-  bool getDocument(BSONDoc& result, const std::string& path) const;
-
   template <typename T>
   T get(const std::string& path);
 
@@ -130,7 +127,6 @@ public:
   /** returns if BSONDoc has an fields */
   bool empty() const;
   /** check if field exists in document */
-  bool hasField(const std::string& key) const;
   bool has(const std::string& key) const;
 
   int getType(const std::string& path) const;
