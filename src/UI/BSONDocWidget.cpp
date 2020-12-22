@@ -4,7 +4,6 @@ BSONDocWidget::BSONDocWidget(std::vector<Mongo::BSONDoc>& bsonDocs, QWidget* par
     QWidget(parent),
     _isDebug(false),
     _bsonDocs(bsonDocs),
-    //    _textView(new QPlainTextEdit(this)),
     _tableWidget(new QTableWidget(this))
 {
   QVBoxLayout* layout = new QVBoxLayout;
@@ -19,7 +18,7 @@ BSONDocWidget::BSONDocWidget(std::vector<Mongo::BSONDoc>& bsonDocs, QWidget* par
   //  _textView->setReadOnly(true);
   //  _textView->setPlainText(_bsonDoc.getConfLines(false).c_str());
 
-  update();
+  //update();
 
   //_tableWidget->verticalHeader()->setVisible(false);
 
@@ -299,7 +298,26 @@ void BSONDocWidget::metaUpdate()
 
 void BSONDocWidget::updateTable()
 {
-  //  _tableWidget->blockSignals(true);
+  const std::vector<std::string> keys = {"callsign", "licName", "frn", "expiredDate"};
+  _tableWidget->blockSignals(true);
+  qDebug() << "rows: " << _bsonDocs.size() << "," << _tableWidget->rowCount();
+  qDebug() << "columns: " << keys.size() << "," << _tableWidget->columnCount();
+  //_tableWidget->setRowCount(_bsonDocs.size());
+  //_tableWidget->setColumnCount(keys.size());
+  //  for (uint16_t row = 0; row < _bsonDocs.size(); ++row)
+  //  {
+  //    const auto& doc = _bsonDocs.at(row);
+  //    std::cout << doc.toString() << std::endl;
+  //    for (uint16_t column = 0; column < keys.size(); ++column)
+  //    {
+  //      const auto& key = keys.at(column);
+  //      if (doc.has(key))
+  //      {
+  //        //        _tableWidget->setItem(row, column, new QTableWidgetItem(doc.get<std::string>(key).c_str()));
+  //        //        _tableWidget->item(i, j)->setText(rows[i][j].c_str());
+  //      }
+  //    }
+  //  }
   //  const auto& rows = _bsonDoc.getRows();
   //
   //  int modifiedCells = 0;
@@ -327,7 +345,7 @@ void BSONDocWidget::updateTable()
   //
   //  if (_isDebug)
   //    qDebug() << "Modified cells: " << modifiedCells;
-  //  _tableWidget->blockSignals(false);
+  _tableWidget->blockSignals(false);
 }
 
 void BSONDocWidget::cellSelected(int, int)

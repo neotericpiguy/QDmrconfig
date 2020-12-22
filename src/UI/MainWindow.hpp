@@ -15,8 +15,8 @@
 #include <memory>
 
 #include "BSONDoc.hpp"
-#include "ConfFileWidget.hpp"
 #include "BSONDocWidget.hpp"
+#include "ConfFileWidget.hpp"
 
 class MainWindow : public QMainWindow
 {
@@ -35,6 +35,8 @@ private slots:
   void repeaterBookSlotReadyRead(QNetworkReply* reply);
 
 private:
+  std::vector<Mongo::BSONDoc> _fccSearchResults;
+  std::string _fccSearchString;
   ConfFileWidget* _confFileWidget;
   BSONDocWidget* _bsonDocWidget;
   QNetworkAccessManager* _networkManager;
