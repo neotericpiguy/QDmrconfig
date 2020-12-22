@@ -1,10 +1,9 @@
 #ifndef BSONDOC_HPP
 #define BSONDOC_HPP
 
-#include <ctime>  // date conversion
-
 #include <mongoc.h>
 
+#include <ctime>  // date conversion
 #include <fstream>
 #include <functional>
 
@@ -63,9 +62,9 @@ public:
   /** Get a vector of string at the path */
   std::tuple<std::vector<std::string>, bool> getStringVector(const std::string& path) const;
   /** Get a vector of BSONDoc at the path */
-  std::vector<Mongo::BSONDoc> getDocuments(const std::string& path) const;
-  /** Get a vector of BSONDoc at the path */
-  bool getDocuments(std::vector<Mongo::BSONDoc>& result, const std::string& path) const;
+
+  template <typename T>
+  T get(const std::string& path);
 
   /** Get the epoch? */
   int64_t getDateTime(const std::string& key) const;
@@ -113,14 +112,21 @@ public:
   static BSONDoc fromFile(const std::string& filename, const std::string& path);
 
   /** Display BSONDoc as  a pretty string */
-  const std::string toString() const;
+  std::string toString() const;
+
+  /** Display keys in BSONDoc */
+  std::vector<std::string> getKeys() const;
+  bool isDocument(const std::string& path) const;
+  bool isString(const std::string& path) const;
 
   /** Display the number of child fields */
   unsigned count() const;
   /** returns if BSONDoc has an fields */
   bool empty() const;
   /** check if field exists in document */
-  bool hasField(const std::string& key) const;
+  bool has(const std::string& key) const;
+
+  int getType(const std::string& path) const;
 
   /** \deprecated Kind of a dangerous function */
   bson_t* get() const;
