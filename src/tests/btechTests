@@ -65,6 +65,7 @@ touchTest() {
     echo -en "\e[32mPASS"
   else
     echo -en "\e[32mFAIL"
+    exit 1
   fi
   echo -e "\e[0m ${FUNCNAME[0]}"
 }
@@ -78,8 +79,6 @@ main () {
   paramFlagTest "0x0071600" "25"  "Hold Time"
   paramFlagTest "0x0071600" "51"  "Talk Alert"
   paramFlagTest "0x0071600" "215" "Manual Hold Time"
-
-  echo -e "\e[32mALL TEST PASS\e[0m"
 }
 
 main $@

@@ -36,7 +36,8 @@ COMMON_OBJS=$(addprefix $(BUILD_PATH)/,$(COMMON_SRCS:.cpp=.o))
 TESTS_SRCS=$(shell find src/tests -iname '*.cpp')
 TESTS_OBJS=$(addprefix $(BUILD_PATH)/,$(TESTS_SRCS:.cpp=.o))
 
-.SECONDARY: $(MOC_CPPS)
+TEST_SCRIPTS=$(shell find src/tests -iname '*Tests')
+
 .PHONY: all clean
 
 TARGET_GUI=QDmrconfig
@@ -96,17 +97,17 @@ distclean: clean
 repoclean: distclean
 	git clean -ffd
 
-tests: $(TESTS_OBJS) $(COMMON_LIB)
+$(BUILD_PATH)/tests: $(TESTS_OBJS) $(COMMON_LIB)
 	$(CXX) -o $@ $(CXXFLAGS) $^ $(LIBS)
 
-run-tests: tests
-	./tests
+$(BUILD_PATH)/run-tests: $(BUILD_PATH)/tests
+	./$^ | tee $@
 
-run-dmrconfig-tests: $(TARGET_CLI)
-	./src/tests/btechTests examples/btech6x2.img.bak
+$(BUILD_PATH)/run-dmrconfig-tests: $(TARGET_CLI) $(TEST_SCRIPTS)
+	./src/tests/btechTests examples/btech6x2.img.bak | tee $@
 
-check: run-tests run-dmrconfig-tests $(TARGET_GUI)
-	@echo Check Passed 
+check: $(BUILD_PATH)/run-tests $(BUILD_PATH)/run-dmrconfig-tests $(TARGET_GUI)
+	@echo -e "\e[32mAll Checks Passed\e[0m"
 
 -include $(DMRCONFIG_OBJS:%.o=%.d) 
 -include $(MAIN_CLI_OBJ:%.o=%.d) 
