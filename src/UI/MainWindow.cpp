@@ -59,7 +59,7 @@ MainWindow::MainWindow() :
   backTabAct->setShortcut(QKeySequence(tr(("Ctrl+Shift+Tab"))));
   this->addAction(backTabAct);
 
-  connect(openAct, &QAction::triggered, this, [=]() {
+  connect(openAct, &QAction::triggered, this, [this]() {
     auto filename = QFileDialog::getOpenFileName(this, tr("Open Config"), "./", tr("Config Files (*.conf)"));
     if (filename.length() <= 0)
     {
@@ -68,25 +68,25 @@ MainWindow::MainWindow() :
     loadFile(filename);
   });
 
-  connect(uploadAct, &QAction::triggered, this, [=]() {
+  connect(uploadAct, &QAction::triggered, this, [this]() {
     _confFileWidget->getConfFile().uploadFile();
     statusBar()->showMessage(tr("Uploaded..."), 2000);
   });
 
-  connect(downloadAct, &QAction::triggered, this, [=]() {
+  connect(downloadAct, &QAction::triggered, this, [this]() {
     auto filename = QFileDialog::getSaveFileName(this, tr("Destination"), "./", tr("Config Files (*.conf)"));
     _confFileWidget->getConfFile().downloadFile(filename.toStdString());
     statusBar()->showMessage("Downloaded...", 2000);
     loadFile(filename);
   });
 
-  connect(saveAct, &QAction::triggered, this, [=]() {
+  connect(saveAct, &QAction::triggered, this, [this]() {
     qDebug() << "Saving file";
     _confFileWidget->getConfFile().saveFile();
     statusBar()->showMessage(tr("Saved..."), 2000);
   });
 
-  connect(searchAct, &QAction::triggered, this, [=]() {
+  connect(searchAct, &QAction::triggered, this, [this]() {
     bool ok;
     QString text = QInputDialog::getText(this, tr("Search Fcc callsign"),
                                          tr("call sign"), QLineEdit::Normal,
@@ -106,7 +106,7 @@ MainWindow::MainWindow() :
   connect(_networkManager, &QNetworkAccessManager::finished,
           this, &MainWindow::callsignSearchReady);
 
-  connect(repeaterBookAct, &QAction::triggered, this, [=]() {
+  connect(repeaterBookAct, &QAction::triggered, this, [this]() {
     bool ok;
     QString text = QInputDialog::getText(this, tr("Search Repeater"),
                                          tr("Search Repeater"), QLineEdit::Normal,
@@ -128,15 +128,15 @@ MainWindow::MainWindow() :
   connect(_repeaterBookNetworkManager, &QNetworkAccessManager::finished,
           this, &MainWindow::repeaterBookSlotReadyRead);
 
-  connect(closeAct, &QAction::triggered, this, [=]() {
+  connect(closeAct, &QAction::triggered, this, [this]() {
     close();
   });
 
-  connect(changeTabAct, &QAction::triggered, this, [=]() {
+  connect(changeTabAct, &QAction::triggered, this, [this]() {
     _confFileWidget->nextTab(+1);
   });
 
-  connect(backTabAct, &QAction::triggered, this, [=]() {
+  connect(backTabAct, &QAction::triggered, this, [this]() {
     _confFileWidget->nextTab(-1);
   });
 
@@ -243,7 +243,7 @@ void MainWindow::repeaterBookSlotReadyRead(QNetworkReply* reply)
       entries.back() = {};
   }
 
-  entries.erase(std::remove_if(entries.begin(), entries.end(), [=](const auto& vec) {
+  entries.erase(std::remove_if(entries.begin(), entries.end(), [this](const auto& vec) {
                   float offset;
                   if (vec.size() < 2 || !ConfBlock::strTo(vec[1], offset))
                     return true;
