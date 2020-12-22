@@ -106,7 +106,8 @@ repoclean: distclean
 tests: $(TESTS_OBJS) $(COMMON_LIB)
 	$(CXX) -o $@ $(CXXFLAGS) $^ $(LIBS)
 
-check: $(TARGET_CLI)
+check: $(TARGET_CLI) tests
+	./tests
 	./src/tests/btechTests examples/btech6x2.img.bak
 
 -include $(DMRCONFIG_OBJS:%.o=%.d) 
