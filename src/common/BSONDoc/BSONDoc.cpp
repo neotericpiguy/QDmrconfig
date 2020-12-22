@@ -80,7 +80,6 @@ BSONDoc::BSONDoc(const BSONDoc& val) :
 
 BSONDoc::~BSONDoc()
 {
-  //  std::cout <<"bson_destroy" << std::endl;
   bson_destroy(_doc);
 }
 
@@ -110,7 +109,7 @@ bool BSONDoc::clear()
   return true;
 }
 
-const std::string BSONDoc::toString() const
+std::string BSONDoc::toString() const
 {
   char* str;
   str = bson_as_json(_doc, NULL);
@@ -174,6 +173,36 @@ bool BSONDoc::getString(std::string& result, const std::string& path) const
   return false;
 }
 
+BSONDoc BSONDoc::getDocument(const std::string& path) const
+{
+  BSONDoc temp;
+  getDocument(temp, path);
+  return temp;
+}
+
+bool BSONDoc::getDocument(BSONDoc& result, const std::string& path) const
+{
+  bson_iter_t iter;
+  bson_iter_t baz;
+
+  if (bson_iter_init(&iter, _doc) && bson_iter_find_descendant(&iter, path.c_str(), &baz))
+  {
+    if (BSON_ITER_HOLDS_DOCUMENT(&baz))
+    {
+      const uint8_t* document;
+      uint32_t document_len;
+      bson_t temp;
+      bson_iter_document(&iter, &document_len, &document);
+      if (bson_init_static(&temp, document, document_len))
+      {
+        result = BSONDoc(&temp);
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 //std::vector<std::string> BSONDoc::getStringVector(const std::string& path) const
 //{
 //  std::vector<std::string> result;
@@ -222,6 +251,7 @@ std::tuple<std::vector<std::string>, bool> BSONDoc::getStringVector(const std::s
 
   return {result, true};
 }
+
 std::vector<BSONDoc> BSONDoc::getDocuments(const std::string& path) const
 {
   std::vector<BSONDoc> result;
@@ -235,13 +265,7 @@ bool BSONDoc::getDocuments(std::vector<BSONDoc>& result, const std::string& path
   bson_iter_t iter;
   bson_iter_t baz;
 
-  if (!bson_has_field(_doc, path.c_str()))
-  {
-    printf("Field not found: \"%s\"\n", path.c_str());
-    return false;
-  }
-
-  if (!(bson_iter_init(&iter, _doc) && bson_iter_find_descendant(&iter, path.c_str(), &baz)))
+  if (!bson_iter_init(&iter, _doc) || !bson_iter_find_descendant(&iter, path.c_str(), &baz))
   {
     printf("Path not found: \"%s\"\n", path.c_str());
     printf("\"%s\"\n", toString().c_str());
@@ -406,6 +430,11 @@ bool BSONDoc::empty() const
 
 bool BSONDoc::hasField(const std::string& key) const
 {
+  return has(key.c_str());
+}
+
+bool BSONDoc::has(const std::string& key) const
+{
   return bson_has_field(_doc, key.c_str());
 }
 
@@ -503,4 +532,110 @@ BSONDoc BSONDoc::fromFile(const std::string& filename, const std::string& path)
 
   return result;
 }
+
+std::vector<std::string> BSONDoc::getKeys() const
+{
+  bson_iter_t iter;
+  std::vector<std::string> result;
+  if (bson_iter_init(&iter, _doc))
+  {
+    while (bson_iter_next(&iter))
+    {
+      result.push_back(bson_iter_key(&iter));
+    }
+  }
+  return result;
+}
+
+bool BSONDoc::isDocument(const std::string& path) const
+{
+  bson_iter_t iter;
+  if (bson_iter_init_find(&iter, _doc, path.c_str()))
+  {
+    return BSON_ITER_HOLDS_DOCUMENT(&iter);
+  }
+  return false;
+}
+
+bool BSONDoc::isString(const std::string& path) const
+{
+  bson_iter_t iter;
+  if (bson_iter_init_find(&iter, _doc, path.c_str()))
+  {
+    return BSON_ITER_HOLDS_UTF8(&iter);
+  }
+  return false;
+}
+
+template <>
+std::string BSONDoc::get<std::string>(const std::string& path)
+{
+  bson_iter_t iter;
+  bson_iter_t baz;
+  if (bson_iter_init(&iter, _doc) && bson_iter_find_descendant(&iter, path.c_str(), &baz))
+  {
+    if (BSON_ITER_HOLDS_UTF8(&baz))
+    {
+      return std::string(bson_iter_utf8(&baz, nullptr));
+    }
+    //    else if (std::is_same<T, int32_t>::value && BSON_ITER_HOLDS_INT32(&iter))
+    //    {
+    //      return bson_iter_int32(&baz);
+    //    }
+  }
+  return "";
+}
+
+template <>
+int32_t BSONDoc::get<int32_t>(const std::string& path)
+{
+  bson_iter_t iter;
+  bson_iter_t baz;
+  if (bson_iter_init(&iter, _doc) && bson_iter_find_descendant(&iter, path.c_str(), &baz))
+  {
+    if (BSON_ITER_HOLDS_INT32(&baz))
+    {
+      return int32_t(bson_iter_int32(&baz));
+    }
+    printf("no int");
+  }
+  return 0;
+}
+
+template <>
+BSONDoc BSONDoc::get<BSONDoc>(const std::string& path)
+{
+  bson_iter_t iter;
+  bson_iter_t baz;
+
+  if (bson_iter_init(&iter, _doc) && bson_iter_find_descendant(&iter, path.c_str(), &baz))
+  {
+    if (BSON_ITER_HOLDS_DOCUMENT(&baz))
+    {
+      const uint8_t* document;
+      uint32_t document_len;
+      bson_t temp;
+      bson_iter_document(&baz, &document_len, &document);
+      if (bson_init_static(&temp, document, document_len))
+      {
+        BSONDoc result(&temp);
+        return result;
+      }
+    }
+  }
+  static BSONDoc empty;
+  return empty;
+}
+
+int BSONDoc::getType(const std::string& path) const
+{
+  bson_iter_t iter;
+  bson_iter_t baz;
+  if (bson_iter_init(&iter, _doc) && bson_iter_find_descendant(&iter, path.c_str(), &baz))
+  {
+    return bson_iter_type(&baz);
+  }
+  return 0;
+}
+
 }  // namespace Mongo
