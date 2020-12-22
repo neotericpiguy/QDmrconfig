@@ -73,14 +73,8 @@ bool simpleDoc()
   Mongo::BSONDoc results2(str);
   std::cout << "results2: " << results2.toString() << std::endl;
 
-  std::vector<Mongo::BSONDoc> licenses;
-  results2.getDocuments(licenses, "Licenses.License");
-  std::cout << "Licenses: " << licenses.size() << std::endl;
-  std::cout << "licenses.size() " << licenses.size() << std::endl;
-  if (licenses.size() != 2)
-  {
-    std::cout << "FAILED" << std::endl;
-  }
+  std::vector<Mongo::BSONDoc> licenses = results2.get<std::vector<Mongo::BSONDoc>>("Licenses.License");
+  TEST(licenses.size(), ==, 1);
   return true;
 }
 
@@ -92,23 +86,17 @@ bool bsondocVectorTest()
 
   std::cout << "results: " << results.toString() << std::endl;
 
-  if (results.has("status") && results.getString("status") == "OK")
-  {
-    std::cout << "results.count(): " << results.count() << std::endl;
-    TEST(results.count(), ==, 2);
-    std::cout << "has Licenses: " << results.has("Licenses") << std::endl;
-    std::cout << "has Licenses.lastUpdate: " << results.getString("Licenses.lastUpdate") << std::endl;
-    std::cout << "has Licenses.page: " << results.has("Licenses.page") << std::endl;
-    std::cout << "has Licenses.License: " << results.has("Licenses.License") << std::endl;
+  TEST(results.has("status"), ==, true);
+  TEST(results.getString("status"), ==, "OK");
+  TEST(results.count(), ==, 2);
+  TEST(results.has("Licenses"), ==, true);
+  TEST(results.get<std::string>("Licenses.lastUpdate"), ==, "Dec 19, 2020");
+  TEST(results.has("Licenses.page"), ==, true);
+  TEST(results.has("Licenses.License"), ==, true);
 
-    std::vector<Mongo::BSONDoc> licenses;
-    results.getDocuments(licenses, "Licenses.0.License.licName");
-    std::cout << "Licenses: " << licenses.size() << std::endl;
-    std::cout << "licenses.size() " << licenses.size() << std::endl;
-    TEST(licenses.size(), ==, 0);
-    return true;
-  }
-  return false;
+  std::vector<Mongo::BSONDoc> licenses = results.get<std::vector<Mongo::BSONDoc>>("Licenses.License");
+  TEST(licenses.size(), ==, 1);
+  return true;
 }
 
 bool keyTest()
