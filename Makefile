@@ -7,7 +7,7 @@ GITCOUNT           = $(shell git rev-list HEAD --count)
 
 CFLAGS   ?= -g -O -Wall -Werror -fPIC -MMD -fcommon
 CFLAGS   += -DVERSION='"$(VERSION).$(HASH)"'
-CXXFLAGS += $(CFLAGS) -std=c++17 -Weffc++
+CXXFLAGS += $(CFLAGS) -std=c++20 -Weffc++
 LDFLAGS  ?= -g -L$(BUILD_PATH)
 
 LIBS      = $(shell pkg-config --libs --static libusb-1.0 libmongoc-1.0)
