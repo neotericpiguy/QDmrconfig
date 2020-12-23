@@ -102,11 +102,11 @@ $(BUILD_PATH)/tests: $(TESTS_OBJS) $(COMMON_LIB)
 
 $(BUILD_PATH)/run-tests: $(BUILD_PATH)/tests
 	$(BUILD_PATH)/tests
-	touch $@
+	@touch $@
 
 $(BUILD_PATH)/run-dmrconfig-tests: $(TARGET_CLI) $(TEST_SCRIPTS)
 	./src/tests/btechTests examples/btech6x2.img.bak
-	touch $@
+	@touch $@
 
 check: $(BUILD_PATH)/run-tests $(BUILD_PATH)/run-dmrconfig-tests $(TARGET_GUI)
 	@echo -e "\e[32mAll Checks Passed\e[0m"
