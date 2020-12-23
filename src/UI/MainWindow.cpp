@@ -2,7 +2,10 @@
 
 MainWindow::MainWindow() :
     QMainWindow(),
-    _confFileWidget(new ConfFileWidget),
+    _fccSearchResults(),
+    _fccSearchString(),
+    _confFileWidget(new ConfFileWidget()),
+    _bsonDocWidget(new BSONDocWidget(_fccSearchResults)),
     _networkManager(new QNetworkAccessManager(this)),
     _repeaterBookNetworkManager(new QNetworkAccessManager(this))
 {
@@ -83,11 +86,13 @@ MainWindow::MainWindow() :
     bool ok;
     QString text = QInputDialog::getText(this, tr("Search Fcc callsign"),
                                          tr("call sign"), QLineEdit::Normal,
-                                         "", &ok);
+                                         _fccSearchString.c_str(), &ok);
     if (!ok)
       return;
 
-    QString url("https://data.fcc.gov/api/license-view/basicSearch/getLicenses?format=json&searchValue=" + text);
+    _fccSearchString = text.toStdString();
+    QString url("https://data.fcc.gov/api/license-view/basicSearch/getLicenses?format=json&searchValue=");
+    url += QString(_fccSearchString.c_str());
 
     QNetworkRequest request;
     request.setUrl(QUrl(url));
@@ -150,25 +155,22 @@ void MainWindow::callsignSearchReady(QNetworkReply* reply)
 
   if (results.has("Errors"))
   {
-    statusBar()->showMessage(QString("Has Errors try again later: ") + QString::fromStdString(results.toString()), 10000);
+    QString url("https://data.fcc.gov/api/license-view/basicSearch/getLicenses?format=json&searchValue=");
+    url += QString(_fccSearchString.c_str());
+
+    QNetworkRequest request;
+    request.setUrl(QUrl(url));
+
+    _networkManager->get(request);
+    statusBar()->showMessage(tr("Retrying search..."));
     return;
   }
 
-  if (!results.has("status") || results.get<std::string>("status") != "OK")
-  {
-    statusBar()->showMessage(QString("Has Errors try again later: ") + QString::fromStdString(results.toString()), 10000);
-    return;
-  }
-
-  std::vector<Mongo::BSONDoc> licenses = results.get<std::vector<Mongo::BSONDoc>>("Licenses.License");
-  for (const auto& license : licenses)
-  {
-    const auto& fields = {"callsign", "licName", "frn", "expiredDate"};
-    for (const auto& field : fields)
-    {
-      std::cout << field << " : " << license.get<std::string>(field) << std::endl;
-    }
-  }
+  _fccSearchResults = results.get<std::vector<Mongo::BSONDoc>>("Licenses.License");
+  statusBar()->showMessage(tr("FCC Results"));
+  _bsonDocWidget->update();
+  takeCentralWidget();
+  setCentralWidget(_bsonDocWidget);
 }
 
 void MainWindow::repeaterBookSlotReadyRead(QNetworkReply* reply)
@@ -367,5 +369,7 @@ void MainWindow::loadFile(const QString& filename)
   _confFileWidget->updateTabs();
 
   statusBar()->showMessage(tr("File loaded"), 2000);
+  takeCentralWidget();
+  setCentralWidget(_confFileWidget);
 }
 
