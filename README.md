@@ -16,3 +16,23 @@ needed. This is handy when you want to find certain scanlists or zones
 Freely inject or remove values from fields by cell or by batch selection
 
 <img src="https://raw.githubusercontent.com/neotericpiguy/i/master/QDmrconfig/AddRemove.gif" height="450">
+
+## Automatic Column Update
+Update columns based on formulaic offsets
+
+<img src="https://raw.githubusercontent.com/neotericpiguy/i/master/QDmrconfig/ColumnUpdate.gif" height="450">
+
+## FCC Callsign Search
+Search FCC website for Callsigns
+
+<img src="https://raw.githubusercontent.com/neotericpiguy/i/master/QDmrconfig/FccSearch.gif" height="450">
+
+## Debug Mode
+Show raw text file that will be generated with cell contents
+
+```
+$> ./QDmrconfig -d
+```
+
+
+<img src="https://raw.githubusercontent.com/neotericpiguy/i/master/QDmrconfig/debug.gif" height="450">
