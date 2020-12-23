@@ -6,7 +6,7 @@
 #include <vector>
 
 #define TEST(lparam, op, rparam)                            \
-  if (lparam == rparam)                                     \
+  if (lparam op rparam)                                     \
   {                                                         \
     std::stringstream ss;                                   \
     ss << "\e[32m[PASS]\e[0m "                              \
