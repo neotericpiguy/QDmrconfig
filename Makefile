@@ -94,7 +94,7 @@ clean:
 distclean: clean
 	-rm -rf $(TARGET_GUI) $(TARGET_CLI)
 
-repoclean: distclean
+repoclean:
 	git clean -ffd
 
 $(BUILD_PATH)/tests: $(TESTS_OBJS) $(COMMON_LIB)
