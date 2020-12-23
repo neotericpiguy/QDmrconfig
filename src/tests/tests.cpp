@@ -1,56 +1,7 @@
 #include <iostream>
-#include <sstream>
 
 #include "BSONDoc.hpp"
-
-static uint32_t passCount = 0;
-static uint32_t failCount = 0;
-static std::vector<std::string> failFuncs;
-
-#define TEST(lparam, op, rparam)                                \
-  if (lparam == rparam)                                         \
-  {                                                             \
-    std::cout << "\e[32m[PASS]\e[0m "                           \
-              << __PRETTY_FUNCTION__ << ":" << __LINE__         \
-              << " " << #lparam << " " << #op << " " << #rparam \
-              << std::endl;                                     \
-    passCount++;                                                \
-  }                                                             \
-  else                                                          \
-  {                                                             \
-    std::stringstream ss;                                       \
-    ss << "\e[31m[FAIL]\e[0m "                                  \
-       << __PRETTY_FUNCTION__ << ":" << __LINE__                \
-       << " " << #lparam << " " << #op << " " << #rparam        \
-       << " -> " << lparam << " " << #op << " " << #rparam;     \
-    std::cout << ss.str() << std::endl;                         \
-    failFuncs.push_back(ss.str());                              \
-    failCount++;                                                \
-  }
-
-#define TEST_EQ(lparam, rparam)                            \
-  if (lparam == rparam)                                    \
-  {                                                        \
-    std::cout << "\e[32m[PASS]\e[0m "                      \
-              << __PRETTY_FUNCTION__ << ":" << __LINE__    \
-              << " " << #lparam << " == " << #rparam << "" \
-              << std::endl;                                \
-    passCount++;                                           \
-  }                                                        \
-  else                                                     \
-  {                                                        \
-    std::cout << "\e[31m[FAIL]\e[0m "                      \
-              << __PRETTY_FUNCTION__ << ":" << __LINE__    \
-              << " " << #lparam << " == " << #rparam       \
-              << std::endl;                                \
-    failCount++;                                           \
-  }
-
-#define START_TEST()                                       \
-  std::cout << "\n\e[35m" << __PRETTY_FUNCTION__           \
-            << "\n=======================================" \
-            << "=========================================" \
-            << "\e[0m" << std::endl;
+#include "SimpleTest.hpp"
 
 std::string str = "{ \"status\" : \"OK\", \"Licenses\" : { \"page\" : 1, \"rowPerPage\" : \"100\", \"totalRows\" : \"1\", \"lastUpdate\" : \"Dec 19, 2020\", \"License\" : [ { \"licName\" : \"Annua, Jonathan Lee O\", \"frn\" : \"0029046729\", \"callsign\" : \"KJ7LEY\", \"categoryDesc\" : \"Personal Use\", \"serviceDesc\" : \"Amateur\", \"statusDesc\" : \"Active\", \"expiredDate\" : \"12/12/2029\", \"licenseID\" : \"4232049\", \"licDetailURL\" : \"http://wireless2.fcc.gov/UlsApp/UlsSearch/license.jsp?__newWindow=false&licKey=4232049\" },{\"licName\" :\"another\"} ] } }";
 bool simpleDoc()
@@ -174,10 +125,6 @@ int main()
   getDocumentTest();
   simpleDoc();
 
-  std::cout << "\e[32m" << passCount << " PASS\e[0m " << std::endl;
-  std::cout << "\e[31m" << failCount << " FAIL\e[0m " << std::endl;
-  for (const auto& func : failFuncs)
-    std::cout << func << std::endl;
-
-  return failFuncs.size() > 0;
+  std::cout << SimpleTest::getReport() << std::endl;
+  return !SimpleTest::isSuccess();
 }

@@ -14,7 +14,7 @@ LIBS      = $(shell pkg-config --libs --static libusb-1.0 libmongoc-1.0)
 QT_LIBS   = $(shell pkg-config --libs Qt5Widgets)
 QT_CFLAGS = $(shell pkg-config --cflags Qt5Widgets)
 
-INCPATHS         += -Isrc/dmrconfig -Isrc/ -Isrc/UI -Isrc/common -Isrc/common/BSONDoc
+INCPATHS         += -Isrc/dmrconfig -Isrc/ -Isrc/UI -Isrc/common -Isrc/common/BSONDoc -Isrc/tests/SimpleTest
 LIBMONGOCINCPATH += $(shell pkg-config --cflags libmongoc-1.0)
 LIBUSBPATH       += $(shell pkg-config --cflags libusb-1.0)
 LINCPATHS        += $(LIBMONGOCINCPATH) $(LIBUSBPATH)
@@ -101,10 +101,12 @@ $(BUILD_PATH)/tests: $(TESTS_OBJS) $(COMMON_LIB)
 	$(CXX) -o $@ $(CXXFLAGS) $^ $(LIBS)
 
 $(BUILD_PATH)/run-tests: $(BUILD_PATH)/tests
-	$(BUILD_PATH)/tests | tee $@
+	$(BUILD_PATH)/tests
+	@touch $@
 
 $(BUILD_PATH)/run-dmrconfig-tests: $(TARGET_CLI) $(TEST_SCRIPTS)
-	./src/tests/btechTests examples/btech6x2.img.bak | tee $@
+	./src/tests/btechTests examples/btech6x2.img.bak
+	@touch $@
 
 check: $(BUILD_PATH)/run-tests $(BUILD_PATH)/run-dmrconfig-tests $(TARGET_GUI)
 	@echo -e "\e[32mAll Checks Passed\e[0m"
