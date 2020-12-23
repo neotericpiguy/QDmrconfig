@@ -37,6 +37,7 @@ $> ./QDmrconfig -d
 <img src="https://raw.githubusercontent.com/neotericpiguy/i/master/QDmrconfig/debug.gif" height="450">
 
 ### Installation
+
 #### Unix, Linux
 Tested on archlinux with Qt5 and gcc 10.
 ```sh
