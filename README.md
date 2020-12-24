@@ -45,6 +45,8 @@ $> ./QDmrconfig -d
 
 #### Unix, Linux
 Tested on archlinux with Qt5 and gcc 10.
+You will need Qt and libmongoc
+
 ```sh
 git clone --recursive "https://github.com/neotericpiguy/QDmrconfig.git"
 cd QDmrconfig
