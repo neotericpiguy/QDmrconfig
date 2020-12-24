@@ -116,7 +116,6 @@ MainWindow::MainWindow() :
     _repeaterBookSearchString = text.toStdString();
 
     QNetworkRequest request;
-    //    QString url("https://www.repeaterbook.com/api/export.php?state=arizona&city=" + text);
     QString url("https://www.repeaterbook.com/api/export.php?city=" + text);
     request.setUrl(url);
 
