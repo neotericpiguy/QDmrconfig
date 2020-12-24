@@ -5,10 +5,12 @@ HASH               = $(shell git rev-parse --short HEAD)
 DMRCONFIG_VERSION  = $(shell git submodule status)
 GITCOUNT           = $(shell git rev-list HEAD --count)
 
+PKG_CONFIG     ?= pkg-config
+
 CFLAGS   ?= -g -O -Wall -Werror -fPIC -MMD -fcommon
 CFLAGS   += -DVERSION='"$(VERSION).$(HASH)"'
 CXXFLAGS += $(CFLAGS) -std=c++20 -Weffc++
-LDFLAGS  ?= -g -L$(BUILD_PATH)
+LDFLAGS  ?= -L$(BUILD_PATH)
 
 LIBS      = $(shell pkg-config --libs --static libusb-1.0 libmongoc-1.0)
 QT_LIBS   = $(shell pkg-config --libs Qt5Widgets)
@@ -40,11 +42,21 @@ TEST_SCRIPTS=$(shell find src/tests -iname '*Tests')
 
 .PHONY: all clean
 
+#
+# Actual Build targets
+# 
 TARGET_GUI=QDmrconfig
 TARGET_CLI=dmrconfig
 
 TARGET_LIB=$(BUILD_PATH)/lib$(TARGET_CLI).a
 COMMON_LIB=$(BUILD_PATH)/libcommon.a
+
+#
+# Make sure pkg-config is installed.
+#
+ifeq ($(shell $(PKG_CONFIG) --version),)
+    $(error Fatal error: pkg-config is not installed)
+endif
 
 all: $(TARGET_GUI) $(TARGET_CLI)
 	@echo -e "\e[032m$^\e[0m"
@@ -72,7 +84,7 @@ $(TARGET_GUI): $(TARGET_LIB) $(GUI_SRCS) $(GUI_HDRS) $(COMMON_LIB)
 		"LIBS           += ../../../$(COMMON_LIB) ../../../$(TARGET_LIB) $(LIBS)" \
 		"TARGET         = ../../../$(TARGET_GUI)" \
 		$(GUI_PRO) -o $(BUILD_PATH)/src/UI/Makefile
-	$(MAKE) -C $(BUILD_PATH)/src/UI
+	$(MAKE) -j1 -C $(BUILD_PATH)/src/UI
 
 # Build dmrconfig
 $(BUILD_PATH)/src/dmrconfig/%.o: src/dmrconfig/%.c
