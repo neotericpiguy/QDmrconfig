@@ -15,7 +15,6 @@
        << " -> " << lparam << " " << #op << " " << #rparam; \
     std::cout << ss.str() << std::endl;                     \
     SimpleTest::addPassFunc(ss.str());                      \
-    SimpleTest::passCount++;                                \
   }                                                         \
   else                                                      \
   {                                                         \
@@ -26,7 +25,6 @@
        << " -> " << lparam << " " << #op << " " << #rparam; \
     std::cout << ss.str() << std::endl;                     \
     SimpleTest::addFailFunc(ss.str());                      \
-    SimpleTest::failCount++;                                \
   }
 
 #define START_TEST()                                       \
@@ -42,9 +40,6 @@ class SimpleTest
   ~SimpleTest() = delete;
 
 public:
-  static unsigned int passCount;
-  static unsigned int failCount;
-
   static void addFailFunc(const std::string& func);
   static void addPassFunc(const std::string& func);
   static std::string getReport();

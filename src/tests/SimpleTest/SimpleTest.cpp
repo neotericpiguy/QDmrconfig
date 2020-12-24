@@ -1,8 +1,5 @@
 #include "SimpleTest.hpp"
 
-unsigned int SimpleTest::passCount = 0;
-unsigned int SimpleTest::failCount = 0;
-
 std::vector<std::string> SimpleTest::failFuncs = {};
 std::vector<std::string> SimpleTest::passFuncs = {};
 
@@ -23,7 +20,7 @@ void SimpleTest::addPassFunc(const std::string& func)
 std::string SimpleTest::getReport()
 {
   std::stringstream ss;
-  ss << "\e[32m" << passCount << " PASS out of " << passFuncs.size() + failFuncs.size() << "\e[0m\n";
+  ss << "\e[32m" << passFuncs.size() << " PASS out of " << passFuncs.size() + failFuncs.size() << "\e[0m\n";
   for (const auto& func : failFuncs)
     ss << func << "\n";
 
