@@ -35,8 +35,9 @@ private slots:
   void repeaterBookSlotReadyRead(QNetworkReply* reply);
 
 private:
-  std::vector<Mongo::BSONDoc> _fccSearchResults;
+  std::vector<Mongo::BSONDoc> _bsonResults;
   std::string _fccSearchString;
+  std::string _repeaterBookSearchString;
   ConfFileWidget* _confFileWidget;
   BSONDocWidget* _bsonDocWidget;
   QNetworkAccessManager* _networkManager;
