@@ -12,7 +12,6 @@ BSONDocWidget::BSONDocWidget(std::vector<Mongo::BSONDoc>& bsonDocs, QWidget* par
 
   // Fit contents of table cells
   _tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-
 }
 
 BSONDocWidget::~BSONDocWidget()
@@ -61,18 +60,23 @@ void BSONDocWidget::cellSelected(int, int)
 
 void BSONDocWidget::update()
 {
+  if (_bsonDocs.empty())
+    return;
+
   _tableWidget->blockSignals(true);
   _tableWidget->clear();
 
-  const std::vector<std::string> keys = {"callsign", "licName", "frn", "expiredDate"};
+  std::vector<std::string> keys = _bsonDocs.at(0).getKeys();
+
   _tableWidget->setRowCount(_bsonDocs.size());
   _tableWidget->setColumnCount(keys.size());
+
+  // Set header info *has to be done after setting the row and column size
   QStringList headers;
-  for (uint16_t column = 0; column < keys.size(); ++column)
-  {
-    headers << keys.at(column).c_str();
-  }
+  for (const auto& key : keys)
+    headers << key.c_str();
   _tableWidget->setHorizontalHeaderLabels(headers);
+
   for (uint16_t row = 0; row < _bsonDocs.size(); ++row)
   {
     const auto& doc = _bsonDocs.at(row);
