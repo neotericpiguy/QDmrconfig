@@ -1,5 +1,5 @@
-#ifndef BSONDOCWIDGET_H
-#define BSONDOCWIDGET_H
+#ifndef BSONDOCWIDGET_HPP
+#define BSONDOCWIDGET_HPP
 
 #pragma GCC diagnostic ignored "-Weffc++"
 #include <QtWidgets/QPlainTextEdit>

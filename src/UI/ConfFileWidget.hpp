@@ -1,5 +1,5 @@
-#ifndef CONFFILEWIDGET_H
-#define CONFFILEWIDGET_H
+#ifndef CONFFILEWIDGET_HPP
+#define CONFFILEWIDGET_HPP
 
 #pragma GCC diagnostic ignored "-Weffc++"
 #include <QtWidgets/QMainWindow>

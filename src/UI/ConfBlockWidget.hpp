@@ -1,5 +1,5 @@
-#ifndef CONFBLOCKWIDGET_H
-#define CONFBLOCKWIDGET_H
+#ifndef CONFBLOCKWIDGET_HPP
+#define CONFBLOCKWIDGET_HPP
 
 #pragma GCC diagnostic ignored "-Weffc++"
 #include <QtWidgets/QPlainTextEdit>
