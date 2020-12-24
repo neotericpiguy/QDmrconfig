@@ -2,10 +2,11 @@
 
 MainWindow::MainWindow() :
     QMainWindow(),
-    _fccSearchResults(),
+    _bsonResults(),
     _fccSearchString(),
+    _repeaterBookSearchString(),
     _confFileWidget(new ConfFileWidget()),
-    _bsonDocWidget(new BSONDocWidget(_fccSearchResults)),
+    _bsonDocWidget(new BSONDocWidget(_bsonResults)),
     _networkManager(new QNetworkAccessManager(this)),
     _repeaterBookNetworkManager(new QNetworkAccessManager(this))
 {
@@ -28,7 +29,7 @@ MainWindow::MainWindow() :
   searchAct->setStatusTip(tr("Search Fcc"));
   fileMenu->addAction(searchAct);
 
-  QAction* repeaterBookAct = new QAction(tr("Download Repeaterbook"), this);
+  QAction* repeaterBookAct = new QAction(tr("Search Repeaterbook"), this);
   repeaterBookAct->setShortcut(QKeySequence(tr("Ctrl+r")));
   fileMenu->addAction(repeaterBookAct);
 
@@ -92,7 +93,7 @@ MainWindow::MainWindow() :
 
     _fccSearchString = text.toStdString();
     QString url("https://data.fcc.gov/api/license-view/basicSearch/getLicenses?format=json&searchValue=");
-    url += QString(_fccSearchString.c_str());
+    url += text;
 
     QNetworkRequest request;
     request.setUrl(QUrl(url));
@@ -107,20 +108,19 @@ MainWindow::MainWindow() :
   connect(repeaterBookAct, &QAction::triggered, this, [this]() {
     bool ok;
     QString text = QInputDialog::getText(this, tr("Search Repeater"),
-                                         tr("Search Repeater"), QLineEdit::Normal,
-                                         "", &ok);
+                                         tr("Nearest City"), QLineEdit::Normal,
+                                         _repeaterBookSearchString.c_str(), &ok);
     if (!ok)
       return;
 
+    _repeaterBookSearchString = text.toStdString();
+
     QNetworkRequest request;
-    //    request.setUrl(QUrl("https://www.repeaterbook.com/repeaters/location_search.php?state_id=04&loc=Pima&type=county"));
-    request.setUrl(QUrl(text));
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    QString url("https://www.repeaterbook.com/api/export.php?city=" + text);
+    request.setUrl(url);
 
-    QUrlQuery params;
-    _repeaterBookNetworkManager->post(request, params.query().toUtf8());
-
-    qDebug() << "Searching repeaterbook: ";
+    _repeaterBookNetworkManager->get(request);
+    statusBar()->showMessage("Searching Repeaterbook");
   });
 
   connect(_repeaterBookNetworkManager, &QNetworkAccessManager::finished,
@@ -166,7 +166,7 @@ void MainWindow::callsignSearchReady(QNetworkReply* reply)
     return;
   }
 
-  _fccSearchResults = results.get<std::vector<Mongo::BSONDoc>>("Licenses.License");
+  _bsonResults = results.get<std::vector<Mongo::BSONDoc>>("Licenses.License");
   statusBar()->showMessage(tr("FCC Results"));
   _bsonDocWidget->update();
   takeCentralWidget();
@@ -175,153 +175,27 @@ void MainWindow::callsignSearchReady(QNetworkReply* reply)
 
 void MainWindow::repeaterBookSlotReadyRead(QNetworkReply* reply)
 {
-  //////////////////////////////////////////////////////////////////////////
-  QByteArray bts = reply->readAll();
-  QString str(bts);
-
-  std::string fileStr = str.toStdString();
-
-  //////////////////////////////////////////////////////////////////////////
-  //  std::ifstream t("reply.html");
-  //  std::string fileStr;
-  //
-  //  t.seekg(0, std::ios::end);
-  //  fileStr.reserve(t.tellg());
-  //  t.seekg(0, std::ios::beg);
-  //
-  //  fileStr.assign((std::istreambuf_iterator<char>(t)),
-  //                 std::istreambuf_iterator<char>());
-  //////////////////////////////////////////////////////////////////////////
-  std::ofstream t("reply.html");
-
-  t << fileStr << std::endl;
-
-  std::cout << "parsing" << std::endl;
-  std::cout << fileStr << std::endl;
-
-  auto spot = fileStr.find("Tone ");
-  if (spot != std::string::npos)
-  {
-    fileStr = fileStr.substr(spot, fileStr.length() - spot);
-    spot = fileStr.rfind("administrator");
-    fileStr = fileStr.substr(0, spot);
-
-    ConfBlock::replaceRegex(fileStr, "<font[^>]*>", "");
-    ConfBlock::replaceRegex(fileStr, "</font>", "");
-    ConfBlock::replaceRegex(fileStr, ".*more details\">", "");
-    ConfBlock::replaceRegex(fileStr, ".*nowrap>", "");
-    ConfBlock::replaceRegex(fileStr, "<td>", "");
-    ConfBlock::replaceRegex(fileStr, "</td>", "");
-    ConfBlock::replaceRegex(fileStr, "<a>", "");
-    ConfBlock::replaceRegex(fileStr, "</a>", "");
-    ConfBlock::replaceRegex(fileStr, " MHz", "");
-    ConfBlock::replaceRegex(fileStr, ".*<.*", "");
-    ConfBlock::replaceRegex(fileStr, "\\r\\n\\s*", "\n");
-    ConfBlock::replaceRegex(fileStr, "\\n+", "\n");
-  }
-  else
-    fileStr = "Not Found!";
-
-  //  qDebug() << fileStr.c_str();
-
-  std::stringstream ss(fileStr);
-  std::string temp;
-  std::vector<std::vector<std::string>> entries;
-  entries.push_back({});
-  while (std::getline(ss, temp))
-  {
-    if (!temp.empty())
-      entries.back().push_back(temp);
-    if (temp.find("OPEN") != std::string::npos)
-      entries.push_back({});
-    if (temp.find("CLOSE") != std::string::npos)
-      entries.back() = {};
-  }
-
-  entries.erase(std::remove_if(entries.begin(), entries.end(), [this](const auto& vec) {
-                  float offset;
-                  if (vec.size() < 2 || !ConfBlock::strTo(vec[1], offset))
-                    return true;
-
-                  offset = std::fabs(offset);
-                  static std::vector<float> badOffsets = {0.1, 0.5, 1, 1.6, 25, 12};
-                  if (std::find(badOffsets.begin(), badOffsets.end(), offset) != badOffsets.end())
-                    return true;
-
-                  if (std::find(vec.begin(), vec.end(), "DSTR") != vec.end())
-                    return true;
-
-                  if (vec.size() == 7 && vec[2].find("CC") != std::string::npos)
-                    return true;
-
-                  return false;
-                }),
-                entries.end());
-
-  //Analog  Name             Receive   Transmit Power Scan TOT RO Admit  Squelch RxTone TxTone Width # AnalogOffset            Zone
-  //    8   SMPLX_CALL       146.520   +0       Low   6    -   -  -      Normal  -      -      25    # Analog-Digital-Digital  1
-  for (auto& i : entries)
-  {
-    std::vector<std::string> newEntry(16);
-    newEntry[0] = "0";
-    newEntry[1] = i[i.size() - 2] + "-" + i[0];  //Name
-    newEntry[2] = i[0];                          //Frequency
-    newEntry[3] = i[1];                          //Offset
-    newEntry[4] = "Low";                         // Power
-    newEntry[5] = "1";                           // Scan
-    newEntry[6] = "-";                           // TOT
-    newEntry[7] = "-";                           // RO
-    newEntry[8] = "-";                           // Admit
-    newEntry[9] = "Normal";                      // Squelch
-    newEntry[10] = "-";                          // RxTone
-    newEntry[11] = "-";                          // TxTone
-    newEntry[12] = "25";                         // Width
-    newEntry[13] = "#";                          // #
-    newEntry[14] = "+1";                         // +1
-    newEntry[15] = "1";                          // Zone
-
-    newEntry[1].erase(newEntry[1].find_last_not_of('0') + 1, std::string::npos);  // remove trailing 0s
-
-    if (i.size() == 7)
-    {
-      // if the PL has a rx and tx
-      if (i[2].find("/") != std::string::npos)
-      {
-        std::stringstream ss(i[2]);
-        char temp;
-        ss >> newEntry[10] >> temp >> newEntry[11];
-      }
-      else if (i[2].find("CC") != std::string::npos)
-      {
-        newEntry = {};
-      }
-      else
-      {
-        newEntry[11] = i[2];
-      }
-    }
-
-    i = newEntry;
-  }
-
-  for (const auto& i : entries)
-  {
-    std::string line = std::to_string(i.size()) + ":";
-    for (const auto& j : i)
-      line += j + "|";
-    std::cout << line << std::endl;
-  }
-
-  const auto& confBlocks = _confFileWidget->getConfFile().getNameBlocks();
-  if (confBlocks.find("Analog") != confBlocks.end())
-  {
-    auto& confBlock = *confBlocks.at("Analog");
-    auto& lines = confBlock.getRows();
-    for (const auto& i : entries)
-      lines.push_back(i);
-  }
-
+  QString replyStr(reply->readAll());
   reply->deleteLater();
+
+  Mongo::BSONDoc results(replyStr.toStdString());
+
+  if (!results.has("results") || !results.has("count"))
+  {
+    statusBar()->showMessage(tr("Done messed up... Try again later"));
+    return;
+  }
+
+  int32_t count = results.get<int32_t>("count");
+  _bsonResults = results.get<std::vector<Mongo::BSONDoc>>("results");
+
+  // Ensure dimensions match the docs.
+  _bsonResults.resize(count);
+
+  statusBar()->showMessage(tr("FCC Results: ") + QString::number(count));
+  _bsonDocWidget->update();
+  takeCentralWidget();
+  setCentralWidget(_bsonDocWidget);
 }
 
 void MainWindow::closeEvent(QCloseEvent* event)
