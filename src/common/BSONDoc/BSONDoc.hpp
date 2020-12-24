@@ -3,9 +3,10 @@
 
 #include <mongoc.h>
 
-#include <ctime>  // date conversion
+#include <ctime>
 #include <fstream>
 #include <functional>
+#include <vector>
 
 namespace Mongo {
 /** BSONDoc class

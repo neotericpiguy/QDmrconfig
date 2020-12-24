@@ -171,8 +171,10 @@ std::string ConfBlock::getConfLines(bool withComments)
   }
   else
   {
-    for (const auto& [key, value] : _valueMap)
+    for (const auto& valuePair : _valueMap)
     {
+      const auto& key = valuePair.first;
+      const auto& value = valuePair.second;
       ss << key << ": " << value << std::endl;
     }
   }
@@ -503,8 +505,10 @@ void ConfBlock::updateChannelList(const std::map<ConfBlock*, std::string>& src, 
 {
   std::map<std::string, std::vector<int>> scanIndexToChanMap;
 
-  for (const auto& [sourceBlockPtr, sourceColumn] : src)
+  for (const auto& pair : src)
   {
+    const auto& sourceBlockPtr = pair.first;
+    const auto& sourceColumn = pair.second;
     auto& sourceBlock = *sourceBlockPtr;
     auto sourceColumnIndex = sourceBlock.getColumnIndex(sourceColumn);
     for (const auto& sourceRow : sourceBlock.getLines())  // use getLines because it returns a const vector

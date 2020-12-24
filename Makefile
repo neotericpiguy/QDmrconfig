@@ -9,7 +9,7 @@ PKG_CONFIG     ?= pkg-config
 
 CFLAGS   ?= -g -O -Wall -Werror -fPIC -MMD -fcommon
 CFLAGS   += -DVERSION='"$(VERSION).$(HASH)"'
-CXXFLAGS += $(CFLAGS) -std=c++20 -Weffc++
+CXXFLAGS += $(CFLAGS) -Weffc++
 LDFLAGS  ?= -L$(BUILD_PATH)
 
 LIBS      = $(shell pkg-config --libs --static libusb-1.0 libmongoc-1.0)
@@ -84,7 +84,7 @@ $(TARGET_GUI): $(TARGET_LIB) $(GUI_SRCS) $(GUI_HDRS) $(COMMON_LIB)
 		"LIBS           += ../../../$(COMMON_LIB) ../../../$(TARGET_LIB) $(LIBS)" \
 		"TARGET         = ../../../$(TARGET_GUI)" \
 		$(GUI_PRO) -o $(BUILD_PATH)/src/UI/Makefile
-	$(MAKE) -j1 -C $(BUILD_PATH)/src/UI
+	$(MAKE) -C $(BUILD_PATH)/src/UI
 
 # Build dmrconfig
 $(BUILD_PATH)/src/dmrconfig/%.o: src/dmrconfig/%.c

@@ -50,11 +50,19 @@ void ConfFile::loadFile(const std::string& filename)
       blockId++;
   }
 
-  for (const auto& [key, value] : blocks)
+  for (const auto& pair : blocks)
+  {
+    const auto& key = pair.first;
+    const auto& value = pair.second;
     _confBlocks[key].setLines(value);
+  }
 
-  for (auto& [key, value] : _confBlocks)
+  for (auto& pair : _confBlocks)
+  {
+    //    const auto& key = pair.first;
+    auto& value = pair.second;
     _confNameBlocks[value.getHeader()] = &value;
+  }
 
   _filename = filename;
 }
@@ -73,13 +81,16 @@ void ConfFile::saveFile()
 {
   std::ofstream outStream(_filename);
 
-  for (auto& [index, confBlock] : _confBlocks)
+  for (auto& pair : _confBlocks)
   {
+    //    const auto& index = pair.first;
+    auto& confBlock = pair.second;
     confBlock.metaUpdate();
   }
 
-  for (auto& [index, confBlock] : _confBlocks)
+  for (auto& pair : _confBlocks)
   {
+    auto& confBlock = pair.second;
     confBlock.metaUpdate();
     outStream << confBlock.getConfLines() << std::endl;
     confBlock.setModified(false);
@@ -88,9 +99,12 @@ void ConfFile::saveFile()
 
 bool ConfFile::isModified() const
 {
-  for (auto& [index, confBlock] : _confBlocks)
+  for (auto& pair : _confBlocks)
+  {
+    auto& confBlock = pair.second;
     if (confBlock.isModified())
       return true;
+  }
   return false;
 }
 
