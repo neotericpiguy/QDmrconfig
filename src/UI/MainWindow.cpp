@@ -29,7 +29,7 @@ MainWindow::MainWindow() :
   searchAct->setStatusTip(tr("Search Fcc"));
   fileMenu->addAction(searchAct);
 
-  QAction* repeaterBookAct = new QAction(tr("Download Repeaterbook"), this);
+  QAction* repeaterBookAct = new QAction(tr("Search Repeaterbook"), this);
   repeaterBookAct->setShortcut(QKeySequence(tr("Ctrl+r")));
   fileMenu->addAction(repeaterBookAct);
 
