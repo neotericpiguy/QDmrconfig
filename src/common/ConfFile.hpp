@@ -1,5 +1,5 @@
-#ifndef CONFFILE_H
-#define CONFFILE_H
+#ifndef CONFFILE_HPP
+#define CONFFILE_HPP
 
 #include <fstream>
 #include <map>

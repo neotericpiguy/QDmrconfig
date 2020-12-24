@@ -1,5 +1,5 @@
-#ifndef CONFBLOCK_H
-#define CONFBLOCK_H
+#ifndef CONFBLOCK_HPP
+#define CONFBLOCK_HPP
 
 #include <fstream>
 #include <iomanip>
