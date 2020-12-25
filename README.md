@@ -79,9 +79,16 @@ Zone    Name             Channels                                       # ZoneOf
 ```
 
 ZoneOffset was described already as a column modifier, but what is
-`ChannelsRange-Analog-Zone-Digital-Zone` ? We are going to have to break it down.
+`ChannelsRange-Analog-Zone-Digital-Zone` ? We are going to have to break it
+down. But the important thing is that the values in the Channels column were
+AUTOPOPULATED. The user need not look between Analog ConfBlock and Digital
+ConfBlock to know what to throw in those cells. Thanks to 
+`ChannelsRange-Analog-Zone-Digital-Zone`.
+
 `ChannelsRange` means the Channels Column will be auto populated with a range of values
+
 `Analog-Zone` means that you should look in the Analog ConfBlock's Zone column
+
 `Digital-Zone` means that you should look in the Digital ConfBlock's Zone column
 
 ### Installation
