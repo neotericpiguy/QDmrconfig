@@ -33,9 +33,11 @@ GUI_HDRS+=$(shell find src/UI -iname '*.h*')
 GUI_PRO+=$(shell find src/UI -iname '*.pro')
 
 COMMON_SRCS=$(shell find src/common -iname '*.cpp')
+COMMON_HDRS=$(shell find src/common -iname '*.h*')
 COMMON_OBJS=$(addprefix $(BUILD_PATH)/,$(COMMON_SRCS:.cpp=.o))
 
 TESTS_SRCS=$(shell find src/tests -iname '*.cpp')
+TESTS_HDRS=$(shell find src/tests -iname '*.h*')
 TESTS_OBJS=$(addprefix $(BUILD_PATH)/,$(TESTS_SRCS:.cpp=.o))
 
 TEST_SCRIPTS=$(shell find src/tests -iname '*Tests')
@@ -120,8 +122,8 @@ $(BUILD_PATH)/run-dmrconfig-tests: $(TARGET_CLI) $(TEST_SCRIPTS)
 	./src/tests/btechTests examples/btech6x2.img.bak
 	@touch $@
 
-$(BUILD_PATH)/style-tests: $(GUI_SRCS) $(COMMON_SRCS) $(TESTS_SRCS)
-	clang-format -i  $^
+$(BUILD_PATH)/style-tests: $(GUI_SRCS) $(GUI_HDRS) $(TESTS_SRCS) $(TEST_HDRS) $(COMMON_SRCS) $(COMMON_HDRS)
+	clang-format -i $^
 
 check: $(BUILD_PATH)/run-tests $(BUILD_PATH)/run-dmrconfig-tests $(TARGET_GUI)
 	@echo -e "\e[32mAll Checks Passed\e[0m"
