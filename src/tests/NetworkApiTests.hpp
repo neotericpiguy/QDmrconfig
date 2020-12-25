@@ -10,14 +10,14 @@
 #include "BSONDoc.hpp"
 #include "SimpleTest.hpp"
 
-class NetworkApi : public QMainWindow
+class NetworkApiTests : public QMainWindow
 {
   Q_OBJECT
 
 public:
-  NetworkApi();
-  NetworkApi(const NetworkApi&) = delete;
-  ~NetworkApi();
+  NetworkApiTests();
+  NetworkApiTests(const NetworkApiTests&) = delete;
+  ~NetworkApiTests();
 
   bool fccCallsignSearchTest();
   bool repeaterSearchTest();

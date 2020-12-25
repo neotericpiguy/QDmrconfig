@@ -1,6 +1,6 @@
 #include "NetworkApiTests.hpp"
 
-NetworkApi::NetworkApi() :
+NetworkApiTests::NetworkApiTests() :
     QMainWindow(),
     _fccCallsignSearchNetworkManager(new QNetworkAccessManager(this)),
     _repeaterSearchNetworkManager(new QNetworkAccessManager(this)),
@@ -9,17 +9,17 @@ NetworkApi::NetworkApi() :
     repeaterSearchAttempts(attempts[1])
 {
   connect(_fccCallsignSearchNetworkManager, &QNetworkAccessManager::finished,
-          this, &NetworkApi::fccCallsignSearchReady);
+          this, &NetworkApiTests::fccCallsignSearchReady);
 
   connect(_repeaterSearchNetworkManager, &QNetworkAccessManager::finished,
-          this, &NetworkApi::repeaterSearchReady);
+          this, &NetworkApiTests::repeaterSearchReady);
 }
 
-NetworkApi::~NetworkApi()
+NetworkApiTests::~NetworkApiTests()
 {
 }
 
-bool NetworkApi::fccCallsignSearchTest()
+bool NetworkApiTests::fccCallsignSearchTest()
 {
   QString url("https://data.fcc.gov/api/license-view/basicSearch/getLicenses?format=json&searchValue=KJ7LEY");
 
@@ -31,7 +31,7 @@ bool NetworkApi::fccCallsignSearchTest()
   return true;
 }
 
-bool NetworkApi::repeaterSearchTest()
+bool NetworkApiTests::repeaterSearchTest()
 {
   QString url("https://www.repeaterbook.com/api/export.php?city=vail");
 
@@ -43,7 +43,7 @@ bool NetworkApi::repeaterSearchTest()
   return true;
 }
 
-void NetworkApi::fccCallsignSearchReady(QNetworkReply* reply)
+void NetworkApiTests::fccCallsignSearchReady(QNetworkReply* reply)
 {
   QString replyStr(reply->readAll());
   reply->deleteLater();
@@ -105,7 +105,7 @@ void NetworkApi::fccCallsignSearchReady(QNetworkReply* reply)
   attemptClose();
 }
 
-void NetworkApi::repeaterSearchReady(QNetworkReply* reply)
+void NetworkApiTests::repeaterSearchReady(QNetworkReply* reply)
 {
   QString replyStr(reply->readAll());
   reply->deleteLater();
@@ -139,7 +139,7 @@ void NetworkApi::repeaterSearchReady(QNetworkReply* reply)
   attemptClose();
 }
 
-bool NetworkApi::attemptClose()
+bool NetworkApiTests::attemptClose()
 {
   for (const auto& attempt : attempts)
   {

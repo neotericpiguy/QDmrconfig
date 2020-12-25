@@ -37,7 +37,7 @@ int main(int argc, char** argv)
 
   if (parser.isSet("net-tests"))
   {
-    NetworkApi networkApi;
+    NetworkApiTests networkApi;
     networkApi.fccCallsignSearchTest();
     networkApi.repeaterSearchTest();
     app.exec();
