@@ -72,5 +72,5 @@ jobs:
       run: sudo apt-get -y install libudev-dev libmongoc-dev libusb-1.0-0-dev qt5-default g++-10
     - name: Build Tests
       run: make -j build/tests
-    - name: Disable x11 things
+    - name: Run net-tests
       run: make -j build/run-net-tests
