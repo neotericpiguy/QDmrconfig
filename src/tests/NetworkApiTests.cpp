@@ -2,7 +2,8 @@
 
 NetworkApi::NetworkApi() :
     QMainWindow(),
-    _networkManager(new QNetworkAccessManager(this))
+    _networkManager(new QNetworkAccessManager(this)),
+    callsignSearchAttempts(3)
 {
   connect(_networkManager, &QNetworkAccessManager::finished,
           this, &NetworkApi::callsignSearchReady);
@@ -29,24 +30,50 @@ void NetworkApi::callsignSearchReady(QNetworkReply* reply)
   QString replyStr(reply->readAll());
   reply->deleteLater();
 
-  static int attempts = 3;
+  if (replyStr.toStdString().empty() && --callsignSearchAttempts)
+  {
+    std::cout << " Empty response" << std::endl;
+    simple();
+    return;
+  }
+
+  // Failed after 3 attempts
+  if (callsignSearchAttempts <= 0)
+  {
+    TEST(callsignSearchAttempts, >, 0);
+    attemptClose();
+    return;
+  }
+
   TEST(replyStr.toStdString().empty(), ==, false);
-  if (replyStr.toStdString().empty() && attempts-- >= 0)
+  Mongo::BSONDoc results(replyStr.toStdString());
+  if (results.has("Errors") && --callsignSearchAttempts)
   {
     simple();
     return;
   }
 
-  Mongo::BSONDoc results(replyStr.toStdString());
-  if (results.has("Errors") && attempts-- >= 0)
+  if (callsignSearchAttempts <= 0)
   {
-    simple();
+    TEST(callsignSearchAttempts, >, 0)
+    attemptClose();
     return;
   }
 
   std::cout << results.toString() << std::endl;
 
   TEST(results.has("Licenses.License"), ==, true);
-  close();
+
+  // Important so that we can keep track of async funcs that finished
+  callsignSearchAttempts = 0;
 }
 
+bool NetworkApi::attemptClose()
+{
+  std::cout << "attempt Close" << callsignSearchAttempts << std::endl;
+  if (callsignSearchAttempts == 0)
+  {
+    close();
+  }
+  return true;
+}

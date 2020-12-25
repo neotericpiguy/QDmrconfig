@@ -20,12 +20,14 @@ public:
   ~NetworkApi();
 
   bool simple();
+  bool attemptClose();
 
 private slots:
   void callsignSearchReady(QNetworkReply* reply);
 
 private:
   QNetworkAccessManager* _networkManager;
+  int callsignSearchAttempts;
 };
 
 #endif
