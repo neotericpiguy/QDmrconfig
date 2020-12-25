@@ -24,13 +24,13 @@ DMRCONFIG_MAIN_OBJ=$(addprefix $(BUILD_PATH)/,$(DMRCONFIG_MAIN_SRC:.c=.o))
 
 GUI_PATH=src/UI
 GUI_SRCS=src/main.cpp
-GUI_SRCS+=$(shell find $(GUI_PATH) -iname '*.cpp')
-GUI_HDRS+=$(shell find $(GUI_PATH) -iname '*.hpp')
-GUI_PRO+=$(shell find $(GUI_PATH) -iname '*.pro')
+GUI_SRCS+=$(wildcard $(GUI_PATH)/*.cpp)
+GUI_HDRS+=$(wildcard $(GUI_PATH)/*.hpp)
+GUI_PRO+=$(wildcard $(GUI_PATH)/*.pro)
 
 COMMON_PATH=src/common
-COMMON_SRCS=$(shell find $(COMMON_PATH) -iname '*.cpp')
-COMMON_HDRS=$(shell find $(COMMON_PATH) -iname '*.hpp')
+COMMON_SRCS=$(wildcard $(COMMON_PATH)/*/*.cpp)
+COMMON_HDRS=$(wildcard $(COMMON_OBJS)/*/*.hpp)
 COMMON_OBJS=$(addprefix $(BUILD_PATH)/,$(COMMON_SRCS:.cpp=.o))
 
 INCPATHS         += -Isrc -I$(DMRCONFIG_PATH) -I$(GUI_PATH) -I$(COMMON_PATH) -Isrc/common/BSONDoc -Isrc/tests/SimpleTest
@@ -38,8 +38,9 @@ LIBMONGOCINCPATH += $(shell pkg-config --cflags libmongoc-1.0)
 LIBUSBPATH       += $(shell pkg-config --cflags libusb-1.0)
 LINCPATHS        += $(LIBMONGOCINCPATH) $(LIBUSBPATH)
 
-TESTS_SRCS=$(shell find src/tests -iname '*.cpp')
-TESTS_HDRS=$(shell find src/tests -iname '*.h*')
+TESTS_PATH=src/tests
+TESTS_SRCS=$(wildcard $(TESTS_PATH)/*.cpp)
+TESTS_HDRS=$(wildcard $(TESTS_PATH/*.h*)
 TESTS_OBJS=$(addprefix $(BUILD_PATH)/,$(TESTS_SRCS:.cpp=.o))
 
 TEST_SCRIPTS=$(shell find src/tests -iname '*Tests')

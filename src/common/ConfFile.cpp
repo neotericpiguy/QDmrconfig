@@ -145,4 +145,3 @@ void ConfFile::downloadFile(const std::string& filename)
   radio_print_config(conf, 1);
   fclose(conf);
 }
-

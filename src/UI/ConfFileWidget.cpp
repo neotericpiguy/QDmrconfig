@@ -48,7 +48,7 @@ void ConfFileWidget::updateTabs()
   _confBlockWidgets.clear();
   _tabWidget->clear();
 
-  for (auto& pair: _confFile.getConfBlocks())
+  for (auto& pair : _confFile.getConfBlocks())
   {
     auto& confBlock = pair.second;
     auto temp = new ConfBlockWidget(confBlock, this);
