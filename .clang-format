@@ -1,0 +1,21 @@
+BasedOnStyle : Google
+ColumnLimit : 0
+AccessModifierOffset : -2
+BreakConstructorInitializers : AfterColon
+DerivePointerAlignment : false
+PointerAlignment : Left
+BinPackArguments : true
+FixNamespaceComments : true
+MaxEmptyLinesToKeep : 1
+AllowShortIfStatementsOnASingleLine : false
+AllowShortFunctionsOnASingleLine : None
+BreakBeforeBraces: Custom
+BraceWrapping : {
+AfterClass: true,
+BeforeElse: true,
+AfterControlStatement: true,
+BeforeCatch: true,
+SplitEmptyFunction: true,
+SplitEmptyRecord: true,
+AfterFunction: true,
+}

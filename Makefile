@@ -120,6 +120,9 @@ $(BUILD_PATH)/run-dmrconfig-tests: $(TARGET_CLI) $(TEST_SCRIPTS)
 	./src/tests/btechTests examples/btech6x2.img.bak
 	@touch $@
 
+$(BUILD_PATH)/style-tests: $(GUI_SRCS) $(COMMON_SRCS) $(TESTS_SRCS)
+	clang-format -i  $^
+
 check: $(BUILD_PATH)/run-tests $(BUILD_PATH)/run-dmrconfig-tests $(TARGET_GUI)
 	@echo -e "\e[32mAll Checks Passed\e[0m"
 
