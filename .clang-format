@@ -18,5 +18,5 @@ BeforeCatch: true,
 SplitEmptyFunction: true,
 SplitEmptyRecord: true,
 AfterFunction: true,
-AfterCaseLabel: false,
+AfterCaseLabel: true,
 }
