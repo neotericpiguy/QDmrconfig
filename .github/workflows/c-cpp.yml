@@ -33,7 +33,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Set Email
-      run: git config --global user.email "action@example.com"
+      run: git config --global user.email "action@github.com"
     - name: Set name
       run: git config --global user.name "Github Action"
     - name: Grab those submodules
