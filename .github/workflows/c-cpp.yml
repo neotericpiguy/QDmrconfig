@@ -40,7 +40,6 @@ jobs:
       run: git submodule update --init --recursive
     - name: Tag repo
       run: git tag -a v1.0 -m "workflow"
-    - name: Update repos
     - name: Installing deps
       run: sudo apt-get -y clang-format
     - name: Run style-check
