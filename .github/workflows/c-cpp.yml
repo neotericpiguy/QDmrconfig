@@ -26,8 +26,14 @@ jobs:
       run: sudo apt-get -y update
     - name: Installing deps
       run: sudo apt-get -y install libudev-dev libmongoc-dev libusb-1.0-0-dev qt5-default g++-10
-    - name: Run checks
-      run: make -j check
+    - name: Build dmrconfig
+      run: make -j dmrconfig
+    - name: Build QDmrconfig
+      run: make -j QDmrconfig
+    - name: Run Unit tests
+      run: make -j build/run-tests
+    - name: Run dmrconfig tests
+      run: make -j build/run-dmrconfig-tests
   style-check:
     runs-on: ubuntu-latest
     steps:
