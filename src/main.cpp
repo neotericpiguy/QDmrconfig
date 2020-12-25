@@ -9,8 +9,7 @@
 
 #include "MainWindow.hpp"
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
   char setting[] = "QT_MESSAGE_PATTERN=%{file}:%{line} - %{message}";
   putenv(setting);
 
