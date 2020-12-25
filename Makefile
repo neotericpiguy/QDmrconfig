@@ -132,8 +132,8 @@ $(BUILD_PATH)/style-check: $(GUI_SRCS) $(GUI_HDRS) $(TESTS_SRCS) $(TESTS_HDRS) $
 	if [ "`git diff --name-only  | wc -l`" != "0" ]; then \
 		git commit -a -m "Style compliance fixes"; \
 	  git remote -v; \
+		git push origin
 	fi
-	@touch $@
 
 check: $(BUILD_PATH)/run-tests $(BUILD_PATH)/run-dmrconfig-tests $(TARGET_GUI)
 	@echo -e "\e[32mAll Checks Passed\e[0m"
