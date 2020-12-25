@@ -118,7 +118,7 @@ repoclean:
 $(BUILD_PATH)/tests: $(TESTS_OBJS) $(COMMON_LIB)
 	$(CXX) -o $@ $(CXXFLAGS) $^ $(LIBS)
 
-$(BUILD_PATH)/run-tests: $(BUILD_PATH)/tests
+$(BUILD_PATH)/run-unit-tests: $(BUILD_PATH)/tests
 	$(BUILD_PATH)/tests
 	@touch $@
 
@@ -136,10 +136,11 @@ $(BUILD_PATH)/style-check: $(GUI_SRCS) $(GUI_HDRS) $(TESTS_SRCS) $(TESTS_HDRS) $
 		exit 1;\
 	fi
 
-check: $(BUILD_PATH)/run-tests $(BUILD_PATH)/run-dmrconfig-tests $(TARGET_GUI)
+check: $(BUILD_PATH)/run-unit-tests $(BUILD_PATH)/run-dmrconfig-tests $(TARGET_GUI)
 	@echo -e "\e[32mAll Checks Passed\e[0m"
 
 -include $(DMRCONFIG_OBJS:%.o=%.d) 
 -include $(DMRCONFIG_MAIN_OBJ:%.o=%.d) 
 -include $(MAIN_GUI_OBJ:%.o=%.d) 
 -include $(COMMON_OBJS:%.o=%.d) 
+-include $(TESTS_OBJS:%.o=%.d) 
