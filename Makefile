@@ -115,8 +115,19 @@ distclean: clean
 repoclean:
 	git clean -ffd
 
-$(BUILD_PATH)/tests: $(TESTS_OBJS) $(COMMON_LIB)
-	$(CXX) -o $@ $(CXXFLAGS) $^ $(LIBS)
+$(BUILD_PATH)/tests: $(COMMON_LIB) $(TESTS_SRCS) $(TESTS_HDRS)
+	@mkdir -p `dirname $@`
+	qmake \
+		"DEFINES        += VERSION=\'\\\"$(VERSION).$(HASH)\\\"\'" \
+		"SOURCES        += $(TESTS_SRCS:%=../../../%)" \
+		"HEADERS        += $(TESTS_HDRS:%=../../../%)" \
+		"HEADERS        += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
+		"INCLUDEPATH    += $(COMMON_INCPATHS:-I%=../../../%) $(LINCPATHS:-I%=%) $(TESTS_INCPATHS:-I%=../../../%)" \
+		"PRE_TARGETDEPS += ../../../$(COMMON_LIB) ../../../$(TARGET_LIB)" \
+		"LIBS           += ../../../$(COMMON_LIB) ../../../$(TARGET_LIB) $(LIBS)" \
+		"TARGET         = ../../../build/tests" \
+		$(GUI_PRO) -o $(BUILD_PATH)/src/UI/Makefile
+	$(MAKE) -C $(BUILD_PATH)/src/UI
 
 $(BUILD_PATH)/run-unit-tests: $(BUILD_PATH)/tests
 	$(BUILD_PATH)/tests

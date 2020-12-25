@@ -1,16 +1,31 @@
 #ifndef NETWORKAPITESTS_HPP
 #define NETWORKAPITESTS_HPP
 
+#include <QApplication>
+#include <QMainWindow>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+
 #include "BSONDoc.hpp"
 #include "SimpleTest.hpp"
 
-class NetworkApiTests : public SimpleTest
+class NetworkApi : public QMainWindow
 {
+  Q_OBJECT
+
 public:
-  NetworkApiTests();
-  NetworkApiTests(const NetworkApiTests&) = delete;
-  ~NetworkApiTests();
+  NetworkApi();
+  NetworkApi(const NetworkApi&) = delete;
+  ~NetworkApi();
 
   bool simple();
+
+private slots:
+  void callsignSearchReady(QNetworkReply* reply);
+
+private:
+  QNetworkAccessManager* _networkManager;
 };
+
 #endif
