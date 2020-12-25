@@ -124,7 +124,6 @@ bool repeaterResultsTest()
   START_TEST();
 
   Mongo::BSONDoc results(repeaterStr);
-  std::cout << results.toString() << std::endl;
   TEST(results.has("count"), ==, true);
   TEST(results.has("results"), ==, true);
   TEST(results.get<int32_t>("count"), ==, 51);
@@ -148,6 +147,6 @@ int main()
   simpleDoc();
   repeaterResultsTest();
 
-  std::cout << SimpleTest::getReport() << std::endl;
+  std::cout << SimpleTest::getReport();
   return !SimpleTest::isSuccess();
 }
