@@ -115,7 +115,7 @@ distclean: clean
 repoclean:
 	git clean -ffd
 
-$(BUILD_PATH)/tests: $(COMMON_LIB) $(TESTS_SRCS) $(TESTS_HDRS)
+$(BUILD_PATH)/tests: $(COMMON_LIB) $(TESTS_SRCS) $(TESTS_HDRS) $(GUI_PRO)
 	@mkdir -p `dirname $@`
 	qmake \
 		"DEFINES        += VERSION=\'\\\"$(VERSION).$(HASH)\\\"\'" \
@@ -130,11 +130,11 @@ $(BUILD_PATH)/tests: $(COMMON_LIB) $(TESTS_SRCS) $(TESTS_HDRS)
 	$(MAKE) -C $(BUILD_PATH)/src/UI
 
 $(BUILD_PATH)/run-unit-tests: $(BUILD_PATH)/tests
-	$(BUILD_PATH)/tests
+	QT_QPA_PLATFORM='offscreen' $(BUILD_PATH)/tests
 	@touch $@
 
 $(BUILD_PATH)/run-net-tests: $(BUILD_PATH)/tests
-	$(BUILD_PATH)/tests -n
+	QT_QPA_PLATFORM='offscreen' $(BUILD_PATH)/tests -n
 	@touch $@
 
 $(BUILD_PATH)/run-dmrconfig-tests: $(TARGET_CLI) $(TEST_SCRIPTS)
