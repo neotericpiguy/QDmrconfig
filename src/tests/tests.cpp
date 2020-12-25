@@ -124,16 +124,11 @@ bool repeaterResultsTest()
   START_TEST();
 
   Mongo::BSONDoc results(repeaterStr);
-  std::cout << results.toString() << std::endl;
   TEST(results.has("count"), ==, true);
   TEST(results.has("results"), ==, true);
   TEST(results.get<int32_t>("count"), ==, 51);
 
   auto docs = results.get<std::vector<Mongo::BSONDoc>>("results");
-  for (const auto& doc : docs)
-  {
-    std::cout << doc.toString() << std::endl;
-  }
 
   //Weird because there is a {} empty in the results that makes the docs.size 52
   TEST(docs.size(), >, 51);
@@ -152,6 +147,6 @@ int main()
   simpleDoc();
   repeaterResultsTest();
 
-  std::cout << SimpleTest::getReport() << std::endl;
+  std::cout << SimpleTest::getReport();
   return !SimpleTest::isSuccess();
 }
