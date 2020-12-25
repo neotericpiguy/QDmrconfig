@@ -40,7 +40,7 @@ TESTS_SRCS=$(wildcard $(TESTS_PATH)/*/*.cpp $(TESTS_PATH)/*.cpp)
 TESTS_HDRS=$(wildcard $(TESTS_PATH)/*/*.h* $(TESTS_PATH)/*.h*)
 TESTS_OBJS=$(addprefix $(BUILD_PATH)/,$(TESTS_SRCS:.cpp=.o))
 
-TEST_SCRIPTS=$(wildcard $(TESTS_PATH)/*Tests)
+TEST_SCRIPTS=$(wildcard scripts/*Tests)
 
 LIBMONGOCINCPATH += $(shell pkg-config --cflags libmongoc-1.0)
 LIBUSBPATH       += $(shell pkg-config --cflags libusb-1.0)
@@ -123,7 +123,7 @@ $(BUILD_PATH)/run-unit-tests: $(BUILD_PATH)/tests
 	@touch $@
 
 $(BUILD_PATH)/run-dmrconfig-tests: $(TARGET_CLI) $(TEST_SCRIPTS)
-	./src/tests/btechTests examples/btech6x2.img.bak
+	./scripts/btechTests examples/btech6x2.img.bak
 	@touch $@
 
 #Not required but good to have
