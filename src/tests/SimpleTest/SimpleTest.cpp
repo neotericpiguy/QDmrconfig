@@ -3,7 +3,12 @@
 std::vector<std::string> SimpleTest::failFuncs = {};
 std::vector<std::string> SimpleTest::passFuncs = {};
 
-SimpleTest::SimpleTest()
+SimpleTest::SimpleTest() :
+    funcs()
+{
+}
+
+SimpleTest::~SimpleTest()
 {
 }
 
@@ -30,4 +35,17 @@ std::string SimpleTest::getReport()
 bool SimpleTest::isSuccess()
 {
   return failFuncs.size() == 0;
+}
+
+bool SimpleTest::runAllTests()
+{
+  for (const auto& funcPair : funcs)
+  {
+    std::cout << "\n\e[35m" << funcPair.first
+              << "\n======================================="
+              << "========================================="
+              << "\e[0m" << std::endl;
+    funcPair.second();
+  }
+  return true;
 }

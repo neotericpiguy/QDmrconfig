@@ -1,6 +1,8 @@
 #ifndef SIMPLETEST_HPP
 #define SIMPLETEST_HPP
 
+#include <functional>
+#include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -27,24 +29,29 @@
     SimpleTest::addFailFunc(ss.str());                      \
   }
 
-#define START_TEST()                                       \
-  std::cout << "\n\e[35m" << __PRETTY_FUNCTION__           \
-            << "\n=======================================" \
-            << "=========================================" \
-            << "\e[0m" << std::endl;
+#define ADD_TEST(func)                                                                      \
+  funcs.push_back(std::make_pair<std::string, std::function<bool(void)>>(#func,             \
+                                                                         [this]() -> bool { \
+                                                                           return func();   \
+                                                                         }));
 
 class SimpleTest
 {
+public:
   SimpleTest();
   SimpleTest(const SimpleTest&) = delete;
-  ~SimpleTest() = delete;
+  ~SimpleTest();
 
-public:
   static void addFailFunc(const std::string& func);
   static void addPassFunc(const std::string& func);
   static std::string getReport();
 
   static bool isSuccess();
+
+  bool runAllTests();
+
+protected:
+  std::vector<std::pair<std::string, std::function<bool(void)>>> funcs;
 
 private:
   static std::vector<std::string> failFuncs;
