@@ -8,7 +8,6 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
-#include <QXmlSimpleReader>
 #include <QtWidgets>
 #pragma GCC diagnostic pop
 

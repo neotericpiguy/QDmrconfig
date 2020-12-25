@@ -7,26 +7,26 @@
 #include <string>
 #include <vector>
 
-#define TEST(lparam, op, rparam)                            \
-  if (lparam op rparam)                                     \
-  {                                                         \
-    std::stringstream ss;                                   \
-    ss << "\e[32m[PASS]\e[0m "                              \
-       << __PRETTY_FUNCTION__ << ":" << __LINE__            \
-       << " " << #lparam << " " << #op << " " << #rparam    \
-       << " -> " << lparam << " " << #op << " " << #rparam; \
-    std::cout << ss.str() << std::endl;                     \
-    SimpleTest::addPassFunc(ss.str());                      \
-  }                                                         \
-  else                                                      \
-  {                                                         \
-    std::stringstream ss;                                   \
-    ss << "\e[31m[FAIL]\e[0m "                              \
-       << __PRETTY_FUNCTION__ << ":" << __LINE__            \
-       << " " << #lparam << " " << #op << " " << #rparam    \
-       << " -> " << lparam << " " << #op << " " << #rparam; \
-    std::cout << ss.str() << std::endl;                     \
-    SimpleTest::addFailFunc(ss.str());                      \
+#define TEST(lparam, op, rparam)                           \
+  if (lparam op rparam)                                    \
+  {                                                        \
+    std::stringstream ss;                                  \
+    ss << "\e[32m[PASS]\e[0m "                             \
+       << __PRETTY_FUNCTION__ << ":" << __LINE__           \
+       << " " << #lparam << " " << #op << " " << #rparam   \
+       << " -> " << lparam << " " << #op << " " << rparam; \
+    std::cout << ss.str() << std::endl;                    \
+    SimpleTest::addPassFunc(ss.str());                     \
+  }                                                        \
+  else                                                     \
+  {                                                        \
+    std::stringstream ss;                                  \
+    ss << "\e[31m[FAIL]\e[0m "                             \
+       << __PRETTY_FUNCTION__ << ":" << __LINE__           \
+       << " " << #lparam << " " << #op << " " << #rparam   \
+       << " -> " << lparam << " " << #op << " " << rparam; \
+    std::cout << ss.str() << std::endl;                    \
+    SimpleTest::addFailFunc(ss.str());                     \
   }
 
 #define ADD_TEST(func)                                                                      \

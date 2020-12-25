@@ -52,3 +52,25 @@ jobs:
       run: sed -r -i '/AfterCaseLabel/d' .clang-format
     - name: Run style-check
       run: make -j build/style-check
+  net-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set Email
+      run: git config --global user.email "action@example.com"
+    - name: Set name
+      run: git config --global user.name "Github Action"
+    - name: Grab those submodules
+      run: git submodule update --init --recursive
+    - name: Tag repo
+      run: git tag -a v1.0 -m "workflow"
+    - name: Update repos
+      run: sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa
+    - name: Update ubuntu packages list
+      run: sudo apt-get -y update
+    - name: Installing deps
+      run: sudo apt-get -y install libudev-dev libmongoc-dev libusb-1.0-0-dev qt5-default g++-10
+    - name: Build Tests
+      run: make -j build/tests
+    - name: Run net-tests
+      run: make -j build/run-net-tests
