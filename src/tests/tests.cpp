@@ -130,10 +130,6 @@ bool repeaterResultsTest()
   TEST(results.get<int32_t>("count"), ==, 51);
 
   auto docs = results.get<std::vector<Mongo::BSONDoc>>("results");
-  for (const auto& doc : docs)
-  {
-    std::cout << doc.toString() << std::endl;
-  }
 
   //Weird because there is a {} empty in the results that makes the docs.size 52
   TEST(docs.size(), >, 51);
