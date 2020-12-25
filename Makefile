@@ -16,29 +16,35 @@ LIBS      = $(shell pkg-config --libs --static libusb-1.0 libmongoc-1.0)
 QT_LIBS   = $(shell pkg-config --libs Qt5Widgets)
 QT_CFLAGS = $(shell pkg-config --cflags Qt5Widgets)
 
-INCPATHS         += -Isrc/dmrconfig -Isrc/ -Isrc/UI -Isrc/common -Isrc/common/BSONDoc -Isrc/tests/SimpleTest
+DMRCONFIG_PATH=src/dmrconfig
+DMRCONFIG_SRCS=$(shell find $(DMRCONFIG_PATH) -iregex '.*\.c' -not -iregex '.*\(main\|windows\|macos\).*')
+DMRCONFIG_OBJS=$(addprefix $(BUILD_PATH)/,$(DMRCONFIG_SRCS:.c=.o))
+DMRCONFIG_MAIN_SRC=src/dmrconfig/main.c
+DMRCONFIG_MAIN_OBJ=$(addprefix $(BUILD_PATH)/,$(DMRCONFIG_MAIN_SRC:.c=.o))
+
+GUI_PATH=src/UI
+GUI_SRCS=src/main.cpp
+GUI_SRCS+=$(wildcard $(GUI_PATH)/*.cpp)
+GUI_HDRS+=$(wildcard $(GUI_PATH)/*.hpp)
+GUI_PRO+=$(wildcard $(GUI_PATH)/*.pro)
+
+COMMON_PATH=src/common
+COMMON_INCPATHS=$(addprefix -I,$(shell find $(COMMON_PATH) -type d))
+COMMON_SRCS=$(wildcard $(COMMON_PATH)/*/*.cpp $(COMMON_PATH)/*.cpp)
+COMMON_HDRS=$(wildcard $(COMMON_PATH)/*/*.hpp $(COMMON_PATH)/*.hpp)
+COMMON_OBJS=$(addprefix $(BUILD_PATH)/,$(COMMON_SRCS:.cpp=.o))
+
+TESTS_PATH=src/tests
+TESTS_INCPATHS=$(addprefix -I,$(shell find $(TESTS_PATH) -type d))
+TESTS_SRCS=$(wildcard $(TESTS_PATH)/*/*.cpp $(TESTS_PATH)/*.cpp)
+TESTS_HDRS=$(wildcard $(TESTS_PATH)/*/*.h* $(TESTS_PATH)/*.h*)
+TESTS_OBJS=$(addprefix $(BUILD_PATH)/,$(TESTS_SRCS:.cpp=.o))
+
+TEST_SCRIPTS=$(wildcard $(TESTS_PATH)/*Tests)
+
 LIBMONGOCINCPATH += $(shell pkg-config --cflags libmongoc-1.0)
 LIBUSBPATH       += $(shell pkg-config --cflags libusb-1.0)
 LINCPATHS        += $(LIBMONGOCINCPATH) $(LIBUSBPATH)
-
-DMRCONFIG_SRCS=$(shell find src/dmrconfig/ -iregex '.*\.c' -not -iregex '.*\(main\|windows\|macos\).*')
-DMRCONFIG_OBJS=$(addprefix $(BUILD_PATH)/,$(DMRCONFIG_SRCS:.c=.o))
-
-MAIN_CLI_SRC=$(shell find src/dmrconfig/ -iregex '.*main\.c')
-MAIN_CLI_OBJ=$(addprefix $(BUILD_PATH)/,$(MAIN_CLI_SRC:.c=.o))
-
-GUI_SRCS=src/main.cpp
-GUI_SRCS+=$(shell find src/UI -iname '*.cpp')
-GUI_HDRS+=$(shell find src/UI -iname '*.h*')
-GUI_PRO+=$(shell find src/UI -iname '*.pro')
-
-COMMON_SRCS=$(shell find src/common -iname '*.cpp')
-COMMON_OBJS=$(addprefix $(BUILD_PATH)/,$(COMMON_SRCS:.cpp=.o))
-
-TESTS_SRCS=$(shell find src/tests -iname '*.cpp')
-TESTS_OBJS=$(addprefix $(BUILD_PATH)/,$(TESTS_SRCS:.cpp=.o))
-
-TEST_SCRIPTS=$(shell find src/tests -iname '*Tests')
 
 .PHONY: all clean
 
@@ -69,8 +75,8 @@ $(COMMON_LIB): $(COMMON_OBJS)
 	ar rcs $@ $^
 	ranlib $@
 
-$(TARGET_CLI): $(MAIN_CLI_OBJ) $(TARGET_LIB) 
-	$(CXX) -o $@ $(CXXFLAGS) $(LDFLAGS) $(INCPATHS) $^ $(LIBS)
+$(TARGET_CLI): $(DMRCONFIG_MAIN_OBJ) $(TARGET_LIB) 
+	$(CXX) -o $@ $(CXXFLAGS) $(LDFLAGS) $^ $(LIBS)
 
 $(TARGET_GUI): $(TARGET_LIB) $(GUI_SRCS) $(GUI_HDRS) $(COMMON_LIB)
 	@mkdir -p $(BUILD_PATH)/src/UI
@@ -79,7 +85,7 @@ $(TARGET_GUI): $(TARGET_LIB) $(GUI_SRCS) $(GUI_HDRS) $(COMMON_LIB)
 		"SOURCES        += $(GUI_SRCS:%=../../../%)" \
 		"HEADERS        += $(GUI_HDRS:%=../../../%)" \
 		"HEADERS        += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
-		"INCLUDEPATH    += $(INCPATHS:-I%=../../../%) $(LINCPATHS:-I%=%)" \
+		"INCLUDEPATH    += $(COMMON_INCPATHS:-I%=../../../%) $(LINCPATHS:-I%=%)" \
 		"PRE_TARGETDEPS += ../../../$(COMMON_LIB) ../../../$(TARGET_LIB)" \
 		"LIBS           += ../../../$(COMMON_LIB) ../../../$(TARGET_LIB) $(LIBS)" \
 		"TARGET         = ../../../$(TARGET_GUI)" \
@@ -87,18 +93,18 @@ $(TARGET_GUI): $(TARGET_LIB) $(GUI_SRCS) $(GUI_HDRS) $(COMMON_LIB)
 	$(MAKE) -C $(BUILD_PATH)/src/UI
 
 # Build dmrconfig
-$(BUILD_PATH)/src/dmrconfig/%.o: src/dmrconfig/%.c
+$(BUILD_PATH)/$(DMRCONFIG_PATH)/%.o: $(DMRCONFIG_PATH)/%.c
 	@mkdir -p `dirname $@`
 	$(CC) -o $@ -c $(CFLAGS) $(LIBUSBPATH) $<
 
 # Build libcommon
-$(BUILD_PATH)/src/common/%.o: src/common/%.cpp
+$(BUILD_PATH)/$(COMMON_PATH)/%.o: $(COMMON_PATH)/%.cpp
 	@mkdir -p `dirname $@`
 	$(CC) -o $@ -c $(CXXFLAGS) $(LINCPATHS) $(LIBMONGOCINCPATH) $<
 
-$(BUILD_PATH)/%.o: %.cpp
+$(BUILD_PATH)/$(TESTS_PATH)/%.o: $(TESTS_PATH)/%.cpp
 	@mkdir -p `dirname $@`
-	$(CC) -o $@ -c $(CXXFLAGS) $(INCPATHS) $(LINCPATHS) $<
+	$(CC) -o $@ -c $(CXXFLAGS) $(TESTS_INCPATHS) $(COMMON_INCPATHS) $(LINCPATHS) $<
 
 clean:
 	-rm -rf $(BUILD_PATH) 
@@ -120,10 +126,20 @@ $(BUILD_PATH)/run-dmrconfig-tests: $(TARGET_CLI) $(TEST_SCRIPTS)
 	./src/tests/btechTests examples/btech6x2.img.bak
 	@touch $@
 
+#Not required but good to have
+$(BUILD_PATH)/style-check: $(GUI_SRCS) $(GUI_HDRS) $(TESTS_SRCS) $(TESTS_HDRS) $(COMMON_SRCS) $(COMMON_HDRS)
+	clang-format -i $^
+	@if [ "`git diff --name-only  | wc -l`" -gt "1" ]; then \
+		echo "Non compliant with style:"; \
+		git diff --name-only; \
+		git diff; \
+		exit 1;\
+	fi
+
 check: $(BUILD_PATH)/run-tests $(BUILD_PATH)/run-dmrconfig-tests $(TARGET_GUI)
 	@echo -e "\e[32mAll Checks Passed\e[0m"
 
 -include $(DMRCONFIG_OBJS:%.o=%.d) 
--include $(MAIN_CLI_OBJ:%.o=%.d) 
+-include $(DMRCONFIG_MAIN_OBJ:%.o=%.d) 
 -include $(MAIN_GUI_OBJ:%.o=%.d) 
 -include $(COMMON_OBJS:%.o=%.d) 

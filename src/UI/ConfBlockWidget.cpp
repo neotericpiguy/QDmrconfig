@@ -200,7 +200,7 @@ void ConfBlockWidget::removeValueAction()
     ConfBlock::replaceRegex(cellText, "^" + textToRemove + ",", "");
     ConfBlock::replaceRegex(cellText, "," + textToRemove + ",", ",");
     ConfBlock::replaceRegex(cellText, "," + textToRemove + "(,|$)", "");
-    if(cellText == "")
+    if (cellText == "")
       cellText = "-";
     item->setText(cellText.c_str());
     _confBlock.getRows()[item->row()][item->column()] = cellText;

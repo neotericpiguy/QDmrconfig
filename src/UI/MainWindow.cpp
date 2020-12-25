@@ -246,4 +246,3 @@ void MainWindow::loadFile(const QString& filename)
   takeCentralWidget();
   setCentralWidget(_confFileWidget);
 }
-

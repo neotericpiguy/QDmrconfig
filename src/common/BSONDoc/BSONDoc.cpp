@@ -155,7 +155,8 @@ bool BSONDoc::getString(std::string& result, const std::string& path) const
   {
     switch (bson_iter_type(&baz))
     {
-      case BSON_TYPE_OID: {
+      case BSON_TYPE_OID:
+      {
         char str[25];
         const bson_oid_t* oid = bson_iter_oid(&baz);
         bson_oid_to_string(oid, str);
