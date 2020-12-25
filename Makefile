@@ -31,7 +31,7 @@ GUI_PRO+=$(wildcard $(GUI_PATH)/*.pro)
 COMMON_PATH=src/common
 COMMON_INCPATHS=$(addprefix -I,$(shell find $(COMMON_PATH) -type d))
 COMMON_SRCS=$(wildcard $(COMMON_PATH)/*/*.cpp $(COMMON_PATH)/*.cpp)
-COMMON_HDRS=$(wildcard $(COMMON_OBJS)/*/*.hpp $(COMMON_OBJS)/*.hpp)
+COMMON_HDRS=$(wildcard $(COMMON_PATH)/*/*.hpp $(COMMON_PATH)/*.hpp)
 COMMON_OBJS=$(addprefix $(BUILD_PATH)/,$(COMMON_SRCS:.cpp=.o))
 
 TESTS_PATH=src/tests
@@ -128,8 +128,11 @@ $(BUILD_PATH)/run-dmrconfig-tests: $(TARGET_CLI) $(TEST_SCRIPTS)
 
 #Not required but good to have
 $(BUILD_PATH)/style-check: $(GUI_SRCS) $(GUI_HDRS) $(TESTS_SRCS) $(TESTS_HDRS) $(COMMON_SRCS) $(COMMON_HDRS)
-	clang-format -i $^ || true
-	@touch $@
+	clang-format --verbose $^ | grep Formatting
+	@if [ "`clang-format $^ | wc -l`" != "0" ]; then \
+		echo "Unformatted files"; \
+		exit 1;\
+	fi
 
 check: $(BUILD_PATH)/run-tests $(BUILD_PATH)/run-dmrconfig-tests $(TARGET_GUI)
 	@echo -e "\e[32mAll Checks Passed\e[0m"

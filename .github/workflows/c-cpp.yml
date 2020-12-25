@@ -9,15 +9,13 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set Email
-      run: git config --global user.email "you@example.com"
+      run: git config --global user.email "action@example.com"
     - name: Set name
-      run: git config --global user.name "Your Name"
+      run: git config --global user.name ""
     - name: Grab those submodules
       run: git submodule update --init --recursive
     - name: Tag repo
@@ -31,3 +29,20 @@ jobs:
     - name: Run checks
       run: make -j check
 
+  style-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set Email
+      run: git config --global user.email "action@example.com"
+    - name: Set name
+      run: git config --global user.name ""
+    - name: Grab those submodules
+      run: git submodule update --init --recursive
+    - name: Tag repo
+      run: git tag -a v1.0 -m "workflow"
+    - name: Update repos
+    - name: Installing deps
+      run: sudo apt-get -y clang-format
+    - name: Run style-check
+      run: make -j build/style-check
