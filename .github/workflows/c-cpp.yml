@@ -15,7 +15,7 @@ jobs:
     - name: Set Email
       run: git config --global user.email "action@example.com"
     - name: Set name
-      run: git config --global user.name ""
+      run: git config --global user.name "Github Action"
     - name: Grab those submodules
       run: git submodule update --init --recursive
     - name: Tag repo
@@ -35,7 +35,7 @@ jobs:
     - name: Set Email
       run: git config --global user.email "action@example.com"
     - name: Set name
-      run: git config --global user.name ""
+      run: git config --global user.name "Github Action"
     - name: Grab those submodules
       run: git submodule update --init --recursive
     - name: Tag repo
