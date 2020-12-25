@@ -16,25 +16,27 @@ LIBS      = $(shell pkg-config --libs --static libusb-1.0 libmongoc-1.0)
 QT_LIBS   = $(shell pkg-config --libs Qt5Widgets)
 QT_CFLAGS = $(shell pkg-config --cflags Qt5Widgets)
 
-INCPATHS         += -Isrc/dmrconfig -Isrc/ -Isrc/UI -Isrc/common -Isrc/common/BSONDoc -Isrc/tests/SimpleTest
+DMRCONFIG_PATH=src/dmrconfig
+DMRCONFIG_SRCS=$(shell find $(DMRCONFIG_PATH) -iregex '.*\.c' -not -iregex '.*\(main\|windows\|macos\).*')
+DMRCONFIG_OBJS=$(addprefix $(BUILD_PATH)/,$(DMRCONFIG_SRCS:.c=.o))
+DMRCONFIG_MAIN_SRC=src/dmrconfig/main.c
+DMRCONFIG_MAIN_OBJ=$(addprefix $(BUILD_PATH)/,$(DMRCONFIG_MAIN_SRC:.c=.o))
+
+GUI_PATH=src/UI
+GUI_SRCS=src/main.cpp
+GUI_SRCS+=$(shell find $(GUI_PATH) -iname '*.cpp')
+GUI_HDRS+=$(shell find $(GUI_PATH) -iname '*.hpp')
+GUI_PRO+=$(shell find $(GUI_PATH) -iname '*.pro')
+
+COMMON_PATH=src/common
+COMMON_SRCS=$(shell find $(COMMON_PATH) -iname '*.cpp')
+COMMON_HDRS=$(shell find $(COMMON_PATH) -iname '*.hpp')
+COMMON_OBJS=$(addprefix $(BUILD_PATH)/,$(COMMON_SRCS:.cpp=.o))
+
+INCPATHS         += -Isrc -I$(DMRCONFIG_PATH) -I$(GUI_PATH) -I$(COMMON_PATH) -Isrc/common/BSONDoc -Isrc/tests/SimpleTest
 LIBMONGOCINCPATH += $(shell pkg-config --cflags libmongoc-1.0)
 LIBUSBPATH       += $(shell pkg-config --cflags libusb-1.0)
 LINCPATHS        += $(LIBMONGOCINCPATH) $(LIBUSBPATH)
-
-DMRCONFIG_SRCS=$(shell find src/dmrconfig/ -iregex '.*\.c' -not -iregex '.*\(main\|windows\|macos\).*')
-DMRCONFIG_OBJS=$(addprefix $(BUILD_PATH)/,$(DMRCONFIG_SRCS:.c=.o))
-
-MAIN_CLI_SRC=$(shell find src/dmrconfig/ -iregex '.*main\.c')
-MAIN_CLI_OBJ=$(addprefix $(BUILD_PATH)/,$(MAIN_CLI_SRC:.c=.o))
-
-GUI_SRCS=src/main.cpp
-GUI_SRCS+=$(shell find src/UI -iname '*.cpp')
-GUI_HDRS+=$(shell find src/UI -iname '*.h*')
-GUI_PRO+=$(shell find src/UI -iname '*.pro')
-
-COMMON_SRCS=$(shell find src/common -iname '*.cpp')
-COMMON_HDRS=$(shell find src/common -iname '*.h*')
-COMMON_OBJS=$(addprefix $(BUILD_PATH)/,$(COMMON_SRCS:.cpp=.o))
 
 TESTS_SRCS=$(shell find src/tests -iname '*.cpp')
 TESTS_HDRS=$(shell find src/tests -iname '*.h*')
@@ -71,7 +73,7 @@ $(COMMON_LIB): $(COMMON_OBJS)
 	ar rcs $@ $^
 	ranlib $@
 
-$(TARGET_CLI): $(MAIN_CLI_OBJ) $(TARGET_LIB) 
+$(TARGET_CLI): $(DMRCONFIG_MAIN_OBJ) $(TARGET_LIB) 
 	$(CXX) -o $@ $(CXXFLAGS) $(LDFLAGS) $(INCPATHS) $^ $(LIBS)
 
 $(TARGET_GUI): $(TARGET_LIB) $(GUI_SRCS) $(GUI_HDRS) $(COMMON_LIB)
@@ -122,13 +124,15 @@ $(BUILD_PATH)/run-dmrconfig-tests: $(TARGET_CLI) $(TEST_SCRIPTS)
 	./src/tests/btechTests examples/btech6x2.img.bak
 	@touch $@
 
-$(BUILD_PATH)/style-tests: $(GUI_SRCS) $(GUI_HDRS) $(TESTS_SRCS) $(TEST_HDRS) $(COMMON_SRCS) $(COMMON_HDRS)
-	clang-format -i $^
+#Not required but good to have
+$(BUILD_PATH)/style-check: $(GUI_SRCS) $(GUI_HDRS) $(TESTS_SRCS) $(TEST_HDRS) $(COMMON_SRCS) $(COMMON_HDRS)
+	clang-format -i $^ || true
+	@touch $@
 
 check: $(BUILD_PATH)/run-tests $(BUILD_PATH)/run-dmrconfig-tests $(TARGET_GUI)
 	@echo -e "\e[32mAll Checks Passed\e[0m"
 
 -include $(DMRCONFIG_OBJS:%.o=%.d) 
--include $(MAIN_CLI_OBJ:%.o=%.d) 
+-include $(DMRCONFIG_MAIN_OBJ:%.o=%.d) 
 -include $(MAIN_GUI_OBJ:%.o=%.d) 
 -include $(COMMON_OBJS:%.o=%.d) 
