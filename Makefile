@@ -132,6 +132,7 @@ $(BUILD_PATH)/style-check: $(GUI_SRCS) $(GUI_HDRS) $(TESTS_SRCS) $(TESTS_HDRS) $
 	@if [ "`git diff --name-only  | wc -l`" != "0" ]; then \
 		echo "Non compliant with style:"; \
 		git diff --name-only; \
+		git diff; \
 		exit 1;\
 	fi
 
