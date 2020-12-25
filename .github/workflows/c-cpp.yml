@@ -42,7 +42,5 @@ jobs:
       run: git tag -a v1.0 -m "workflow"
     - name: Installing deps
       run: sudo apt-get -y install clang-format
-    - name: Branch name
-      run: echo running on branch ${GITHUB_REF##*/}
     - name: Run style-check
       run: make -j build/style-check
