@@ -35,10 +35,11 @@ int main(int argc, char** argv)
     bsonDocTests.runAllTests();
   }
 
-  if (parser.isSet("net-tests") || allTests)
+  if (parser.isSet("net-tests"))
   {
     NetworkApi networkApi;
-    networkApi.simple();
+    networkApi.fccCallsignSearchTest();
+    networkApi.repeaterSearchTest();
     app.exec();
   }
 

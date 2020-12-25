@@ -133,6 +133,10 @@ $(BUILD_PATH)/run-unit-tests: $(BUILD_PATH)/tests
 	$(BUILD_PATH)/tests
 	@touch $@
 
+$(BUILD_PATH)/run-net-tests: $(BUILD_PATH)/tests
+	$(BUILD_PATH)/tests -n
+	@touch $@
+
 $(BUILD_PATH)/run-dmrconfig-tests: $(TARGET_CLI) $(TEST_SCRIPTS)
 	./src/tests/btechTests examples/btech6x2.img.bak
 	@touch $@

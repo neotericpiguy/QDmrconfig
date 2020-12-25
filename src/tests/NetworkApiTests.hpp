@@ -19,15 +19,21 @@ public:
   NetworkApi(const NetworkApi&) = delete;
   ~NetworkApi();
 
-  bool simple();
+  bool fccCallsignSearchTest();
+  bool repeaterSearchTest();
   bool attemptClose();
 
 private slots:
-  void callsignSearchReady(QNetworkReply* reply);
+  void fccCallsignSearchReady(QNetworkReply* reply);
+  void repeaterSearchReady(QNetworkReply* reply);
 
 private:
-  QNetworkAccessManager* _networkManager;
-  int callsignSearchAttempts;
+  QNetworkAccessManager* _fccCallsignSearchNetworkManager;
+  QNetworkAccessManager* _repeaterSearchNetworkManager;
+
+  std::vector<int> attempts;
+  int& callsignSearchAttempts;
+  int& repeaterSearchAttempts;
 };
 
 #endif
