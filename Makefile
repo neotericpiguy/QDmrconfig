@@ -129,7 +129,7 @@ $(BUILD_PATH)/run-dmrconfig-tests: $(TARGET_CLI) $(TEST_SCRIPTS)
 #Not required but good to have
 $(BUILD_PATH)/style-check: $(GUI_SRCS) $(GUI_HDRS) $(TESTS_SRCS) $(TESTS_HDRS) $(COMMON_SRCS) $(COMMON_HDRS)
 	clang-format -i $^
-	@if [ "`git diff --name-only  | wc -l`" != "0" ]; then \
+	@if [ "`git diff --name-only  | wc -l`" -gt "1" ]; then \
 		echo "Non compliant with style:"; \
 		git diff --name-only; \
 		git diff; \
