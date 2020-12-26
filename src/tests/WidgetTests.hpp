@@ -4,8 +4,8 @@
 #include <QMainWindow>
 #include <QtWidgets>
 
-#include "BSONDocWidget.hpp"
 #include "BSONDocTests.hpp"
+#include "BSONDocWidget.hpp"
 #include "SimpleTest.hpp"
 
 class WidgetTests : public QMainWindow
