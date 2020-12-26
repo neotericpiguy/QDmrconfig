@@ -124,8 +124,8 @@ $(BUILD_PATH)/tests: $(COMMON_LIB) $(TARGET_LIB) $(TESTS_SRCS) $(TESTS_HDRS) $(G
 		"PRE_TARGETDEPS += ../../../$(COMMON_LIB) ../../../$(TARGET_LIB)" \
 		"LIBS           += ../../../$(COMMON_LIB) ../../../$(TARGET_LIB) $(LIBS)" \
 		"TARGET         = ../../../build/tests" \
-		$(GUI_PRO) -o $(BUILD_PATH)/src/tests/Makefile
-	$(MAKE) -C $(BUILD_PATH)/src/tests
+		$(GUI_PRO) -o $(BUILD_PATH)/src/UI/tests.mk
+	$(MAKE) -C $(BUILD_PATH)/src/UI -f tests.mk
 
 $(BUILD_PATH)/run-dmrconfig-tests: $(TARGET_CLI) $(TEST_SCRIPTS)
 	./scripts/btechTests examples/btech6x2.img.bak
