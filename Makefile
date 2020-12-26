@@ -78,7 +78,7 @@ $(TARGET_CLI): $(DMRCONFIG_MAIN_OBJ) $(TARGET_LIB)
 
 $(TARGET_GUI): $(TARGET_LIB) $(GUI_SRCS) $(GUI_HDRS) $(COMMON_LIB)
 	@mkdir -p $(BUILD_PATH)/src/UI
-	qmake \
+	@qmake \
 		"DEFINES        += VERSION=\'\\\"$(VERSION).$(HASH)\\\"\'" \
 		"SOURCES        += $(GUI_SRCS:%=../../../%)" \
 		"HEADERS        += $(GUI_HDRS:%=../../../%)" \
@@ -115,7 +115,7 @@ repoclean:
 
 $(BUILD_PATH)/tests: $(COMMON_LIB) $(TESTS_SRCS) $(TESTS_HDRS) $(GUI_PRO)
 	@mkdir -p `dirname $@`
-	qmake \
+	@qmake \
 		"DEFINES        += VERSION=\'\\\"$(VERSION).$(HASH)\\\"\'" \
 		"SOURCES        += $(TESTS_SRCS:%=../../../%)" \
 		"HEADERS        += $(TESTS_HDRS:%=../../../%)" \
@@ -124,8 +124,8 @@ $(BUILD_PATH)/tests: $(COMMON_LIB) $(TESTS_SRCS) $(TESTS_HDRS) $(GUI_PRO)
 		"PRE_TARGETDEPS += ../../../$(COMMON_LIB)" \
 		"LIBS           += ../../../$(COMMON_LIB) $(LIBS)" \
 		"TARGET         = ../../../build/tests" \
-		$(GUI_PRO) -o $(BUILD_PATH)/src/UI/Makefile
-	$(MAKE) -C $(BUILD_PATH)/src/UI
+		$(GUI_PRO) -o $(BUILD_PATH)/src/tests/Makefile
+	$(MAKE) -C $(BUILD_PATH)/src/tests
 
 $(BUILD_PATH)/run-unit-tests: $(BUILD_PATH)/tests
 	QT_QPA_PLATFORM='offscreen' $(BUILD_PATH)/tests
@@ -149,7 +149,7 @@ $(BUILD_PATH)/style-check: $(GUI_SRCS) $(GUI_HDRS) $(TESTS_SRCS) $(TESTS_HDRS) $
 		exit 1;\
 	fi
 
-check: $(BUILD_PATH)/run-unit-tests $(BUILD_PATH)/run-dmrconfig-tests $(TARGET_GUI)
+check: $(TARGET_GUI) $(BUILD_PATH)/run-unit-tests $(BUILD_PATH)/run-dmrconfig-tests $(BUILD_PATH)/run-net-tests 
 	@echo -e "\e[32mAll Checks Passed\e[0m"
 
 -include $(DMRCONFIG_OBJS:%.o=%.d) 
