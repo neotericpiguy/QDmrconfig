@@ -18,11 +18,11 @@ DMRCONFIG_OBJS=$(addprefix $(BUILD_PATH)/,$(DMRCONFIG_SRCS:.c=.o))
 DMRCONFIG_MAIN_SRC=src/dmrconfig/main.c
 DMRCONFIG_MAIN_OBJ=$(addprefix $(BUILD_PATH)/,$(DMRCONFIG_MAIN_SRC:.c=.o))
 
-GUI_PATH=src/UI
-GUI_SRCS=src/main.cpp
-GUI_SRCS+=$(wildcard $(GUI_PATH)/*.cpp)
-GUI_HDRS+=$(wildcard $(GUI_PATH)/*.hpp)
-GUI_PRO+=$(wildcard $(GUI_PATH)/*.pro)
+GUI_PATH     = src/UI
+GUI_WIDGETS  = $(wildcard $(GUI_PATH)/*.cpp)
+GUI_SRCS    += src/main.cpp $(GUI_WIDGETS)
+GUI_HDRS    += $(wildcard $(GUI_PATH)/*.hpp)
+GUI_PRO     += $(wildcard $(GUI_PATH)/*.pro)
 
 COMMON_PATH=src/common
 COMMON_INCPATHS=$(addprefix -I,$(shell find $(COMMON_PATH) -type d))
@@ -113,19 +113,23 @@ distclean: clean
 repoclean:
 	git clean -ffd
 
-$(BUILD_PATH)/tests: $(COMMON_LIB) $(TESTS_SRCS) $(TESTS_HDRS) $(GUI_PRO)
+$(BUILD_PATH)/tests: $(COMMON_LIB) $(TARGET_LIB) $(TESTS_SRCS) $(TESTS_HDRS) $(GUI_PRO) $(GUI_SRCS)
 	@mkdir -p `dirname $@`
 	@qmake \
 		"DEFINES        += VERSION=\'\\\"$(VERSION).$(HASH)\\\"\'" \
-		"SOURCES        += $(TESTS_SRCS:%=../../../%)" \
-		"HEADERS        += $(TESTS_HDRS:%=../../../%)" \
+		"SOURCES        += $(GUI_WIDGETS:%=../../../%) $(TESTS_SRCS:%=../../../%)" \
+		"HEADERS        += $(GUI_HDRS:%=../../../%) $(TESTS_HDRS:%=../../../%)" \
 		"HEADERS        += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
 		"INCLUDEPATH    += $(COMMON_INCPATHS:-I%=../../../%) $(LIB_INCPATHS:-I%=%) $(TESTS_INCPATHS:-I%=../../../%)" \
-		"PRE_TARGETDEPS += ../../../$(COMMON_LIB)" \
-		"LIBS           += ../../../$(COMMON_LIB) $(LIBS)" \
+		"PRE_TARGETDEPS += ../../../$(COMMON_LIB) ../../../$(TARGET_LIB)" \
+		"LIBS           += ../../../$(COMMON_LIB) ../../../$(TARGET_LIB) $(LIBS)" \
 		"TARGET         = ../../../build/tests" \
 		$(GUI_PRO) -o $(BUILD_PATH)/src/tests/Makefile
 	$(MAKE) -C $(BUILD_PATH)/src/tests
+
+$(BUILD_PATH)/run-dmrconfig-tests: $(TARGET_CLI) $(TEST_SCRIPTS)
+	./scripts/btechTests examples/btech6x2.img.bak
+	@touch $@
 
 $(BUILD_PATH)/run-unit-tests: $(BUILD_PATH)/tests
 	QT_QPA_PLATFORM='offscreen' $(BUILD_PATH)/tests
@@ -134,9 +138,8 @@ $(BUILD_PATH)/run-unit-tests: $(BUILD_PATH)/tests
 $(BUILD_PATH)/run-net-tests: $(BUILD_PATH)/tests
 	QT_QPA_PLATFORM='offscreen' $(BUILD_PATH)/tests -n
 
-$(BUILD_PATH)/run-dmrconfig-tests: $(TARGET_CLI) $(TEST_SCRIPTS)
-	./scripts/btechTests examples/btech6x2.img.bak
-	@touch $@
+$(BUILD_PATH)/run-gui-tests: $(BUILD_PATH)/tests
+	$(BUILD_PATH)/tests -w
 
 #Not required but good to have
 $(BUILD_PATH)/style-check: $(GUI_SRCS) $(GUI_HDRS) $(TESTS_SRCS) $(TESTS_HDRS) $(COMMON_SRCS) $(COMMON_HDRS)
