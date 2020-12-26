@@ -133,7 +133,6 @@ $(BUILD_PATH)/run-unit-tests: $(BUILD_PATH)/tests
 
 $(BUILD_PATH)/run-net-tests: $(BUILD_PATH)/tests
 	QT_QPA_PLATFORM='offscreen' $(BUILD_PATH)/tests -n
-	@touch $@
 
 $(BUILD_PATH)/run-dmrconfig-tests: $(TARGET_CLI) $(TEST_SCRIPTS)
 	./scripts/btechTests examples/btech6x2.img.bak
