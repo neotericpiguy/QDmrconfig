@@ -12,10 +12,6 @@ CFLAGS   += -DVERSION='"$(VERSION).$(HASH)"'
 CXXFLAGS += $(CFLAGS) -Weffc++
 LDFLAGS  ?= -L$(BUILD_PATH)
 
-LIBS      = $(shell pkg-config --libs --static libusb-1.0 libmongoc-1.0)
-QT_LIBS   = $(shell pkg-config --libs Qt5Widgets)
-QT_CFLAGS = $(shell pkg-config --cflags Qt5Widgets)
-
 DMRCONFIG_PATH=src/dmrconfig
 DMRCONFIG_SRCS=$(shell find $(DMRCONFIG_PATH) -iregex '.*\.c' -not -iregex '.*\(main\|windows\|macos\).*')
 DMRCONFIG_OBJS=$(addprefix $(BUILD_PATH)/,$(DMRCONFIG_SRCS:.c=.o))
@@ -42,9 +38,11 @@ TESTS_OBJS=$(addprefix $(BUILD_PATH)/,$(TESTS_SRCS:.cpp=.o))
 
 TEST_SCRIPTS=$(wildcard scripts/*Tests)
 
-LIBMONGOCINCPATH += $(shell pkg-config --cflags libmongoc-1.0)
-LIBUSBPATH       += $(shell pkg-config --cflags libusb-1.0)
-LINCPATHS        += $(LIBMONGOCINCPATH) $(LIBUSBPATH)
+LIBMONGOC_INCPATHS += $(shell pkg-config --cflags libmongoc-1.0)
+LIBUSB_INCPATHS    += $(shell pkg-config --cflags libusb-1.0)
+LIB_INCPATHS       += $(LIBMONGOC_INCPATHS) $(LIBUSB_INCPATHS)
+
+LIBS      = $(shell pkg-config --libs --static libusb-1.0 libmongoc-1.0)
 
 .PHONY: all clean
 
@@ -80,12 +78,12 @@ $(TARGET_CLI): $(DMRCONFIG_MAIN_OBJ) $(TARGET_LIB)
 
 $(TARGET_GUI): $(TARGET_LIB) $(GUI_SRCS) $(GUI_HDRS) $(COMMON_LIB)
 	@mkdir -p $(BUILD_PATH)/src/UI
-	qmake \
+	@qmake \
 		"DEFINES        += VERSION=\'\\\"$(VERSION).$(HASH)\\\"\'" \
 		"SOURCES        += $(GUI_SRCS:%=../../../%)" \
 		"HEADERS        += $(GUI_HDRS:%=../../../%)" \
 		"HEADERS        += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
-		"INCLUDEPATH    += $(COMMON_INCPATHS:-I%=../../../%) $(LINCPATHS:-I%=%)" \
+		"INCLUDEPATH    += $(COMMON_INCPATHS:-I%=../../../%) $(LIB_INCPATHS:-I%=%)" \
 		"PRE_TARGETDEPS += ../../../$(COMMON_LIB) ../../../$(TARGET_LIB)" \
 		"LIBS           += ../../../$(COMMON_LIB) ../../../$(TARGET_LIB) $(LIBS)" \
 		"TARGET         = ../../../$(TARGET_GUI)" \
@@ -95,16 +93,16 @@ $(TARGET_GUI): $(TARGET_LIB) $(GUI_SRCS) $(GUI_HDRS) $(COMMON_LIB)
 # Build dmrconfig
 $(BUILD_PATH)/$(DMRCONFIG_PATH)/%.o: $(DMRCONFIG_PATH)/%.c
 	@mkdir -p `dirname $@`
-	$(CC) -o $@ -c $(CFLAGS) $(LIBUSBPATH) $<
+	$(CC) -o $@ -c $(CFLAGS) $(LIBUSB_INCPATHS) $<
 
 # Build libcommon
 $(BUILD_PATH)/$(COMMON_PATH)/%.o: $(COMMON_PATH)/%.cpp
 	@mkdir -p `dirname $@`
-	$(CC) -o $@ -c $(CXXFLAGS) $(LINCPATHS) $(LIBMONGOCINCPATH) $<
+	$(CC) -o $@ -c $(CXXFLAGS) $(LIB_INCPATHS) $(LIBMONGOC_INCPATHS) $<
 
 $(BUILD_PATH)/$(TESTS_PATH)/%.o: $(TESTS_PATH)/%.cpp
 	@mkdir -p `dirname $@`
-	$(CC) -o $@ -c $(CXXFLAGS) $(TESTS_INCPATHS) $(COMMON_INCPATHS) $(LINCPATHS) $<
+	$(CC) -o $@ -c $(CXXFLAGS) $(TESTS_INCPATHS) $(COMMON_INCPATHS) $(LIB_INCPATHS) $<
 
 clean:
 	-rm -rf $(BUILD_PATH) 
@@ -117,17 +115,17 @@ repoclean:
 
 $(BUILD_PATH)/tests: $(COMMON_LIB) $(TESTS_SRCS) $(TESTS_HDRS) $(GUI_PRO)
 	@mkdir -p `dirname $@`
-	qmake \
+	@qmake \
 		"DEFINES        += VERSION=\'\\\"$(VERSION).$(HASH)\\\"\'" \
 		"SOURCES        += $(TESTS_SRCS:%=../../../%)" \
 		"HEADERS        += $(TESTS_HDRS:%=../../../%)" \
 		"HEADERS        += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
-		"INCLUDEPATH    += $(COMMON_INCPATHS:-I%=../../../%) $(LINCPATHS:-I%=%) $(TESTS_INCPATHS:-I%=../../../%)" \
+		"INCLUDEPATH    += $(COMMON_INCPATHS:-I%=../../../%) $(LIB_INCPATHS:-I%=%) $(TESTS_INCPATHS:-I%=../../../%)" \
 		"PRE_TARGETDEPS += ../../../$(COMMON_LIB)" \
 		"LIBS           += ../../../$(COMMON_LIB) $(LIBS)" \
 		"TARGET         = ../../../build/tests" \
-		$(GUI_PRO) -o $(BUILD_PATH)/src/UI/Makefile
-	$(MAKE) -C $(BUILD_PATH)/src/UI
+		$(GUI_PRO) -o $(BUILD_PATH)/src/tests/Makefile
+	$(MAKE) -C $(BUILD_PATH)/src/tests
 
 $(BUILD_PATH)/run-unit-tests: $(BUILD_PATH)/tests
 	QT_QPA_PLATFORM='offscreen' $(BUILD_PATH)/tests
@@ -135,7 +133,6 @@ $(BUILD_PATH)/run-unit-tests: $(BUILD_PATH)/tests
 
 $(BUILD_PATH)/run-net-tests: $(BUILD_PATH)/tests
 	QT_QPA_PLATFORM='offscreen' $(BUILD_PATH)/tests -n
-	@touch $@
 
 $(BUILD_PATH)/run-dmrconfig-tests: $(TARGET_CLI) $(TEST_SCRIPTS)
 	./scripts/btechTests examples/btech6x2.img.bak
@@ -151,7 +148,7 @@ $(BUILD_PATH)/style-check: $(GUI_SRCS) $(GUI_HDRS) $(TESTS_SRCS) $(TESTS_HDRS) $
 		exit 1;\
 	fi
 
-check: $(BUILD_PATH)/run-unit-tests $(BUILD_PATH)/run-dmrconfig-tests $(TARGET_GUI)
+check: $(TARGET_GUI) $(BUILD_PATH)/run-unit-tests $(BUILD_PATH)/run-dmrconfig-tests $(BUILD_PATH)/run-net-tests 
 	@echo -e "\e[32mAll Checks Passed\e[0m"
 
 -include $(DMRCONFIG_OBJS:%.o=%.d) 
