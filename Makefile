@@ -75,24 +75,24 @@ $(COMMON_LIB): $(COMMON_OBJS)
 	ar rcs $@ $^
 	ranlib $@
 
-$(WIDGETS_LIB): $(GUI_SRCS) $(COMMON_LIB) $(TARGET_LIB) $(GUI_HDRS)
+$(WIDGETS_LIB): $(GUI_SRCS) $(GUI_HDRS)
 	@mkdir -p `dirname $@`
 	@qmake \
 		"DEFINES        += VERSION=\'\\\"$(VERSION).$(HASH)\\\"\'" \
 		"TEMPLATE        = lib" \
 		"CONFIG         += staticlib"\
 		"SOURCES        += $(GUI_WIDGETS:%=../../../%)" \
-		"HEADERS        += $(GUI_HDRS:%=../../../%) $(TESTS_HDRS:%=../../../%)" \
+		"HEADERS        += $(GUI_HDRS:%=../../../%)" \
 		"HEADERS        += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
-		"INCLUDEPATH    += $(COMMON_INCPATHS:-I%=../../../%) $(LIB_INCPATHS:-I%=%) $(TESTS_INCPATHS:-I%=../../../%)" \
+		"INCLUDEPATH    += $(COMMON_INCPATHS:-I%=../../../%) $(LIB_INCPATHS:-I%=%)" \
 		"TARGET         = widgets" \
 		$(GUI_PRO) -o $(BUILD_PATH)/src/UI/widgets.mk
-	$(MAKE) -C $(BUILD_PATH)/src/UI -f widgets.mk
+	@$(MAKE) -C $(BUILD_PATH)/src/UI -f widgets.mk
 
 $(TARGET_CLI): $(DMRCONFIG_MAIN_OBJ) $(TARGET_LIB) 
 	$(CXX) -o $@ $(CXXFLAGS) $(LDFLAGS) $^ $(LIBS)
 
-$(TARGET_GUI): $(TARGET_LIB) $(COMMON_LIB) $(WIDGETS_LIB)
+$(TARGET_GUI): $(WIDGETS_LIB) $(TARGET_LIB) $(COMMON_LIB) 
 	@mkdir -p $(BUILD_PATH)/src/UI
 	@qmake \
 		"DEFINES        += VERSION=\'\\\"$(VERSION).$(HASH)\\\"\'" \
@@ -103,7 +103,7 @@ $(TARGET_GUI): $(TARGET_LIB) $(COMMON_LIB) $(WIDGETS_LIB)
 		"LIBS           += ../../../$(WIDGETS_LIB) ../../../$(COMMON_LIB) ../../../$(TARGET_LIB) $(LIBS)" \
 		"TARGET         = ../../../$(TARGET_GUI)" \
 		$(GUI_PRO) -o $(BUILD_PATH)/src/UI/qdmrconfig.mk
-	$(MAKE) -C $(BUILD_PATH)/src/UI -f qdmrconfig.mk
+	@$(MAKE) -C $(BUILD_PATH)/src/UI -f qdmrconfig.mk
 
 # Build dmrconfig
 $(BUILD_PATH)/$(DMRCONFIG_PATH)/%.o: $(DMRCONFIG_PATH)/%.c
@@ -128,7 +128,7 @@ distclean: clean
 repoclean:
 	git clean -ffd
 
-$(TARGET_TESTS): $(WIDGETS_LIB)
+$(TARGET_TESTS): $(WIDGETS_LIB) $(COMMON_LIB) 
 	@mkdir -p `dirname $@`
 	@qmake \
 		"DEFINES        += VERSION=\'\\\"$(VERSION).$(HASH)\\\"\'" \
@@ -136,10 +136,10 @@ $(TARGET_TESTS): $(WIDGETS_LIB)
 		"HEADERS        += $(TESTS_HDRS:%=../../../%)" \
 		"HEADERS        += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
 		"INCLUDEPATH    += $(COMMON_INCPATHS:-I%=../../../%) $(LIB_INCPATHS:-I%=%) $(TESTS_INCPATHS:-I%=../../../%)" \
-		"LIBS           += ../../../$(WIDGETS_LIB) ../../../$(COMMON_LIB) ../../../$(TARGET_LIB) $(LIBS)" \
+		"LIBS           += ../../../$(WIDGETS_LIB) ../../../$(COMMON_LIB) $(LIBS)" \
 		"TARGET         = ../../../$(TARGET_TESTS)" \
 		$(GUI_PRO) -o $(BUILD_PATH)/$(TESTS_PATH)/tests.mk
-	$(MAKE) -C $(BUILD_PATH)/$(TESTS_PATH) -f tests.mk
+	@$(MAKE) -C $(BUILD_PATH)/$(TESTS_PATH) -f tests.mk
 
 $(BUILD_PATH)/run-dmrconfig-tests: $(TARGET_CLI) $(TEST_SCRIPTS)
 	./scripts/btechTests examples/btech6x2.img.bak
