@@ -1,5 +1,7 @@
 #include "BSONDocWidget.hpp"
 
+#include <regex>
+
 BSONDocWidget::BSONDocWidget(std::vector<Mongo::BSONDoc>& bsonDocs, QWidget* parent) :
     QWidget(parent),
     _isDebug(false),
@@ -12,6 +14,14 @@ BSONDocWidget::BSONDocWidget(std::vector<Mongo::BSONDoc>& bsonDocs, QWidget* par
 
   // Fit contents of table cells
   _tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+  // Lights up the right click ability
+  setContextMenuPolicy(Qt::ActionsContextMenu);
+
+  QAction* filterAction = new QAction("&Filter Row by");
+  filterAction->setShortcut(QKeySequence(tr("Ctrl+F")));
+  addAction(filterAction);
+  connect(filterAction, &QAction::triggered, this, [this]() { filterTableColumn(); });
 }
 
 BSONDocWidget::~BSONDocWidget()
@@ -32,6 +42,39 @@ void BSONDocWidget::sortTableRow()
 
 void BSONDocWidget::filterTableColumn()
 {
+  bool ok;
+  QString text = QInputDialog::getText(this, tr("Filter Column by String"),
+                                       tr("Filter Column by  String"), QLineEdit::Normal,
+                                       "", &ok);
+
+  if (!ok)
+    return;
+
+  for (int i = 0; _tableWidget->selectedItems().empty() && i < _tableWidget->rowCount(); i++)
+    _tableWidget->showRow(i);
+
+  for (const auto& item : _tableWidget->selectedItems())
+  {
+    int j = item->column();
+    for (int i = 0; i < _tableWidget->rowCount(); i++)
+    {
+      std::string cellText = _tableWidget->item(i, j)->text().toStdString();
+
+      try
+      {
+        std::regex e(".*" + text.toStdString() + ".*", std::regex_constants::icase);
+
+        if (text == "")
+          _tableWidget->showRow(i);
+        else if (!std::regex_match(cellText, e))
+          _tableWidget->hideRow(i);
+      }
+      catch (const std::exception& e)
+      {
+        //Msg box error to user
+      }
+    }
+  }
 }
 
 void BSONDocWidget::removeValueAction()
