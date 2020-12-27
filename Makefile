@@ -115,7 +115,7 @@ repoclean:
 
 $(BUILD_PATH)/src/UI/libwidgets.a: $(GUI_SRCS) $(COMMON_LIB) $(TARGET_LIB) $(GUI_HDRS)
 	@mkdir -p `dirname $@`
-	qmake \
+	@qmake \
 		"DEFINES        += VERSION=\'\\\"$(VERSION).$(HASH)\\\"\'" \
 		"TEMPLATE        = lib" \
 		"CONFIG         += staticlib"\
@@ -123,8 +123,6 @@ $(BUILD_PATH)/src/UI/libwidgets.a: $(GUI_SRCS) $(COMMON_LIB) $(TARGET_LIB) $(GUI
 		"HEADERS        += $(GUI_HDRS:%=../../../%) $(TESTS_HDRS:%=../../../%)" \
 		"HEADERS        += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
 		"INCLUDEPATH    += $(COMMON_INCPATHS:-I%=../../../%) $(LIB_INCPATHS:-I%=%) $(TESTS_INCPATHS:-I%=../../../%)" \
-		"PRE_TARGETDEPS += ../../../$(COMMON_LIB) ../../../$(TARGET_LIB)" \
-		"LIBS           += ../../../$(COMMON_LIB) ../../../$(TARGET_LIB) $(LIBS)" \
 		"TARGET         = widgets" \
 		$(GUI_PRO) -o $(BUILD_PATH)/src/UI/widgets.mk
 	$(MAKE) -C $(BUILD_PATH)/src/UI -f widgets.mk
@@ -137,7 +135,7 @@ $(BUILD_PATH)/tests: $(BUILD_PATH)/src/UI/libwidgets.a
 		"HEADERS        += $(TESTS_HDRS:%=../../../%)" \
 		"HEADERS        += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
 		"INCLUDEPATH    += $(COMMON_INCPATHS:-I%=../../../%) $(LIB_INCPATHS:-I%=%) $(TESTS_INCPATHS:-I%=../../../%)" \
-		"LIBS           += ../../../$(BUILD_PATH)/src/UI/libwidgets.a $(LIBS) ../../../$(COMMON_LIB) ../../../$(TARGET_LIB)" \
+		"LIBS           += ../../../$(BUILD_PATH)/src/UI/libwidgets.a ../../../$(COMMON_LIB) ../../../$(TARGET_LIB) $(LIBS)" \
 		"TARGET         = ../../../build/tests" \
 		$(GUI_PRO) -o $(BUILD_PATH)/src/UI/tests.mk
 	$(MAKE) -C $(BUILD_PATH)/src/UI -f tests.mk
