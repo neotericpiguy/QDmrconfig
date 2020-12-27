@@ -19,8 +19,8 @@ DMRCONFIG_MAIN_SRC=src/dmrconfig/main.c
 DMRCONFIG_MAIN_OBJ=$(addprefix $(BUILD_PATH)/,$(DMRCONFIG_MAIN_SRC:.c=.o))
 
 GUI_PATH     = src/UI
+GUI_SRCS    = src/main.cpp
 GUI_WIDGETS  = $(wildcard $(GUI_PATH)/*.cpp)
-GUI_SRCS    += src/main.cpp $(GUI_WIDGETS)
 GUI_HDRS    += $(wildcard $(GUI_PATH)/*.hpp)
 GUI_PRO     += $(wildcard $(GUI_PATH)/*.pro)
 
@@ -76,7 +76,7 @@ $(COMMON_LIB): $(COMMON_OBJS)
 $(TARGET_CLI): $(DMRCONFIG_MAIN_OBJ) $(TARGET_LIB) 
 	$(CXX) -o $@ $(CXXFLAGS) $(LDFLAGS) $^ $(LIBS)
 
-$(TARGET_GUI): $(TARGET_LIB) $(GUI_SRCS) $(GUI_HDRS) $(COMMON_LIB)
+$(TARGET_GUI): $(TARGET_LIB) $(COMMON_LIB) $(BUILD_PATH)/src/UI/libwidgets.a
 	@mkdir -p $(BUILD_PATH)/src/UI
 	@qmake \
 		"DEFINES        += VERSION=\'\\\"$(VERSION).$(HASH)\\\"\'" \
@@ -85,10 +85,10 @@ $(TARGET_GUI): $(TARGET_LIB) $(GUI_SRCS) $(GUI_HDRS) $(COMMON_LIB)
 		"HEADERS        += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
 		"INCLUDEPATH    += $(COMMON_INCPATHS:-I%=../../../%) $(LIB_INCPATHS:-I%=%)" \
 		"PRE_TARGETDEPS += ../../../$(COMMON_LIB) ../../../$(TARGET_LIB)" \
-		"LIBS           += ../../../$(COMMON_LIB) ../../../$(TARGET_LIB) $(LIBS)" \
+		"LIBS           += ../../../$(BUILD_PATH)/src/UI/libwidgets.a ../../../$(COMMON_LIB) ../../../$(TARGET_LIB) $(LIBS)" \
 		"TARGET         = ../../../$(TARGET_GUI)" \
-		$(GUI_PRO) -o $(BUILD_PATH)/src/UI/Makefile
-	$(MAKE) -C $(BUILD_PATH)/src/UI
+		$(GUI_PRO) -o $(BUILD_PATH)/src/UI/qdmrconfig.mk
+	$(MAKE) -C $(BUILD_PATH)/src/UI -f qdmrconfig.mk
 
 # Build dmrconfig
 $(BUILD_PATH)/$(DMRCONFIG_PATH)/%.o: $(DMRCONFIG_PATH)/%.c
@@ -117,8 +117,8 @@ $(BUILD_PATH)/src/UI/libwidgets.a: $(GUI_SRCS) $(COMMON_LIB) $(TARGET_LIB) $(GUI
 	@mkdir -p `dirname $@`
 	qmake \
 		"DEFINES        += VERSION=\'\\\"$(VERSION).$(HASH)\\\"\'" \
-		"TEMPLATE = lib" \
-		"CONFIG += staticlib"\
+		"TEMPLATE        = lib" \
+		"CONFIG         += staticlib"\
 		"SOURCES        += $(GUI_WIDGETS:%=../../../%)" \
 		"HEADERS        += $(GUI_HDRS:%=../../../%) $(TESTS_HDRS:%=../../../%)" \
 		"HEADERS        += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
@@ -137,7 +137,7 @@ $(BUILD_PATH)/tests: $(BUILD_PATH)/src/UI/libwidgets.a
 		"HEADERS        += $(TESTS_HDRS:%=../../../%)" \
 		"HEADERS        += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
 		"INCLUDEPATH    += $(COMMON_INCPATHS:-I%=../../../%) $(LIB_INCPATHS:-I%=%) $(TESTS_INCPATHS:-I%=../../../%)" \
-		"LIBS           += ../../../$(COMMON_LIB) ../../../$(TARGET_LIB) ../../../$(BUILD_PATH)/src/UI/libwidgets.a $(LIBS)" \
+		"LIBS           += ../../../$(BUILD_PATH)/src/UI/libwidgets.a $(LIBS) ../../../$(COMMON_LIB) ../../../$(TARGET_LIB)" \
 		"TARGET         = ../../../build/tests" \
 		$(GUI_PRO) -o $(BUILD_PATH)/src/UI/tests.mk
 	$(MAKE) -C $(BUILD_PATH)/src/UI -f tests.mk
