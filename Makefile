@@ -54,6 +54,7 @@ TARGET_CLI=dmrconfig
 
 TARGET_LIB=$(BUILD_PATH)/$(DMRCONFIG_PATH)/lib$(TARGET_CLI).a
 COMMON_LIB=$(BUILD_PATH)/$(COMMON_PATH)/libcommon.a
+WIDGETS_LIB=$(BUILD_PATH)/$(GUI_PATH)/libwidgets.a
 
 #
 # Make sure pkg-config is installed.
@@ -73,10 +74,24 @@ $(COMMON_LIB): $(COMMON_OBJS)
 	ar rcs $@ $^
 	ranlib $@
 
+$(WIDGETS_LIB): $(GUI_SRCS) $(COMMON_LIB) $(TARGET_LIB) $(GUI_HDRS)
+	@mkdir -p `dirname $@`
+	@qmake \
+		"DEFINES        += VERSION=\'\\\"$(VERSION).$(HASH)\\\"\'" \
+		"TEMPLATE        = lib" \
+		"CONFIG         += staticlib"\
+		"SOURCES        += $(GUI_WIDGETS:%=../../../%)" \
+		"HEADERS        += $(GUI_HDRS:%=../../../%) $(TESTS_HDRS:%=../../../%)" \
+		"HEADERS        += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
+		"INCLUDEPATH    += $(COMMON_INCPATHS:-I%=../../../%) $(LIB_INCPATHS:-I%=%) $(TESTS_INCPATHS:-I%=../../../%)" \
+		"TARGET         = widgets" \
+		$(GUI_PRO) -o $(BUILD_PATH)/src/UI/widgets.mk
+	$(MAKE) -C $(BUILD_PATH)/src/UI -f widgets.mk
+
 $(TARGET_CLI): $(DMRCONFIG_MAIN_OBJ) $(TARGET_LIB) 
 	$(CXX) -o $@ $(CXXFLAGS) $(LDFLAGS) $^ $(LIBS)
 
-$(TARGET_GUI): $(TARGET_LIB) $(COMMON_LIB) $(BUILD_PATH)/src/UI/libwidgets.a
+$(TARGET_GUI): $(TARGET_LIB) $(COMMON_LIB) $(WIDGETS_LIB)
 	@mkdir -p $(BUILD_PATH)/src/UI
 	@qmake \
 		"DEFINES        += VERSION=\'\\\"$(VERSION).$(HASH)\\\"\'" \
@@ -84,8 +99,7 @@ $(TARGET_GUI): $(TARGET_LIB) $(COMMON_LIB) $(BUILD_PATH)/src/UI/libwidgets.a
 		"HEADERS        += $(GUI_HDRS:%=../../../%)" \
 		"HEADERS        += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
 		"INCLUDEPATH    += $(COMMON_INCPATHS:-I%=../../../%) $(LIB_INCPATHS:-I%=%)" \
-		"PRE_TARGETDEPS += ../../../$(COMMON_LIB) ../../../$(TARGET_LIB)" \
-		"LIBS           += ../../../$(BUILD_PATH)/src/UI/libwidgets.a ../../../$(COMMON_LIB) ../../../$(TARGET_LIB) $(LIBS)" \
+		"LIBS           += ../../../$(WIDGETS_LIB) ../../../$(COMMON_LIB) ../../../$(TARGET_LIB) $(LIBS)" \
 		"TARGET         = ../../../$(TARGET_GUI)" \
 		$(GUI_PRO) -o $(BUILD_PATH)/src/UI/qdmrconfig.mk
 	$(MAKE) -C $(BUILD_PATH)/src/UI -f qdmrconfig.mk
@@ -113,21 +127,7 @@ distclean: clean
 repoclean:
 	git clean -ffd
 
-$(BUILD_PATH)/src/UI/libwidgets.a: $(GUI_SRCS) $(COMMON_LIB) $(TARGET_LIB) $(GUI_HDRS)
-	@mkdir -p `dirname $@`
-	@qmake \
-		"DEFINES        += VERSION=\'\\\"$(VERSION).$(HASH)\\\"\'" \
-		"TEMPLATE        = lib" \
-		"CONFIG         += staticlib"\
-		"SOURCES        += $(GUI_WIDGETS:%=../../../%)" \
-		"HEADERS        += $(GUI_HDRS:%=../../../%) $(TESTS_HDRS:%=../../../%)" \
-		"HEADERS        += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
-		"INCLUDEPATH    += $(COMMON_INCPATHS:-I%=../../../%) $(LIB_INCPATHS:-I%=%) $(TESTS_INCPATHS:-I%=../../../%)" \
-		"TARGET         = widgets" \
-		$(GUI_PRO) -o $(BUILD_PATH)/src/UI/widgets.mk
-	$(MAKE) -C $(BUILD_PATH)/src/UI -f widgets.mk
-
-$(BUILD_PATH)/tests: $(BUILD_PATH)/src/UI/libwidgets.a
+$(BUILD_PATH)/tests: $(WIDGETS_LIB)
 	@mkdir -p `dirname $@`
 	@qmake \
 		"DEFINES        += VERSION=\'\\\"$(VERSION).$(HASH)\\\"\'" \
@@ -135,10 +135,10 @@ $(BUILD_PATH)/tests: $(BUILD_PATH)/src/UI/libwidgets.a
 		"HEADERS        += $(TESTS_HDRS:%=../../../%)" \
 		"HEADERS        += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
 		"INCLUDEPATH    += $(COMMON_INCPATHS:-I%=../../../%) $(LIB_INCPATHS:-I%=%) $(TESTS_INCPATHS:-I%=../../../%)" \
-		"LIBS           += ../../../$(BUILD_PATH)/src/UI/libwidgets.a ../../../$(COMMON_LIB) ../../../$(TARGET_LIB) $(LIBS)" \
+		"LIBS           += ../../../$(WIDGETS_LIB) ../../../$(COMMON_LIB) ../../../$(TARGET_LIB) $(LIBS)" \
 		"TARGET         = ../../../build/tests" \
-		$(GUI_PRO) -o $(BUILD_PATH)/src/UI/tests.mk
-	$(MAKE) -C $(BUILD_PATH)/src/UI -f tests.mk
+		$(GUI_PRO) -o $(BUILD_PATH)/src/tests/tests.mk
+	$(MAKE) -C $(BUILD_PATH)/src/tests -f tests.mk
 
 $(BUILD_PATH)/run-dmrconfig-tests: $(TARGET_CLI) $(TEST_SCRIPTS)
 	./scripts/btechTests examples/btech6x2.img.bak
