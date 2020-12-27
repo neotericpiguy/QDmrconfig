@@ -39,7 +39,7 @@ paramFlagTest() {
   ./dmrconfig -c $originalImage $tmpConf
   echo "Target $hex"
   xxd device.img | diff $originalImageHex - || true
-  #vim -d $originalImageHex <(xxd device.img) 
+#  vim -d $originalImageHex <(xxd device.img) 
   val=`xxd -s $hex -l $size device.img | awk '{print $2}'`
   _testEq "01" "$val" "$paramName 1"
 
@@ -61,6 +61,7 @@ touchTest() {
   ./dmrconfig -c $image $tmpConf
   #  xxd $image | grep -i $hex
   #  xxd device.img | grep -i $hex
+  vim -d $originalImageHex <(xxd device.img) 
   if  cmp $image device.img; then
     echo -en "\e[32mPASS"
   else
@@ -74,11 +75,11 @@ main () {
   xxd $originalImage > $originalImageHex
   touchTest
 
-  paramFlagTest "0x0071600" "1"   "Ch Name"
-  paramFlagTest "0x0071600" "188" "GPS Units"
-  paramFlagTest "0x0071600" "25"  "Hold Time"
-  paramFlagTest "0x0071600" "51"  "Talk Alert"
-  paramFlagTest "0x0071600" "215" "Manual Hold Time"
+#  paramFlagTest "0x0071600" "1"   "Ch Name"
+#  paramFlagTest "0x0071600" "188" "GPS Units"
+#  paramFlagTest "0x0071600" "25"  "Hold Time"
+#  paramFlagTest "0x0071600" "49"  "Talk Permit"
+#  paramFlagTest "0x0071600" "215" "Manual Hold Time"
 }
 
 main $@
