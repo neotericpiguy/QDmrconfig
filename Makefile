@@ -52,8 +52,8 @@ LIBS      = $(shell pkg-config --libs --static libusb-1.0 libmongoc-1.0)
 TARGET_GUI=QDmrconfig
 TARGET_CLI=dmrconfig
 
-TARGET_LIB=$(BUILD_PATH)/lib$(TARGET_CLI).a
-COMMON_LIB=$(BUILD_PATH)/libcommon.a
+TARGET_LIB=$(BUILD_PATH)/$(DMRCONFIG_PATH)/lib$(TARGET_CLI).a
+COMMON_LIB=$(BUILD_PATH)/$(COMMON_PATH)/libcommon.a
 
 #
 # Make sure pkg-config is installed.
