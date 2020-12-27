@@ -18,7 +18,6 @@ public:
   bool templateTest();
   bool repeaterResultsTest();
 
-private:
   static const std::string str;
   static const std::string repeaterStr;
 };

@@ -9,6 +9,7 @@
 #include "BSONDocTests.hpp"
 #include "NetworkApiTests.hpp"
 #include "SimpleTest.hpp"
+#include "WidgetTests.cpp"
 
 int main(int argc, char** argv)
 {
@@ -23,7 +24,8 @@ int main(int argc, char** argv)
   parser.addVersionOption();
   parser.addOptions({
       {{"n", "net-tests"}, "Only net tests."},
-      {{"b", "bson-tests"}, "only bson parsing test."},
+      {{"b", "bson-tests"}, "Only bson parsing tests."},
+      {{"w", "widget-tests"}, "Only widget tests."},
   });
   parser.process(app);
 
@@ -37,9 +39,16 @@ int main(int argc, char** argv)
 
   if (parser.isSet("net-tests"))
   {
-    NetworkApiTests networkApi;
-    networkApi.fccCallsignSearchTest();
-    networkApi.repeaterSearchTest();
+    NetworkApiTests networkApiTests;
+    networkApiTests.fccCallsignSearchTest();
+    networkApiTests.repeaterSearchTest();
+    app.exec();
+  }
+
+  if (parser.isSet("widget-tests"))
+  {
+    WidgetTests widgetTests;
+    widgetTests.show();
     app.exec();
   }
 
