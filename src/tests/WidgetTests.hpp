@@ -24,8 +24,8 @@ private:
   QVBoxLayout* _layout;
 
   // BSONDocWidget
-  std::vector<Mongo::BSONDoc> bsonDocs;
-  BSONDocWidget* bsonDocWidget;
+  std::vector<Mongo::BSONDoc> _bsonDocs;
+  BSONDocWidget* _bsonDocWidget;
 };
 
 #endif
