@@ -4,8 +4,8 @@ WidgetTests::WidgetTests() :
     QMainWindow(),
     _tabWidget(new QTabWidget(this)),
     _layout(new QVBoxLayout),
-    bsonDocs(),
-    bsonDocWidget(new BSONDocWidget(bsonDocs))
+    _bsonDocs(),
+    _bsonDocWidget(new BSONDocWidget(_bsonDocs))
 {
   setCentralWidget(new QLineEdit("text"));
   _layout->addWidget(_tabWidget);
@@ -27,12 +27,14 @@ WidgetTests::~WidgetTests()
 
 bool WidgetTests::initBsonDocWidget()
 {
+  _tabWidget->addTab(_bsonDocWidget, "BSONDocWidget");
+
   Mongo::BSONDoc temp(BSONDocTests::repeaterStr);
   TEST(temp.has("results"), ==, true);
   TEST(temp.get<int32_t>("count"), ==, 51);
-  bsonDocs = temp.get<std::vector<Mongo::BSONDoc>>("results");
-  _tabWidget->addTab(bsonDocWidget, "BSONDocWidget");
+  _bsonDocs = temp.get<std::vector<Mongo::BSONDoc>>("results");
+  _bsonDocs.resize(temp.get<int32_t>("count"));
 
-  bsonDocWidget->update();
+  _bsonDocWidget->update();
   return true;
 }
