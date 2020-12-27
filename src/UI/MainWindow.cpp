@@ -1,11 +1,11 @@
 #include "MainWindow.hpp"
 
-MainWindow::MainWindow() :
+MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploadFile, const std::function<void(const std::string&)>& radioDownloadFile) :
     QMainWindow(),
     _bsonResults(),
     _fccSearchString(),
     _repeaterBookSearchString(),
-    _confFileWidget(new ConfFileWidget()),
+    _confFileWidget(new ConfFileWidget(radioUploadFile, radioDownloadFile)),
     _bsonDocWidget(new BSONDocWidget(_bsonResults)),
     _networkManager(new QNetworkAccessManager(this)),
     _repeaterBookNetworkManager(new QNetworkAccessManager(this))

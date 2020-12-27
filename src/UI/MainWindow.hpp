@@ -22,7 +22,7 @@ class MainWindow : public QMainWindow
   Q_OBJECT
 
 public:
-  MainWindow();
+  MainWindow(const std::function<void(const std::string&)>& radioUploadFile, const std::function<void(const std::string&)>& radioDownloadFile);
   virtual ~MainWindow();
 
   void loadFile(const QString& fileName);
