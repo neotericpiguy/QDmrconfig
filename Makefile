@@ -51,6 +51,7 @@ LIBS      = $(shell pkg-config --libs --static libusb-1.0 libmongoc-1.0)
 # 
 TARGET_GUI=QDmrconfig
 TARGET_CLI=dmrconfig
+TARGET_TESTS=$(BUILD_PATH)/tests
 
 TARGET_LIB=$(BUILD_PATH)/$(DMRCONFIG_PATH)/lib$(TARGET_CLI).a
 COMMON_LIB=$(BUILD_PATH)/$(COMMON_PATH)/libcommon.a
@@ -127,7 +128,7 @@ distclean: clean
 repoclean:
 	git clean -ffd
 
-$(BUILD_PATH)/tests: $(WIDGETS_LIB)
+$(TARGET_TESTS): $(WIDGETS_LIB)
 	@mkdir -p `dirname $@`
 	@qmake \
 		"DEFINES        += VERSION=\'\\\"$(VERSION).$(HASH)\\\"\'" \
@@ -136,23 +137,23 @@ $(BUILD_PATH)/tests: $(WIDGETS_LIB)
 		"HEADERS        += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
 		"INCLUDEPATH    += $(COMMON_INCPATHS:-I%=../../../%) $(LIB_INCPATHS:-I%=%) $(TESTS_INCPATHS:-I%=../../../%)" \
 		"LIBS           += ../../../$(WIDGETS_LIB) ../../../$(COMMON_LIB) ../../../$(TARGET_LIB) $(LIBS)" \
-		"TARGET         = ../../../build/tests" \
-		$(GUI_PRO) -o $(BUILD_PATH)/src/tests/tests.mk
-	$(MAKE) -C $(BUILD_PATH)/src/tests -f tests.mk
+		"TARGET         = ../../../$(TARGET_TESTS)" \
+		$(GUI_PRO) -o $(BUILD_PATH)/$(TESTS_PATH)/tests.mk
+	$(MAKE) -C $(BUILD_PATH)/$(TESTS_PATH) -f tests.mk
 
 $(BUILD_PATH)/run-dmrconfig-tests: $(TARGET_CLI) $(TEST_SCRIPTS)
 	./scripts/btechTests examples/btech6x2.img.bak
 	@touch $@
 
-$(BUILD_PATH)/run-unit-tests: $(BUILD_PATH)/tests
-	QT_QPA_PLATFORM='offscreen' $(BUILD_PATH)/tests
+$(BUILD_PATH)/run-unit-tests: $(TARGET_TESTS)
+	QT_QPA_PLATFORM='offscreen' $^
 	@touch $@
 
-$(BUILD_PATH)/run-net-tests: $(BUILD_PATH)/tests
-	QT_QPA_PLATFORM='offscreen' $(BUILD_PATH)/tests -n
+$(BUILD_PATH)/run-net-tests: $(TARGET_TESTS)
+	QT_QPA_PLATFORM='offscreen' $^ -n
 
-$(BUILD_PATH)/run-gui-tests: $(BUILD_PATH)/tests
-	$(BUILD_PATH)/tests -w
+$(BUILD_PATH)/run-gui-tests: $(TARGET_TESTS)
+	$^ -w
 
 #Not required but good to have
 $(BUILD_PATH)/style-check: $(GUI_SRCS) $(GUI_HDRS) $(TESTS_SRCS) $(TESTS_HDRS) $(COMMON_SRCS) $(COMMON_HDRS)
