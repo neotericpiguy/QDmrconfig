@@ -90,7 +90,7 @@ $(WIDGETS_LIB): $(GUI_SRCS) $(GUI_HDRS)
 	@$(MAKE) -C $(BUILD_PATH)/src/UI -f widgets.mk
 
 $(TARGET_CLI): $(DMRCONFIG_MAIN_OBJ) $(TARGET_LIB) 
-	$(CXX) -o $@ $(CXXFLAGS) $(LDFLAGS) $^ $(LIBS)
+	$(CXX) -o $@ $(CXXFLAGS) $^ $(LIBS)
 
 $(TARGET_GUI): $(WIDGETS_LIB) $(TARGET_LIB) $(COMMON_LIB) 
 	@mkdir -p $(BUILD_PATH)/src/UI
