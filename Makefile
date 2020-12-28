@@ -75,7 +75,7 @@ $(COMMON_LIB): $(COMMON_OBJS)
 	ar rcs $@ $^
 	ranlib $@
 
-$(WIDGETS_LIB): $(GUI_SRCS) $(GUI_HDRS)
+$(WIDGETS_LIB): $(GUI_WIDGETS) $(GUI_HDRS)
 	@mkdir -p `dirname $@`
 	@qmake \
 		"DEFINES        += VERSION=\'\\\"$(VERSION).$(HASH)\\\"\'" \
