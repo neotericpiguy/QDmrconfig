@@ -128,7 +128,7 @@ distclean: clean
 repoclean:
 	git clean -ffd
 
-$(TARGET_TESTS): $(WIDGETS_LIB) $(COMMON_LIB) 
+$(TARGET_TESTS): $(WIDGETS_LIB) $(COMMON_LIB) $(TESTS_SRCS)
 	@mkdir -p `dirname $@`
 	@qmake \
 		"DEFINES        += VERSION=\'\\\"$(VERSION).$(HASH)\\\"\'" \
