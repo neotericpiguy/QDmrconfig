@@ -142,7 +142,7 @@ $(TARGET_TESTS): $(WIDGETS_LIB) $(COMMON_LIB)
 	@$(MAKE) -C $(BUILD_PATH)/$(TESTS_PATH) -f tests.mk
 
 $(BUILD_PATH)/run-dmrconfig-tests: $(TARGET_CLI) $(TEST_SCRIPTS)
-	./scripts/btechTests examples/btech6x2.img.bak
+	@make -C $(DMRCONFIG_PATH) check
 	@touch $@
 
 $(BUILD_PATH)/run-unit-tests: $(TARGET_TESTS)
