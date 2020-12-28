@@ -5,7 +5,9 @@ WidgetTests::WidgetTests() :
     _tabWidget(new QTabWidget(this)),
     _layout(new QVBoxLayout),
     _bsonDocs(),
-    _bsonDocWidget(new BSONDocWidget(_bsonDocs))
+    _bsonDocWidget(new BSONDocWidget(_bsonDocs)),
+    _confFile(nullptr, nullptr),
+    _confFileWidget(new ConfFileWidget(_confFile))
 {
   setCentralWidget(new QLineEdit("text"));
   _layout->addWidget(_tabWidget);
@@ -18,6 +20,7 @@ WidgetTests::WidgetTests() :
   openAct->setStatusTip(tr("Create a open file"));
   fileMenu->addAction(openAct);
 
+  initConfFileWidget();
   initBsonDocWidget();
 }
 
@@ -36,5 +39,15 @@ bool WidgetTests::initBsonDocWidget()
   _bsonDocs.resize(temp.get<int32_t>("count"));
 
   _bsonDocWidget->update();
+  return true;
+}
+
+bool WidgetTests::initConfFileWidget()
+{
+  _tabWidget->addTab(_confFileWidget, "ConfFileWidget");
+
+  _confFile.loadFile("examples/btech-6x2.conf");
+  _confFileWidget->updateTabs();
+
   return true;
 }

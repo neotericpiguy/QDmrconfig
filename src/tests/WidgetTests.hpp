@@ -6,6 +6,7 @@
 
 #include "BSONDocTests.hpp"
 #include "BSONDocWidget.hpp"
+#include "ConfFileWidget.hpp"
 #include "SimpleTest.hpp"
 
 class WidgetTests : public QMainWindow
@@ -18,6 +19,7 @@ public:
   ~WidgetTests();
 
   bool initBsonDocWidget();
+  bool initConfFileWidget();
 
 private:
   QTabWidget* _tabWidget;
@@ -26,6 +28,10 @@ private:
   // BSONDocWidget
   std::vector<Mongo::BSONDoc> _bsonDocs;
   BSONDocWidget* _bsonDocWidget;
+
+  // ConfFileWidget
+  ConfFile _confFile;
+  ConfFileWidget* _confFileWidget;
 };
 
 #endif
