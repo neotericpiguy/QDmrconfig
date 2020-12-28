@@ -33,6 +33,7 @@ private slots:
   void duplicateTableRow();
   void removeTableRow();
   void filterTableColumn();
+  void hideRow();
   void sortTableRow();
   void removeValueAction();
   void addValueAction();

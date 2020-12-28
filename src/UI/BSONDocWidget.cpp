@@ -22,6 +22,11 @@ BSONDocWidget::BSONDocWidget(std::vector<Mongo::BSONDoc>& bsonDocs, QWidget* par
   filterAction->setShortcut(QKeySequence(tr("Ctrl+F")));
   addAction(filterAction);
   connect(filterAction, &QAction::triggered, this, [this]() { filterTableColumn(); });
+
+  QAction* hideAction = new QAction("&Hide row");
+  hideAction->setShortcut(QKeySequence(tr("Ctrl+h")));
+  addAction(hideAction);
+  connect(hideAction, &QAction::triggered, this, [this]() { hideRow(); });
 }
 
 BSONDocWidget::~BSONDocWidget()
@@ -74,6 +79,14 @@ void BSONDocWidget::filterTableColumn()
         //Msg box error to user
       }
     }
+  }
+}
+
+void BSONDocWidget::hideRow()
+{
+  for (const auto& item : _tableWidget->selectedItems())
+  {
+    _tableWidget->hideRow(item->column());
   }
 }
 
