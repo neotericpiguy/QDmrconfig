@@ -5,7 +5,8 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
     _bsonResults(),
     _fccSearchString(),
     _repeaterBookSearchString(),
-    _confFileWidget(new ConfFileWidget(radioUploadFile, radioDownloadFile)),
+    _confFile(radioUploadFile, radioDownloadFile),
+    _confFileWidget(new ConfFileWidget(_confFile)),
     _bsonDocWidget(new BSONDocWidget(_bsonResults)),
     _networkManager(new QNetworkAccessManager(this)),
     _repeaterBookNetworkManager(new QNetworkAccessManager(this))

@@ -1,8 +1,8 @@
 #include "ConfFileWidget.hpp"
 
-ConfFileWidget::ConfFileWidget(const std::function<void(const std::string&)>& radioUploadFile, const std::function<void(const std::string&)>& radioDownloadFile, QWidget* parent) :
+ConfFileWidget::ConfFileWidget(ConfFile& confFile, QWidget* parent) :
     QWidget(parent),
-    _confFile(radioUploadFile, radioDownloadFile),
+    _confFile(confFile),
     _isDebug(false),
     _filename(),
     _confBlockWidgets(),

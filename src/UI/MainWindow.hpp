@@ -37,6 +37,7 @@ private:
   std::vector<Mongo::BSONDoc> _bsonResults;
   std::string _fccSearchString;
   std::string _repeaterBookSearchString;
+  ConfFile _confFile;
   ConfFileWidget* _confFileWidget;
   BSONDocWidget* _bsonDocWidget;
   QNetworkAccessManager* _networkManager;
