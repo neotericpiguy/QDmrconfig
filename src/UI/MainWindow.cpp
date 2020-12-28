@@ -67,20 +67,20 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
   });
 
   connect(uploadAct, &QAction::triggered, this, [this]() {
-    _confFileWidget->getConfFile().uploadFile();
+    _confFile.uploadFile();
     statusBar()->showMessage(tr("Uploaded..."), 2000);
   });
 
   connect(downloadAct, &QAction::triggered, this, [this]() {
     auto filename = QFileDialog::getSaveFileName(this, tr("Destination"), "./", tr("Config Files (*.conf)"));
-    _confFileWidget->getConfFile().downloadFile(filename.toStdString());
+    _confFile.downloadFile(filename.toStdString());
     statusBar()->showMessage("Downloaded...", 2000);
     loadFile(filename);
   });
 
   connect(saveAct, &QAction::triggered, this, [this]() {
     qDebug() << "Saving file";
-    _confFileWidget->getConfFile().saveFile();
+    _confFile.saveFile();
     statusBar()->showMessage(tr("Saved..."), 2000);
   });
 
@@ -201,7 +201,7 @@ void MainWindow::repeaterBookSlotReadyRead(QNetworkReply* reply)
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
-  if (_confFileWidget->getConfFile().isModified())
+  if (_confFile.isModified())
   {
     QMessageBox::StandardButton resBtn = QMessageBox::question(this, "QDmrconfig",
                                                                tr("Save changes?\n"),
@@ -209,7 +209,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
                                                                QMessageBox::Yes);
     if (resBtn == QMessageBox::Yes)
     {
-      _confFileWidget->getConfFile().saveFile();
+      _confFile.saveFile();
     }
     else
     {
@@ -240,7 +240,7 @@ void MainWindow::loadFile(const QString& filename)
     return;
   }
 
-  _confFileWidget->getConfFile().loadFile(filename.toStdString());
+  _confFile.loadFile(filename.toStdString());
   _confFileWidget->updateTabs();
 
   statusBar()->showMessage(tr("File loaded"), 2000);

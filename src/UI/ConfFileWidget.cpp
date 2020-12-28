@@ -32,11 +32,6 @@ void ConfFileWidget::tabSelected()
     _confBlockWidgets[_tabWidget->currentIndex()]->metaUpdate();
 }
 
-ConfFile& ConfFileWidget::getConfFile()
-{
-  return _confFile;
-}
-
 void ConfFileWidget::clear()
 {
   _tabWidget->clear();

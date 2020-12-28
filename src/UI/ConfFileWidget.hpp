@@ -29,8 +29,6 @@ public:
 
   void nextTab(int step);
 
-  ConfFile& getConfFile();
-
 private slots:
   void tabSelected();
 
