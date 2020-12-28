@@ -142,7 +142,7 @@ $(TARGET_TESTS): $(WIDGETS_LIB) $(COMMON_LIB)
 	@$(MAKE) -C $(BUILD_PATH)/$(TESTS_PATH) -f tests.mk
 
 $(BUILD_PATH)/run-dmrconfig-tests: $(TARGET_CLI) $(TEST_SCRIPTS)
-	make -C $(DMRCONFIG_PATH) check
+	@make -C $(DMRCONFIG_PATH) check
 	@touch $@
 
 $(BUILD_PATH)/run-unit-tests: $(TARGET_TESTS)
