@@ -83,14 +83,14 @@ $(WIDGETS_LIB): $(GUI_SRCS) $(GUI_HDRS)
 		"CONFIG         += staticlib"\
 		"SOURCES        += $(GUI_WIDGETS:%=../../../%)" \
 		"HEADERS        += $(GUI_HDRS:%=../../../%)" \
-		"HEADERS        += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
+		"HEADERS        += $(COMMON_HDRS:%=../../../%)" \
 		"INCLUDEPATH    += $(COMMON_INCPATHS:-I%=../../../%) $(LIB_INCPATHS:-I%=%)" \
 		"TARGET         = widgets" \
 		$(GUI_PRO) -o $(BUILD_PATH)/src/UI/widgets.mk
 	@$(MAKE) -C $(BUILD_PATH)/src/UI -f widgets.mk
 
 $(TARGET_CLI): $(DMRCONFIG_MAIN_OBJ) $(TARGET_LIB) 
-	$(CXX) -o $@ $(CXXFLAGS) $(LDFLAGS) $^ $(LIBS)
+	$(CXX) -o $@ $(CXXFLAGS) $^ $(LIBS)
 
 $(TARGET_GUI): $(WIDGETS_LIB) $(TARGET_LIB) $(COMMON_LIB) 
 	@mkdir -p $(BUILD_PATH)/src/UI
@@ -98,7 +98,7 @@ $(TARGET_GUI): $(WIDGETS_LIB) $(TARGET_LIB) $(COMMON_LIB)
 		"DEFINES        += VERSION=\'\\\"$(VERSION).$(HASH)\\\"\'" \
 		"SOURCES        += $(GUI_SRCS:%=../../../%)" \
 		"HEADERS        += $(GUI_HDRS:%=../../../%)" \
-		"HEADERS        += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
+		"HEADERS        += $(COMMON_HDRS:%=../../../%)" \
 		"INCLUDEPATH    += $(COMMON_INCPATHS:-I%=../../../%) $(LIB_INCPATHS:-I%=%)" \
 		"LIBS           += ../../../$(WIDGETS_LIB) ../../../$(COMMON_LIB) ../../../$(TARGET_LIB) $(LIBS)" \
 		"TARGET         = ../../../$(TARGET_GUI)" \
@@ -113,7 +113,7 @@ $(BUILD_PATH)/$(DMRCONFIG_PATH)/%.o: $(DMRCONFIG_PATH)/%.c
 # Build libcommon
 $(BUILD_PATH)/$(COMMON_PATH)/%.o: $(COMMON_PATH)/%.cpp
 	@mkdir -p `dirname $@`
-	$(CC) -o $@ -c $(CXXFLAGS) $(LIB_INCPATHS) $(LIBMONGOC_INCPATHS) $<
+	$(CC) -o $@ -c $(CXXFLAGS) $(LIBMONGOC_INCPATHS) $<
 
 $(BUILD_PATH)/$(TESTS_PATH)/%.o: $(TESTS_PATH)/%.cpp
 	@mkdir -p `dirname $@`

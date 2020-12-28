@@ -11,7 +11,7 @@
 class ConfFile
 {
 public:
-  ConfFile();
+  ConfFile(const std::function<void(const std::string&)>& radioUploadFile, const std::function<void(const std::string&)>& radioDownloadFile);
 
   void loadFile(const std::string& filename);
   void saveFile();
@@ -27,6 +27,9 @@ private:
   std::string _filename;
   std::map<int, ConfBlock> _confBlocks;
   std::map<std::string, ConfBlock*> _confNameBlocks;
+
+  std::function<void(const std::string&)> _radioUploadFile;
+  std::function<void(const std::string&)> _radioDownloadFile;
 };
 
 #endif

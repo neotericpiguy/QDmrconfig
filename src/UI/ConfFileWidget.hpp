@@ -5,7 +5,6 @@
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QPlainTextEdit>
 #include <QtWidgets/QtWidgets>
-
 #pragma GCC diagnostic pop
 
 #include <fstream>
@@ -19,7 +18,7 @@ class ConfFileWidget : public QWidget
   Q_OBJECT
 
 public:
-  ConfFileWidget(QWidget* parent = 0);
+  ConfFileWidget(const std::function<void(const std::string&)>& radioUploadFile, const std::function<void(const std::string&)>& radioDownloadFile, QWidget* parent = 0);
   ConfFileWidget(const ConfFileWidget&) = delete;
   ConfFileWidget& operator=(const ConfFileWidget&) = delete;
   virtual ~ConfFileWidget();
