@@ -59,11 +59,11 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
   fileMenu->addAction(closeAct);
 
   QAction* changeTabAct = new QAction(tr("&Change Tab"), this);
-  changeTabAct->setShortcut(QKeySequence(tr(("Ctrl+Tab"))));
+  changeTabAct->setShortcut(QKeySequence(tr(("Ctrl+PgUp"))));
   this->addAction(changeTabAct);
 
   QAction* backTabAct = new QAction(tr("&Change Tab"), this);
-  backTabAct->setShortcut(QKeySequence(tr(("Ctrl+Shift+Tab"))));
+  backTabAct->setShortcut(QKeySequence(tr(("Ctrl+PgDown"))));
   this->addAction(backTabAct);
 
   connect(openAct, &QAction::triggered, this, [this]() {
@@ -141,11 +141,25 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
   });
 
   connect(changeTabAct, &QAction::triggered, this, [this]() {
-    //    _confFileWidget->nextTab(+1);
+    if (_tabWidget->count() == 0)
+      return;
+
+    int step = 1;
+    int tab = _tabWidget->currentIndex() + 2 * _tabWidget->count();
+    tab = (tab + step) % _tabWidget->count();
+
+    _tabWidget->setCurrentIndex(tab);
   });
 
   connect(backTabAct, &QAction::triggered, this, [this]() {
-    //    _confFileWidget->nextTab(-1);
+    if (_tabWidget->count() == 0)
+      return;
+
+    int step = -1;
+    int tab = _tabWidget->currentIndex() + 2 * _tabWidget->count();
+    tab = (tab + step) % _tabWidget->count();
+
+    _tabWidget->setCurrentIndex(tab);
   });
 
   setUnifiedTitleAndToolBarOnMac(true);
