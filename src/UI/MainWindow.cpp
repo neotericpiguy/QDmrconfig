@@ -167,8 +167,30 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
     if (bsonDocWidget)
     {
       auto results = bsonDocWidget->getVisibleDocs();
-      for (const auto& r : results)
-        std::cout << r.toString() << std::endl;
+
+      for (int i = 0; i < _tabWidget->count(); i++)
+      {
+        _tabWidget->setCurrentIndex(i);
+        auto confFileWidget = dynamic_cast<ConfFileWidget*>(_tabWidget->currentWidget());
+        if (!confFileWidget)
+          continue;
+        QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Export",
+                                                                   "Export into Analog " + _tabWidget->tabText(i),
+                                                                   QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes,
+                                                                   QMessageBox::Yes);
+        if (resBtn == QMessageBox::Yes)
+        {
+          auto nameBlockMap = confFileWidget->getConfFile().getNameBlocks();
+          if (nameBlockMap.find("Analog") == nameBlockMap.end())
+          {
+            QMessageBox::critical(this, "Failed to export", tr("Couldn't find Analog tab"));
+            continue;
+          }
+
+          auto& confBlock = *nameBlockMap.at("Analog");
+          confBlock.appendRepeaterDoc(results);
+        }
+      }
     }
     else
     {
