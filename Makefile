@@ -100,7 +100,7 @@ $(TARGET_GUI): $(WIDGETS_LIB) $(TARGET_LIB) $(COMMON_LIB)
 		"HEADERS        += $(GUI_HDRS:%=../../../%)" \
 		"HEADERS        += $(COMMON_HDRS:%=../../../%)" \
 		"INCLUDEPATH    += $(COMMON_INCPATHS:-I%=../../../%) $(LIB_INCPATHS:-I%=%)" \
-		"PRE_TARGETDEPS += ../../../$(WIDGETS_LIB) ../../../$(COMMON_LIB) ../../../$(TARGET_LIB) $(LIBS)" \
+		"PRE_TARGETDEPS += ../../../$(WIDGETS_LIB) ../../../$(COMMON_LIB) ../../../$(TARGET_LIB)" \
 		"LIBS           += ../../../$(WIDGETS_LIB) ../../../$(COMMON_LIB) ../../../$(TARGET_LIB) $(LIBS)" \
 		"TARGET         = ../../../$(TARGET_GUI)" \
 		$(GUI_PRO) -o $(BUILD_PATH)/src/UI/qdmrconfig.mk
