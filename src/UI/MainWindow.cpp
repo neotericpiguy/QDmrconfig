@@ -16,7 +16,13 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
   QVBoxLayout* layout = new QVBoxLayout();
   layout->addWidget(_tabWidget);
   centralWidget()->setLayout(layout);
-  connect(_tabWidget->tabBar(), &QTabBar::tabCloseRequested, _tabWidget->tabBar(), &QTabBar::removeTab);
+  _tabWidget->setTabsClosable(true);
+  connect(_tabWidget, &QTabWidget::tabCloseRequested, this, [this](int index) {
+    QWidget* tab = _tabWidget->widget(index);
+    disconnect(tab, 0, 0, 0);
+    tab->close();
+    delete tab;
+  });
 
   QMenu* fileMenu = menuBar()->addMenu(tr("&File"));
 
@@ -175,6 +181,7 @@ void MainWindow::callsignSearchReady(QNetworkReply* reply)
   auto entries = results.get<std::vector<Mongo::BSONDoc>>("Licenses.License");
   statusBar()->showMessage(tr("FCC Results"));
   _tabWidget->addTab(new BSONDocWidget(entries), QString("FCC search: ") + QString(_fccSearchString.c_str()));
+  _tabWidget->setCurrentIndex(_tabWidget->count() - 1);
 }
 
 void MainWindow::repeaterBookSlotReadyRead(QNetworkReply* reply)
@@ -198,7 +205,6 @@ void MainWindow::repeaterBookSlotReadyRead(QNetworkReply* reply)
 
   statusBar()->showMessage(tr("Repeater Results: ") + QString::number(count));
   _tabWidget->addTab(new BSONDocWidget(entries), QString("Repeater search: ") + QString(_repeaterBookSearchString.c_str()));
-
   _tabWidget->setCurrentIndex(_tabWidget->count() - 1);
 }
 
@@ -248,4 +254,5 @@ void MainWindow::loadFile(const QString& filename)
 
   statusBar()->showMessage(tr("File loaded"), 2000);
   _tabWidget->addTab(_confFileWidget, filename);
+  _tabWidget->setCurrentIndex(_tabWidget->count() - 1);
 }
