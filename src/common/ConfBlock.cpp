@@ -403,6 +403,8 @@ bool ConfBlock::appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs)
     for (const auto& keyPair : columnDefault)
     {
       int column = getColumnIndex(keyPair.first);
+      if (column == -1)
+        continue;
       results[column] = keyPair.second;
     }
     for (const auto& keyPair : repeaterMap)
@@ -410,6 +412,8 @@ bool ConfBlock::appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs)
       const auto& bsonDocKey = keyPair.first;
       const auto& confBlockKey = keyPair.second;
       int column = getColumnIndex(confBlockKey);
+      if (column == -1)
+        continue;
       if (bsonDocKey == "Frequency")
       {
         double temp;

@@ -188,8 +188,7 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
             continue;
           }
 
-          auto& confBlock = *nameBlockMap.at("Analog");
-          confBlock.appendRepeaterDoc(results);
+          nameBlockMap.at("Analog")->appendRepeaterDoc(results);
         }
       }
     }
