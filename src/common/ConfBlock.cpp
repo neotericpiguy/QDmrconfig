@@ -442,7 +442,7 @@ bool ConfBlock::appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs)
       }
     }
 
-    insertRow(0, results);
+    insertRow(getRowCount(), results);
   }
 
   return true;
