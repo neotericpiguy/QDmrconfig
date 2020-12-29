@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
   }
 
   if (!parser.positionalArguments().isEmpty())
-    mainWin.loadFile(parser.positionalArguments().first());
+    mainWin.loadFile(parser.positionalArguments().first().toStdString());
 
   mainWin.show();
 

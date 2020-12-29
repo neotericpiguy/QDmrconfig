@@ -18,7 +18,7 @@ class ConfFileWidget : public QWidget
   Q_OBJECT
 
 public:
-  ConfFileWidget(ConfFile& confFile, QWidget* parent = 0);
+  ConfFileWidget(const std::function<void(const std::string&)>& radioUploadFile, const std::function<void(const std::string&)>& radioDownloadFile, QWidget* parent = 0);
   ConfFileWidget(const ConfFileWidget&) = delete;
   ConfFileWidget& operator=(const ConfFileWidget&) = delete;
   virtual ~ConfFileWidget();
@@ -29,11 +29,13 @@ public:
 
   void nextTab(int step);
 
+  ConfFile& getConfFile();
+
 private slots:
   void tabSelected();
 
 private:
-  ConfFile& _confFile;
+  ConfFile _confFile;
   bool _isDebug;
 
   std::string _filename;

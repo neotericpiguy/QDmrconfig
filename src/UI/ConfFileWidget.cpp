@@ -1,8 +1,8 @@
 #include "ConfFileWidget.hpp"
 
-ConfFileWidget::ConfFileWidget(ConfFile& confFile, QWidget* parent) :
+ConfFileWidget::ConfFileWidget(const std::function<void(const std::string&)>& radioUploadFile, const std::function<void(const std::string&)>& radioDownloadFile, QWidget* parent) :
     QWidget(parent),
-    _confFile(confFile),
+    _confFile(radioUploadFile, radioDownloadFile),
     _isDebug(false),
     _filename(),
     _confBlockWidgets(),
@@ -30,6 +30,11 @@ void ConfFileWidget::tabSelected()
 {
   if ((unsigned int)(_tabWidget->currentIndex()) < _confBlockWidgets.size())
     _confBlockWidgets[_tabWidget->currentIndex()]->metaUpdate();
+}
+
+ConfFile& ConfFileWidget::getConfFile()
+{
+  return _confFile;
 }
 
 void ConfFileWidget::clear()

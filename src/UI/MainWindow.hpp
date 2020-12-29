@@ -25,7 +25,7 @@ public:
   MainWindow(const std::function<void(const std::string&)>& radioUploadFile, const std::function<void(const std::string&)>& radioDownloadFile);
   virtual ~MainWindow();
 
-  void loadFile(const QString& fileName);
+  void loadFile(const std::string& fileName);
   void closeEvent(QCloseEvent* event) override;
   void setDebug(bool state);
 
@@ -36,11 +36,13 @@ private slots:
 private:
   std::string _fccSearchString;
   std::string _repeaterBookSearchString;
-  ConfFile _confFile;
-  ConfFileWidget* _confFileWidget;
+
   QNetworkAccessManager* _networkManager;
   QNetworkAccessManager* _repeaterBookNetworkManager;
   QTabWidget* _tabWidget;
+
+  std::function<void(const std::string&)> radioUploadFile;
+  std::function<void(const std::string&)> radioDownloadFile;
 };
 
 #endif

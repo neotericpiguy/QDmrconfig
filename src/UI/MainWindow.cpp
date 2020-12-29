@@ -2,15 +2,13 @@
 
 MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploadFile, const std::function<void(const std::string&)>& radioDownloadFile) :
     QMainWindow(),
-    //    _bsonResults(),
     _fccSearchString(),
     _repeaterBookSearchString(),
-    _confFile(radioUploadFile, radioDownloadFile),
-    _confFileWidget(new ConfFileWidget(_confFile)),
-    //    _bsonDocWidget(new BSONDocWidget(_bsonResults)),
     _networkManager(new QNetworkAccessManager(this)),
     _repeaterBookNetworkManager(new QNetworkAccessManager(this)),
-    _tabWidget(new QTabWidget(this))
+    _tabWidget(new QTabWidget(this)),
+    radioUploadFile(radioUploadFile),
+    radioDownloadFile(radioDownloadFile)
 {
   setCentralWidget(new QLineEdit(""));
   QVBoxLayout* layout = new QVBoxLayout();
@@ -74,24 +72,24 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
     {
       return;
     }
-    loadFile(filename);
+    loadFile(filename.toStdString());
   });
 
   connect(uploadAct, &QAction::triggered, this, [this]() {
-    _confFile.uploadFile();
+    //    _confFileWidget->getConfFile().uploadFile();
     statusBar()->showMessage(tr("Uploaded..."), 2000);
   });
 
   connect(downloadAct, &QAction::triggered, this, [this]() {
     auto filename = QFileDialog::getSaveFileName(this, tr("Destination"), "./", tr("Config Files (*.conf)"));
-    _confFile.downloadFile(filename.toStdString());
+    //    _confFileWidget->getConfFile().downloadFile(filename.toStdString());
     statusBar()->showMessage("Downloaded...", 2000);
-    loadFile(filename);
+    loadFile(filename.toStdString());
   });
 
   connect(saveAct, &QAction::triggered, this, [this]() {
     qDebug() << "Saving file";
-    _confFile.saveFile();
+    //    _confFileWidget->getConfFile().saveFile();
     statusBar()->showMessage(tr("Saved..."), 2000);
   });
 
@@ -143,11 +141,11 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
   });
 
   connect(changeTabAct, &QAction::triggered, this, [this]() {
-    _confFileWidget->nextTab(+1);
+    //    _confFileWidget->nextTab(+1);
   });
 
   connect(backTabAct, &QAction::triggered, this, [this]() {
-    _confFileWidget->nextTab(-1);
+    //    _confFileWidget->nextTab(-1);
   });
 
   setUnifiedTitleAndToolBarOnMac(true);
@@ -208,51 +206,53 @@ void MainWindow::repeaterBookSlotReadyRead(QNetworkReply* reply)
   _tabWidget->setCurrentIndex(_tabWidget->count() - 1);
 }
 
-void MainWindow::closeEvent(QCloseEvent* event)
+void MainWindow::closeEvent(QCloseEvent* /*event*/)
 {
-  if (_confFile.isModified())
-  {
-    QMessageBox::StandardButton resBtn = QMessageBox::question(this, "QDmrconfig",
-                                                               tr("Save changes?\n"),
-                                                               QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes,
-                                                               QMessageBox::Yes);
-    if (resBtn == QMessageBox::Yes)
-    {
-      _confFile.saveFile();
-    }
-    else
-    {
-      event->ignore();
-    }
-  }
-
-  // Prevents weird shutting down issues
-  // It's almost like the destructor hop around different tabs until they are
-  // all gone
-  _confFileWidget->clear();
-  event->accept();
+  //  if (_confFileWidget->getConfFile().isModified())
+  //  {
+  //    QMessageBox::StandardButton resBtn = QMessageBox::question(this, "QDmrconfig",
+  //                                                               tr("Save changes?\n"),
+  //                                                               QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes,
+  //                                                               QMessageBox::Yes);
+  //    if (resBtn == QMessageBox::Yes)
+  //    {
+  //      _confFileWidget->getConfFile().saveFile();
+  //    }
+  //    else
+  //    {
+  //      event->ignore();
+  //    }
+  //  }
+  //
+  //  // Prevents weird shutting down issues
+  //  // It's almost like the destructor hop around different tabs until they are
+  //  // all gone
+  //  _confFileWidget->clear();
+  //  event->accept();
 }
 
-void MainWindow::setDebug(bool state)
+void MainWindow::setDebug(bool /*state*/)
 {
-  _confFileWidget->setDebug(state);
+  //  _confFileWidget->setDebug(state);
 }
 
-void MainWindow::loadFile(const QString& filename)
+void MainWindow::loadFile(const std::string& filename)
 {
-  QFile file(filename);
+  QString filenameQstr(filename.c_str());
+  QFile file(filenameQstr);
   if (!file.open(QFile::ReadOnly | QFile::Text))
   {
     QMessageBox::warning(this, tr("Application"),
                          tr("Cannot read file %1:\n%2.")
-                             .arg(QDir::toNativeSeparators(filename), file.errorString()));
+                             .arg(QDir::toNativeSeparators(filenameQstr), file.errorString()));
     return;
   }
 
-  _confFile.loadFile(filename.toStdString());
-  _confFileWidget->updateTabs();
+  auto confFileWidget = new ConfFileWidget(radioUploadFile, radioDownloadFile);
+  confFileWidget->getConfFile().loadFile(filename);
+  confFileWidget->updateTabs();
 
   statusBar()->showMessage(tr("File loaded"), 2000);
-  _tabWidget->addTab(_confFileWidget, filename);
+  _tabWidget->addTab(confFileWidget, filename.substr(filename.rfind("/") + 1, filename.length() - filename.rfind("/") - 1).c_str());
   _tabWidget->setCurrentIndex(_tabWidget->count() - 1);
 }
