@@ -381,12 +381,29 @@ bool ConfBlock::appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs)
       {"PL", "TxTone"},
   };
 
+  const std::map<std::string, std::string> columnDefault = {
+      {"Power", "High"},
+      {"Scan", "-"},
+      {"TOT", "-"},
+      {"RO", "-"},
+      {"Admit", "-"},
+      {"Squelch", "Normal"},
+      {"RxTone", "-"},
+      {"txTone", "-"},
+      {"Width", "25"},
+  };
+
   std::vector<std::string> results;
 
   for (const auto& doc : docs)
   {
     results.clear();
     results.resize(getColumnCount());
+    for (const auto& keyPair : columnDefault)
+    {
+      int column = getColumnIndex(keyPair.first);
+      results[column] = keyPair.second;
+    }
     for (const auto& keyPair : repeaterMap)
     {
       const auto& bsonDocKey = keyPair.first;
@@ -399,7 +416,7 @@ bool ConfBlock::appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs)
     //      std::cout << res << " ";
     //    std::cout << std::endl;
 
-    insertRow(10, results);
+    insertRow(0, results);
   }
 
   return true;
