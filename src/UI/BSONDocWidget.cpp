@@ -27,6 +27,7 @@ BSONDocWidget::BSONDocWidget(std::vector<Mongo::BSONDoc>& bsonDocs, QWidget* par
   hideAction->setShortcut(QKeySequence(tr("Ctrl+h")));
   addAction(hideAction);
   connect(hideAction, &QAction::triggered, this, [this]() { hideRow(); });
+  update();
 }
 
 BSONDocWidget::~BSONDocWidget()

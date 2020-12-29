@@ -2,16 +2,21 @@
 
 MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploadFile, const std::function<void(const std::string&)>& radioDownloadFile) :
     QMainWindow(),
-    _bsonResults(),
+    //    _bsonResults(),
     _fccSearchString(),
     _repeaterBookSearchString(),
     _confFile(radioUploadFile, radioDownloadFile),
     _confFileWidget(new ConfFileWidget(_confFile)),
-    _bsonDocWidget(new BSONDocWidget(_bsonResults)),
+    //    _bsonDocWidget(new BSONDocWidget(_bsonResults)),
     _networkManager(new QNetworkAccessManager(this)),
-    _repeaterBookNetworkManager(new QNetworkAccessManager(this))
+    _repeaterBookNetworkManager(new QNetworkAccessManager(this)),
+    _tabWidget(new QTabWidget(this))
 {
-  setCentralWidget(_confFileWidget);
+  setCentralWidget(new QLineEdit(""));
+  QVBoxLayout* layout = new QVBoxLayout();
+  layout->addWidget(_tabWidget);
+  centralWidget()->setLayout(layout);
+  connect(_tabWidget->tabBar(), &QTabBar::tabCloseRequested, _tabWidget->tabBar(), &QTabBar::removeTab);
 
   QMenu* fileMenu = menuBar()->addMenu(tr("&File"));
 
@@ -167,11 +172,9 @@ void MainWindow::callsignSearchReady(QNetworkReply* reply)
     return;
   }
 
-  _bsonResults = results.get<std::vector<Mongo::BSONDoc>>("Licenses.License");
+  auto entries = results.get<std::vector<Mongo::BSONDoc>>("Licenses.License");
   statusBar()->showMessage(tr("FCC Results"));
-  _bsonDocWidget->update();
-  takeCentralWidget();
-  setCentralWidget(_bsonDocWidget);
+  _tabWidget->addTab(new BSONDocWidget(entries), QString("FCC search: ") + QString(_fccSearchString.c_str()));
 }
 
 void MainWindow::repeaterBookSlotReadyRead(QNetworkReply* reply)
@@ -188,15 +191,15 @@ void MainWindow::repeaterBookSlotReadyRead(QNetworkReply* reply)
   }
 
   int32_t count = results.get<int32_t>("count");
-  _bsonResults = results.get<std::vector<Mongo::BSONDoc>>("results");
+  auto entries = results.get<std::vector<Mongo::BSONDoc>>("results");
 
   // Ensure dimensions match the docs.
-  _bsonResults.resize(count);
+  entries.resize(count);
 
-  statusBar()->showMessage(tr("FCC Results: ") + QString::number(count));
-  _bsonDocWidget->update();
-  takeCentralWidget();
-  setCentralWidget(_bsonDocWidget);
+  statusBar()->showMessage(tr("Repeater Results: ") + QString::number(count));
+  _tabWidget->addTab(new BSONDocWidget(entries), QString("Repeater search: ") + QString(_repeaterBookSearchString.c_str()));
+
+  _tabWidget->setCurrentIndex(_tabWidget->count() - 1);
 }
 
 void MainWindow::closeEvent(QCloseEvent* event)
@@ -244,6 +247,5 @@ void MainWindow::loadFile(const QString& filename)
   _confFileWidget->updateTabs();
 
   statusBar()->showMessage(tr("File loaded"), 2000);
-  takeCentralWidget();
-  setCentralWidget(_confFileWidget);
+  _tabWidget->addTab(_confFileWidget, filename);
 }
