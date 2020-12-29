@@ -86,7 +86,7 @@ void BSONDocWidget::hideRow()
 {
   for (const auto& item : _tableWidget->selectedItems())
   {
-    _tableWidget->hideRow(item->column());
+    _tableWidget->hideRow(item->row());
   }
 }
 

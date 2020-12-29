@@ -100,6 +100,7 @@ $(TARGET_GUI): $(WIDGETS_LIB) $(TARGET_LIB) $(COMMON_LIB)
 		"HEADERS        += $(GUI_HDRS:%=../../../%)" \
 		"HEADERS        += $(COMMON_HDRS:%=../../../%)" \
 		"INCLUDEPATH    += $(COMMON_INCPATHS:-I%=../../../%) $(LIB_INCPATHS:-I%=%)" \
+		"PRE_TARGETDEPS += ../../../$(WIDGETS_LIB) ../../../$(COMMON_LIB) ../../../$(TARGET_LIB) $(LIBS)" \
 		"LIBS           += ../../../$(WIDGETS_LIB) ../../../$(COMMON_LIB) ../../../$(TARGET_LIB) $(LIBS)" \
 		"TARGET         = ../../../$(TARGET_GUI)" \
 		$(GUI_PRO) -o $(BUILD_PATH)/src/UI/qdmrconfig.mk
@@ -136,6 +137,7 @@ $(TARGET_TESTS): $(WIDGETS_LIB) $(COMMON_LIB) $(TESTS_SRCS)
 		"HEADERS        += $(TESTS_HDRS:%=../../../%)" \
 		"HEADERS        += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
 		"INCLUDEPATH    += $(COMMON_INCPATHS:-I%=../../../%) $(LIB_INCPATHS:-I%=%) $(TESTS_INCPATHS:-I%=../../../%)" \
+		"PRE_TARGETDEPS += ../../../$(WIDGETS_LIB) ../../../$(COMMON_LIB)" \
 		"LIBS           += ../../../$(WIDGETS_LIB) ../../../$(COMMON_LIB) $(LIBS)" \
 		"TARGET         = ../../../$(TARGET_TESTS)" \
 		$(GUI_PRO) -o $(BUILD_PATH)/$(TESTS_PATH)/tests.mk
