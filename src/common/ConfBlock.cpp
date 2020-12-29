@@ -391,6 +391,7 @@ bool ConfBlock::appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs)
       {"RxTone", "-"},
       {"TxTone", "-"},
       {"Width", "25"},
+      {"#", "#"},
   };
 
   std::vector<std::string> results;
