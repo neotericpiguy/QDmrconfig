@@ -124,6 +124,12 @@ public:
     }
     return true;
   }
+  static std::string fixed(double number, unsigned int decimals)
+  {
+    std::stringstream ss;
+    ss << std::fixed << std::setprecision(decimals) << number;
+    return ss.str();
+  }
 
 private:
   std::string _header;
