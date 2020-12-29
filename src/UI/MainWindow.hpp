@@ -43,6 +43,8 @@ private:
 
   std::function<void(const std::string&)> radioUploadFile;
   std::function<void(const std::string&)> radioDownloadFile;
+
+  bool _debug;
 };
 
 #endif

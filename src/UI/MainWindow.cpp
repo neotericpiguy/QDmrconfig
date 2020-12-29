@@ -8,7 +8,8 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
     _repeaterBookNetworkManager(new QNetworkAccessManager(this)),
     _tabWidget(new QTabWidget(this)),
     radioUploadFile(radioUploadFile),
-    radioDownloadFile(radioDownloadFile)
+    radioDownloadFile(radioDownloadFile),
+    _debug(false)
 {
   setCentralWidget(new QLineEdit(""));
   QVBoxLayout* layout = new QVBoxLayout();
@@ -319,9 +320,9 @@ void MainWindow::closeEvent(QCloseEvent* event)
   event->accept();
 }
 
-void MainWindow::setDebug(bool /*state*/)
+void MainWindow::setDebug(bool state)
 {
-  //  _confFileWidget->setDebug(state);
+  _debug = state;
 }
 
 void MainWindow::loadFile(const std::string& filename)
@@ -337,6 +338,7 @@ void MainWindow::loadFile(const std::string& filename)
   }
 
   auto confFileWidget = new ConfFileWidget(radioUploadFile, radioDownloadFile);
+  confFileWidget->setDebug(_debug);
   confFileWidget->getConfFile().loadFile(filename);
   confFileWidget->updateTabs();
 
