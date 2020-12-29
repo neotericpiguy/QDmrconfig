@@ -6,8 +6,7 @@ WidgetTests::WidgetTests() :
     _layout(new QVBoxLayout),
     _bsonDocs(),
     _bsonDocWidget(new BSONDocWidget(_bsonDocs)),
-    _confFile(nullptr, nullptr),
-    _confFileWidget(new ConfFileWidget(_confFile))
+    _confFileWidget(new ConfFileWidget(nullptr, nullptr))
 {
   setCentralWidget(new QLineEdit("text"));
   _layout->addWidget(_tabWidget);
@@ -46,10 +45,11 @@ bool WidgetTests::initConfFileWidget()
 {
   _tabWidget->addTab(_confFileWidget, "ConfFileWidget");
 
-  _confFile.loadFile("examples/btech-6x2.conf");
+  auto& confFile = _confFileWidget->getConfFile();
+  confFile.loadFile("examples/btech-6x2.conf");
   _confFileWidget->updateTabs();
 
-  auto nameBlockMap = _confFile.getNameBlocks();
+  auto nameBlockMap = confFile.getNameBlocks();
 
   TEST_EXP(nameBlockMap.find("Analog") != nameBlockMap.end());
 
@@ -66,7 +66,6 @@ bool WidgetTests::initConfFileWidget()
   TEST(confBlock.getLines().size(), ==, 298);
   confBlock.appendRepeaterDoc(tempDoc);
   TEST(confBlock.getLines().size(), ==, 349);
-  //  _confFileWidget->updateTabs();
 
   return true;
 }

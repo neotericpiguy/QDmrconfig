@@ -30,7 +30,6 @@ private:
   BSONDocWidget* _bsonDocWidget;
 
   // ConfFileWidget
-  ConfFile _confFile;
   ConfFileWidget* _confFileWidget;
 };
 
