@@ -27,9 +27,7 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
   saveAct->setStatusTip(tr("SaveFile"));
   fileMenu->addAction(saveAct);
 
-  QAction* exportAct = new QAction(tr("Export to ConfFile"), this);
-  //  exportAct->setShortcut(QKeySequence(tr("Ctrl+D")));
-  //  exportAct->setStatusTip(tr("Download file"));
+  QAction* exportAct = new QAction(tr("&Export to ConfFile"), this);
   fileMenu->addAction(exportAct);
 
   QAction* closeAct = new QAction(tr("&Close"), this);
