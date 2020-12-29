@@ -417,6 +417,24 @@ bool ConfBlock::appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs)
 
         results[column] = fixed(temp, 3);
       }
+      else if (bsonDocKey == "Input Freq")
+      {
+        double rxFreq;
+        double txFreq;
+
+        if (!strTo(doc.get<std::string>("Frequency"), rxFreq) ||
+            !strTo(doc.get<std::string>(bsonDocKey), txFreq))
+          continue;
+
+        double offset = txFreq - rxFreq;
+        if (offset == 0)
+          results[column] = "+0";
+        else
+          results[column] = fixed(offset, 1);
+
+        if (offset > 0)
+          results[column] = "+" + results[column];
+      }
       else
       {
         results[column] = doc.get<std::string>(bsonDocKey);
