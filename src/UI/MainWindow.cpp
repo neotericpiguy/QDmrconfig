@@ -76,13 +76,23 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
   });
 
   connect(uploadAct, &QAction::triggered, this, [this]() {
-    //    _confFileWidget->getConfFile().uploadFile();
-    statusBar()->showMessage(tr("Uploaded..."), 2000);
+    auto confFileWidget = dynamic_cast<ConfFileWidget*>(_tabWidget->currentWidget());
+    if (confFileWidget)
+    {
+      std::cout << "Conffile widget found" << std::endl;
+      confFileWidget->getConfFile().uploadFile();
+      statusBar()->showMessage(tr("Uploaded..."), 2000);
+    }
+    else
+    {
+      QMessageBox::critical(this, "Failed to Upload", tr("Tab in focus is not a ConfFile"));
+    }
   });
 
-  connect(downloadAct, &QAction::triggered, this, [this]() {
+  connect(downloadAct, &QAction::triggered, this, [this, radioUploadFile, radioDownloadFile]() {
     auto filename = QFileDialog::getSaveFileName(this, tr("Destination"), "./", tr("Config Files (*.conf)"));
-    //    _confFileWidget->getConfFile().downloadFile(filename.toStdString());
+    auto confFileWidget = new ConfFileWidget(radioUploadFile, radioDownloadFile);
+    confFileWidget->getConfFile().downloadFile(filename.toStdString());
     statusBar()->showMessage("Downloaded...", 2000);
     loadFile(filename.toStdString());
   });
