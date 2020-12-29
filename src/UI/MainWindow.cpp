@@ -15,13 +15,6 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
   layout->addWidget(_tabWidget);
   centralWidget()->setLayout(layout);
   _tabWidget->setTabsClosable(true);
-  connect(_tabWidget, &QTabWidget::tabCloseRequested, this, [this](int index) {
-    QWidget* tab = _tabWidget->widget(index);
-    disconnect(tab, 0, 0, 0);
-    tab->close();
-    delete tab;
-  });
-
   QMenu* fileMenu = menuBar()->addMenu(tr("&File"));
   QAction* openAct = new QAction(tr("&Open"), this);
   openAct->setShortcuts(QKeySequence::Open);
@@ -218,6 +211,25 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
     tab = (tab + step) % _tabWidget->count();
 
     _tabWidget->setCurrentIndex(tab);
+  });
+
+  connect(_tabWidget, &QTabWidget::tabCloseRequested, this, [this](int index) {
+    QWidget* tab = _tabWidget->widget(index);
+    auto confFileWidget = dynamic_cast<ConfFileWidget*>(tab);
+    if (confFileWidget && confFileWidget->getConfFile().isModified())
+    {
+      QMessageBox::StandardButton resBtn = QMessageBox::question(this, "QDmrconfig",
+                                                                 "Save changes to " + _tabWidget->tabText(index),
+                                                                 QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes,
+                                                                 QMessageBox::Yes);
+      if (resBtn == QMessageBox::Yes)
+      {
+        confFileWidget->getConfFile().saveFile();
+      }
+    }
+    disconnect(tab, 0, 0, 0);
+    tab->close();
+    delete tab;
   });
 
   setUnifiedTitleAndToolBarOnMac(true);
