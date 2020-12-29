@@ -53,6 +53,11 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
   downloadAct->setStatusTip(tr("Download file"));
   fileMenu->addAction(downloadAct);
 
+  QAction* exportAct = new QAction(tr("Export to ConfFile"), this);
+  //  exportAct->setShortcut(QKeySequence(tr("Ctrl+D")));
+  //  exportAct->setStatusTip(tr("Download file"));
+  fileMenu->addAction(exportAct);
+
   QAction* closeAct = new QAction(tr("&Close"), this);
   closeAct->setShortcuts(QKeySequence::Close);
   closeAct->setStatusTip(tr("Close"));
@@ -155,6 +160,20 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
 
   connect(closeAct, &QAction::triggered, this, [this]() {
     close();
+  });
+
+  connect(exportAct, &QAction::triggered, this, [this]() {
+    auto bsonDocWidget = dynamic_cast<BSONDocWidget*>(_tabWidget->currentWidget());
+    if (bsonDocWidget)
+    {
+      auto results = bsonDocWidget->getVisibleDocs();
+      for (const auto& r : results)
+        std::cout << r.toString() << std::endl;
+    }
+    else
+    {
+      QMessageBox::critical(this, "Failed to export", tr("Tab in focus is not a BSONDoc"));
+    }
   });
 
   connect(changeTabAct, &QAction::triggered, this, [this]() {

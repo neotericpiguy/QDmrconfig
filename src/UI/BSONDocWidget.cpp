@@ -2,7 +2,7 @@
 
 #include <regex>
 
-BSONDocWidget::BSONDocWidget(std::vector<Mongo::BSONDoc>& bsonDocs, QWidget* parent) :
+BSONDocWidget::BSONDocWidget(const std::vector<Mongo::BSONDoc>& bsonDocs, QWidget* parent) :
     QWidget(parent),
     _isDebug(false),
     _bsonDocs(bsonDocs),
@@ -44,6 +44,19 @@ void BSONDocWidget::removeTableRow()
 
 void BSONDocWidget::sortTableRow()
 {
+}
+
+std::vector<Mongo::BSONDoc> BSONDocWidget::getVisibleDocs() const
+{
+  std::vector<Mongo::BSONDoc> result;
+  for (int i = 0; i < _tableWidget->rowCount(); i++)
+  {
+    if (_tableWidget->isRowHidden(i))
+      continue;
+
+    result.push_back(_bsonDocs[i]);
+  }
+  return result;
 }
 
 void BSONDocWidget::filterTableColumn()
