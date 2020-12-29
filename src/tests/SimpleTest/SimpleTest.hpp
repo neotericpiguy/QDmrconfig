@@ -29,6 +29,26 @@
     SimpleTest::addFailFunc(ss.str());                     \
   }
 
+#define TEST_EXP(exp)                            \
+  if (exp)                                       \
+  {                                              \
+    std::stringstream ss;                        \
+    ss << "\e[32m[PASS]\e[0m "                   \
+       << __PRETTY_FUNCTION__ << ":" << __LINE__ \
+       << " " << #exp;                           \
+    std::cout << ss.str() << std::endl;          \
+    SimpleTest::addPassFunc(ss.str());           \
+  }                                              \
+  else                                           \
+  {                                              \
+    std::stringstream ss;                        \
+    ss << "\e[31m[FAIL]\e[0m "                   \
+       << __PRETTY_FUNCTION__ << ":" << __LINE__ \
+       << " " << #exp;                           \
+    std::cout << ss.str() << std::endl;          \
+    SimpleTest::addFailFunc(ss.str());           \
+  }
+
 #define ADD_TEST(func)                                                                      \
   funcs.push_back(std::make_pair<std::string, std::function<bool(void)>>(#func,             \
                                                                          [this]() -> bool { \

@@ -114,7 +114,7 @@ $(BUILD_PATH)/$(DMRCONFIG_PATH)/%.o: $(DMRCONFIG_PATH)/%.c
 # Build libcommon
 $(BUILD_PATH)/$(COMMON_PATH)/%.o: $(COMMON_PATH)/%.cpp
 	@mkdir -p `dirname $@`
-	$(CC) -o $@ -c $(CXXFLAGS) $(LIBMONGOC_INCPATHS) $<
+	$(CC) -o $@ -c $(CXXFLAGS) $(COMMON_INCPATHS) $(LIBMONGOC_INCPATHS) $<
 
 $(BUILD_PATH)/$(TESTS_PATH)/%.o: $(TESTS_PATH)/%.cpp
 	@mkdir -p `dirname $@`

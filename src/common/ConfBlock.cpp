@@ -369,6 +369,42 @@ const std::vector<std::vector<std::string>>& ConfBlock::getLines() const
   return _lines;
 }
 
+bool ConfBlock::appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs)
+{
+  if (docs.empty())
+    return false;
+
+  const std::map<std::string, std::string> repeaterMap = {
+      {"Callsign", "Name"},
+      {"Frequency", "Receive"},
+      {"Input Freq", "Transmit"},  // need offset not freq
+      {"PL", "TxTone"},
+  };
+
+  std::vector<std::string> results;
+
+  for (const auto& doc : docs)
+  {
+    results.clear();
+    results.resize(getColumnCount());
+    for (const auto& keyPair : repeaterMap)
+    {
+      const auto& bsonDocKey = keyPair.first;
+      const auto& confBlockKey = keyPair.second;
+      int column = getColumnIndex(confBlockKey);
+      //      std::cout << bsonDocKey << ": " << doc.get<std::string>(bsonDocKey) << std::endl;
+      results[column] = doc.get<std::string>(bsonDocKey);
+    }
+    //    for (const auto& res : results)
+    //      std::cout << res << " ";
+    //    std::cout << std::endl;
+
+    insertRow(10, results);
+  }
+
+  return true;
+}
+
 std::map<std::string, std::string>& ConfBlock::getMap()
 {
   return _valueMap;

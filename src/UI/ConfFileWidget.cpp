@@ -50,7 +50,7 @@ void ConfFileWidget::updateTabs()
     temp->setDebug(_isDebug);
 
     _tabWidget->addTab(temp, confBlock.getHeader().c_str());
-    _confBlockWidgets.push_back(std::move(temp));
+    _confBlockWidgets.push_back(temp);
   }
 }
 
