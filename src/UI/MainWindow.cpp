@@ -237,29 +237,33 @@ void MainWindow::repeaterBookSlotReadyRead(QNetworkReply* reply)
   _tabWidget->setCurrentIndex(_tabWidget->count() - 1);
 }
 
-void MainWindow::closeEvent(QCloseEvent* /*event*/)
+void MainWindow::closeEvent(QCloseEvent* event)
 {
-  //  if (_confFileWidget->getConfFile().isModified())
-  //  {
-  //    QMessageBox::StandardButton resBtn = QMessageBox::question(this, "QDmrconfig",
-  //                                                               tr("Save changes?\n"),
-  //                                                               QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes,
-  //                                                               QMessageBox::Yes);
-  //    if (resBtn == QMessageBox::Yes)
-  //    {
-  //      _confFileWidget->getConfFile().saveFile();
-  //    }
-  //    else
-  //    {
-  //      event->ignore();
-  //    }
-  //  }
-  //
-  //  // Prevents weird shutting down issues
-  //  // It's almost like the destructor hop around different tabs until they are
-  //  // all gone
-  //  _confFileWidget->clear();
-  //  event->accept();
+  for (int i = 0; i < _tabWidget->count(); i++)
+  {
+    _tabWidget->setCurrentIndex(i);
+    auto confFileWidget = dynamic_cast<ConfFileWidget*>(_tabWidget->currentWidget());
+    if (!confFileWidget)
+      continue;
+
+    if (confFileWidget->getConfFile().isModified())
+    {
+      QMessageBox::StandardButton resBtn = QMessageBox::question(this, "QDmrconfig",
+                                                                 "Save changes to " + _tabWidget->tabText(i),
+                                                                 QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes,
+                                                                 QMessageBox::Yes);
+      if (resBtn == QMessageBox::Yes)
+      {
+        confFileWidget->getConfFile().saveFile();
+      }
+      else
+      {
+        event->ignore();
+      }
+    }
+  }
+
+  event->accept();
 }
 
 void MainWindow::setDebug(bool /*state*/)
