@@ -389,7 +389,7 @@ bool ConfBlock::appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs)
       {"Admit", "-"},
       {"Squelch", "Normal"},
       {"RxTone", "-"},
-      {"txTone", "-"},
+      {"TxTone", "-"},
       {"Width", "25"},
   };
 
@@ -437,7 +437,8 @@ bool ConfBlock::appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs)
       }
       else
       {
-        results[column] = doc.get<std::string>(bsonDocKey);
+        if (doc.get<std::string>(bsonDocKey) != "")
+          results[column] = doc.get<std::string>(bsonDocKey);
       }
     }
 
