@@ -98,9 +98,16 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
   });
 
   connect(saveAct, &QAction::triggered, this, [this]() {
-    qDebug() << "Saving file";
-    //    _confFileWidget->getConfFile().saveFile();
-    statusBar()->showMessage(tr("Saved..."), 2000);
+    auto confFileWidget = dynamic_cast<ConfFileWidget*>(_tabWidget->currentWidget());
+    if (confFileWidget)
+    {
+      confFileWidget->getConfFile().saveFile();
+      statusBar()->showMessage(tr("Saved..."), 2000);
+    }
+    else
+    {
+      QMessageBox::critical(this, "Failed to Upload", tr("Tab in focus is not a ConfFile"));
+    }
   });
 
   connect(searchAct, &QAction::triggered, this, [this]() {
