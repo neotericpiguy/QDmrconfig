@@ -85,7 +85,7 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
     auto confFileWidget = dynamic_cast<ConfFileWidget*>(_tabWidget->currentWidget());
     if (confFileWidget)
     {
-      std::cout << "Conffile widget found" << std::endl;
+      std::cout << "ConfFile widget found" << std::endl;
       confFileWidget->getConfFile().uploadFile();
       statusBar()->showMessage(tr("Uploaded..."), 2000);
     }
