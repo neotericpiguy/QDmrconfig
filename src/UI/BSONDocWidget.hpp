@@ -17,7 +17,7 @@ class BSONDocWidget : public QWidget
   Q_OBJECT
 
 public:
-  BSONDocWidget(std::vector<Mongo::BSONDoc>& bsonDocs, QWidget* parent = 0);
+  BSONDocWidget(const std::vector<Mongo::BSONDoc>& bsonDocs, QWidget* parent = 0);
   BSONDocWidget(const BSONDocWidget&) = delete;
   BSONDocWidget& operator=(const BSONDocWidget&) = delete;
   virtual ~BSONDocWidget();
@@ -26,6 +26,7 @@ public:
   void metaUpdate();
   void setDebug(bool state);
   void updateTable();
+  std::vector<Mongo::BSONDoc> getVisibleDocs() const;
 
 private slots:
   void itemUpdate(QTableWidgetItem* item);
@@ -33,13 +34,14 @@ private slots:
   void duplicateTableRow();
   void removeTableRow();
   void filterTableColumn();
+  void hideRow();
   void sortTableRow();
   void removeValueAction();
   void addValueAction();
 
 private:
   bool _isDebug;
-  std::vector<Mongo::BSONDoc>& _bsonDocs;
+  std::vector<Mongo::BSONDoc> _bsonDocs;
 
   //  QPlainTextEdit* _textView;
   QTableWidget* _tableWidget;

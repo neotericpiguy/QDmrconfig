@@ -25,7 +25,7 @@ public:
   MainWindow(const std::function<void(const std::string&)>& radioUploadFile, const std::function<void(const std::string&)>& radioDownloadFile);
   virtual ~MainWindow();
 
-  void loadFile(const QString& fileName);
+  void loadFile(const std::string& fileName);
   void closeEvent(QCloseEvent* event) override;
   void setDebug(bool state);
 
@@ -34,13 +34,17 @@ private slots:
   void repeaterBookSlotReadyRead(QNetworkReply* reply);
 
 private:
-  std::vector<Mongo::BSONDoc> _bsonResults;
   std::string _fccSearchString;
   std::string _repeaterBookSearchString;
-  ConfFileWidget* _confFileWidget;
-  BSONDocWidget* _bsonDocWidget;
+
   QNetworkAccessManager* _networkManager;
   QNetworkAccessManager* _repeaterBookNetworkManager;
+  QTabWidget* _tabWidget;
+
+  std::function<void(const std::string&)> radioUploadFile;
+  std::function<void(const std::string&)> radioDownloadFile;
+
+  bool _debug;
 };
 
 #endif

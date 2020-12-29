@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 
+#include "BSONDoc.hpp"
+
 class ConfBlock
 {
 public:
@@ -30,6 +32,9 @@ public:
   unsigned int getColumnCount() const;
   int insertRow(int, const std::vector<std::string>&);
   int removeRow(int);
+
+  // BSONDocs
+  bool appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs);
 
   // Map getter/setter
   std::map<std::string, std::string>& getMap();
@@ -118,6 +123,12 @@ public:
       return false;
     }
     return true;
+  }
+  static std::string fixed(double number, unsigned int decimals)
+  {
+    std::stringstream ss;
+    ss << std::fixed << std::setprecision(decimals) << number;
+    return ss.str();
   }
 
 private:

@@ -369,6 +369,91 @@ const std::vector<std::vector<std::string>>& ConfBlock::getLines() const
   return _lines;
 }
 
+bool ConfBlock::appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs)
+{
+  if (docs.empty())
+    return false;
+
+  const std::map<std::string, std::string> repeaterMap = {
+      {"Callsign", "Name"},
+      {"Frequency", "Receive"},
+      {"Input Freq", "Transmit"},  // need offset not freq
+      {"PL", "TxTone"},
+  };
+
+  const std::map<std::string, std::string> columnDefault = {
+      {"Power", "High"},
+      {"Scan", "-"},
+      {"TOT", "-"},
+      {"RO", "-"},
+      {"Admit", "-"},
+      {"Squelch", "Normal"},
+      {"RxTone", "-"},
+      {"TxTone", "-"},
+      {"Width", "25"},
+      {"#", "#"},
+  };
+
+  std::vector<std::string> results;
+
+  for (const auto& doc : docs)
+  {
+    results.clear();
+    results.resize(getColumnCount());
+    for (const auto& keyPair : columnDefault)
+    {
+      int column = getColumnIndex(keyPair.first);
+      if (column == -1)
+        continue;
+      results[column] = keyPair.second;
+    }
+    for (const auto& keyPair : repeaterMap)
+    {
+      const auto& bsonDocKey = keyPair.first;
+      const auto& confBlockKey = keyPair.second;
+      int column = getColumnIndex(confBlockKey);
+      if (column == -1)
+        continue;
+      if (bsonDocKey == "Frequency")
+      {
+        double temp;
+        if (!strTo(doc.get<std::string>(bsonDocKey), temp))
+          continue;
+
+        results[column] = fixed(temp, 3);
+      }
+      else if (bsonDocKey == "Input Freq")
+      {
+        double rxFreq;
+        double txFreq;
+
+        if (!strTo(doc.get<std::string>("Frequency"), rxFreq) ||
+            !strTo(doc.get<std::string>(bsonDocKey), txFreq))
+          continue;
+
+        double offset = txFreq - rxFreq;
+        if (offset == 0)
+          results[column] = "+0";
+        else
+          results[column] = fixed(offset, 1);
+
+        if (offset > 0)
+          results[column] = "+" + results[column];
+      }
+      else
+      {
+        if (doc.get<std::string>(bsonDocKey) != "")
+          results[column] = doc.get<std::string>(bsonDocKey);
+      }
+    }
+
+    insertRow(getRowCount(), results);
+  }
+
+  setModified(true);
+  return true;
+}
+
 std::map<std::string, std::string>& ConfBlock::getMap()
 {
   return _valueMap;

@@ -75,7 +75,7 @@ $(COMMON_LIB): $(COMMON_OBJS)
 	ar rcs $@ $^
 	ranlib $@
 
-$(WIDGETS_LIB): $(GUI_SRCS) $(GUI_HDRS)
+$(WIDGETS_LIB): $(GUI_WIDGETS) $(GUI_HDRS)
 	@mkdir -p `dirname $@`
 	@qmake \
 		"DEFINES        += VERSION=\'\\\"$(VERSION).$(HASH)\\\"\'" \
@@ -100,6 +100,7 @@ $(TARGET_GUI): $(WIDGETS_LIB) $(TARGET_LIB) $(COMMON_LIB)
 		"HEADERS        += $(GUI_HDRS:%=../../../%)" \
 		"HEADERS        += $(COMMON_HDRS:%=../../../%)" \
 		"INCLUDEPATH    += $(COMMON_INCPATHS:-I%=../../../%) $(LIB_INCPATHS:-I%=%)" \
+		"PRE_TARGETDEPS += ../../../$(WIDGETS_LIB) ../../../$(COMMON_LIB) ../../../$(TARGET_LIB)" \
 		"LIBS           += ../../../$(WIDGETS_LIB) ../../../$(COMMON_LIB) ../../../$(TARGET_LIB) $(LIBS)" \
 		"TARGET         = ../../../$(TARGET_GUI)" \
 		$(GUI_PRO) -o $(BUILD_PATH)/src/UI/qdmrconfig.mk
@@ -113,7 +114,7 @@ $(BUILD_PATH)/$(DMRCONFIG_PATH)/%.o: $(DMRCONFIG_PATH)/%.c
 # Build libcommon
 $(BUILD_PATH)/$(COMMON_PATH)/%.o: $(COMMON_PATH)/%.cpp
 	@mkdir -p `dirname $@`
-	$(CC) -o $@ -c $(CXXFLAGS) $(LIBMONGOC_INCPATHS) $<
+	$(CC) -o $@ -c $(CXXFLAGS) $(COMMON_INCPATHS) $(LIBMONGOC_INCPATHS) $<
 
 $(BUILD_PATH)/$(TESTS_PATH)/%.o: $(TESTS_PATH)/%.cpp
 	@mkdir -p `dirname $@`
@@ -128,7 +129,7 @@ distclean: clean
 repoclean:
 	git clean -ffd
 
-$(TARGET_TESTS): $(WIDGETS_LIB) $(COMMON_LIB) 
+$(TARGET_TESTS): $(WIDGETS_LIB) $(COMMON_LIB) $(TESTS_SRCS)
 	@mkdir -p `dirname $@`
 	@qmake \
 		"DEFINES        += VERSION=\'\\\"$(VERSION).$(HASH)\\\"\'" \
@@ -136,6 +137,7 @@ $(TARGET_TESTS): $(WIDGETS_LIB) $(COMMON_LIB)
 		"HEADERS        += $(TESTS_HDRS:%=../../../%)" \
 		"HEADERS        += $(COMMON_SRCS:%.cpp=../../../%.hpp)" \
 		"INCLUDEPATH    += $(COMMON_INCPATHS:-I%=../../../%) $(LIB_INCPATHS:-I%=%) $(TESTS_INCPATHS:-I%=../../../%)" \
+		"PRE_TARGETDEPS += ../../../$(WIDGETS_LIB) ../../../$(COMMON_LIB)" \
 		"LIBS           += ../../../$(WIDGETS_LIB) ../../../$(COMMON_LIB) $(LIBS)" \
 		"TARGET         = ../../../$(TARGET_TESTS)" \
 		$(GUI_PRO) -o $(BUILD_PATH)/$(TESTS_PATH)/tests.mk

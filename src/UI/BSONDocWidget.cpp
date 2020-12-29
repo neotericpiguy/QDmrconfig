@@ -2,7 +2,7 @@
 
 #include <regex>
 
-BSONDocWidget::BSONDocWidget(std::vector<Mongo::BSONDoc>& bsonDocs, QWidget* parent) :
+BSONDocWidget::BSONDocWidget(const std::vector<Mongo::BSONDoc>& bsonDocs, QWidget* parent) :
     QWidget(parent),
     _isDebug(false),
     _bsonDocs(bsonDocs),
@@ -22,6 +22,12 @@ BSONDocWidget::BSONDocWidget(std::vector<Mongo::BSONDoc>& bsonDocs, QWidget* par
   filterAction->setShortcut(QKeySequence(tr("Ctrl+F")));
   addAction(filterAction);
   connect(filterAction, &QAction::triggered, this, [this]() { filterTableColumn(); });
+
+  QAction* hideAction = new QAction("&Hide row");
+  hideAction->setShortcut(QKeySequence(tr("Ctrl+h")));
+  addAction(hideAction);
+  connect(hideAction, &QAction::triggered, this, [this]() { hideRow(); });
+  update();
 }
 
 BSONDocWidget::~BSONDocWidget()
@@ -38,6 +44,19 @@ void BSONDocWidget::removeTableRow()
 
 void BSONDocWidget::sortTableRow()
 {
+}
+
+std::vector<Mongo::BSONDoc> BSONDocWidget::getVisibleDocs() const
+{
+  std::vector<Mongo::BSONDoc> result;
+  for (int i = 0; i < _tableWidget->rowCount(); i++)
+  {
+    if (_tableWidget->isRowHidden(i))
+      continue;
+
+    result.push_back(_bsonDocs[i]);
+  }
+  return result;
 }
 
 void BSONDocWidget::filterTableColumn()
@@ -74,6 +93,14 @@ void BSONDocWidget::filterTableColumn()
         //Msg box error to user
       }
     }
+  }
+}
+
+void BSONDocWidget::hideRow()
+{
+  for (const auto& item : _tableWidget->selectedItems())
+  {
+    _tableWidget->hideRow(item->row());
   }
 }
 
