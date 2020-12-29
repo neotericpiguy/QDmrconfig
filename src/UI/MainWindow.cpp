@@ -23,7 +23,6 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
   });
 
   QMenu* fileMenu = menuBar()->addMenu(tr("&File"));
-
   QAction* openAct = new QAction(tr("&Open"), this);
   openAct->setShortcuts(QKeySequence::Open);
   openAct->setStatusTip(tr("Create a open file"));
@@ -34,25 +33,6 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
   saveAct->setStatusTip(tr("SaveFile"));
   fileMenu->addAction(saveAct);
 
-  QAction* searchAct = new QAction(tr("S&earch Callsign"), this);
-  searchAct->setShortcut(QKeySequence(tr("Ctrl+E")));
-  searchAct->setStatusTip(tr("Search Fcc"));
-  fileMenu->addAction(searchAct);
-
-  QAction* repeaterBookAct = new QAction(tr("Search Repeaterbook"), this);
-  repeaterBookAct->setShortcut(QKeySequence(tr("Ctrl+r")));
-  fileMenu->addAction(repeaterBookAct);
-
-  QAction* uploadAct = new QAction(tr("&Upload"), this);
-  uploadAct->setShortcut(QKeySequence(tr("Ctrl+U")));
-  uploadAct->setStatusTip(tr("Upload file"));
-  fileMenu->addAction(uploadAct);
-
-  QAction* downloadAct = new QAction(tr("&Download"), this);
-  downloadAct->setShortcut(QKeySequence(tr("Ctrl+D")));
-  downloadAct->setStatusTip(tr("Download file"));
-  fileMenu->addAction(downloadAct);
-
   QAction* exportAct = new QAction(tr("Export to ConfFile"), this);
   //  exportAct->setShortcut(QKeySequence(tr("Ctrl+D")));
   //  exportAct->setStatusTip(tr("Download file"));
@@ -62,6 +42,27 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
   closeAct->setShortcuts(QKeySequence::Close);
   closeAct->setStatusTip(tr("Close"));
   fileMenu->addAction(closeAct);
+
+  QMenu* searchMenu = menuBar()->addMenu(tr("&Search"));
+  QAction* searchAct = new QAction(tr("S&earch Callsign"), this);
+  searchAct->setShortcut(QKeySequence(tr("Ctrl+E")));
+  searchAct->setStatusTip(tr("Search Fcc"));
+  searchMenu->addAction(searchAct);
+
+  QAction* repeaterBookAct = new QAction(tr("Search Repeaterbook"), this);
+  repeaterBookAct->setShortcut(QKeySequence(tr("Ctrl+r")));
+  searchMenu->addAction(repeaterBookAct);
+
+  QMenu* radioMenu = menuBar()->addMenu(tr("&Radio"));
+  QAction* uploadAct = new QAction(tr("&Upload"), this);
+  uploadAct->setShortcut(QKeySequence(tr("Ctrl+U")));
+  uploadAct->setStatusTip(tr("Upload file"));
+  radioMenu->addAction(uploadAct);
+
+  QAction* downloadAct = new QAction(tr("&Download"), this);
+  downloadAct->setShortcut(QKeySequence(tr("Ctrl+D")));
+  downloadAct->setStatusTip(tr("Download file"));
+  radioMenu->addAction(downloadAct);
 
   QAction* changeTabAct = new QAction(tr("&Change Tab"), this);
   changeTabAct->setShortcut(QKeySequence(tr(("Ctrl+PgUp"))));
