@@ -14,10 +14,13 @@ WidgetTests::WidgetTests() :
 
   QMenu* fileMenu = menuBar()->addMenu(tr("&File"));
 
-  QAction* openAct = new QAction(tr("&Open"), this);
-  openAct->setShortcuts(QKeySequence::Open);
-  openAct->setStatusTip(tr("Create a open file"));
-  fileMenu->addAction(openAct);
+  QAction* fieldEntryDialogAction = new QAction(tr("&Open"), this);
+  fieldEntryDialogAction->setShortcuts(QKeySequence::Open);
+  fieldEntryDialogAction->setStatusTip(tr("Create a open file"));
+  fileMenu->addAction(fieldEntryDialogAction);
+  connect(fieldEntryDialogAction, &QAction::triggered, this, [this]() {
+    initFieldEntryDialog();
+  });
 
   initConfFileWidget();
   initBsonDocWidget();
@@ -67,5 +70,19 @@ bool WidgetTests::initConfFileWidget()
   confBlock.appendRepeaterDoc(tempDoc);
   TEST(confBlock.getLines().size(), ==, 349);
 
+  return true;
+}
+
+bool WidgetTests::initFieldEntryDialog()
+{
+  std::vector<std::string> fields = {"Last name", "first name"};
+  std::vector<std::string> results;
+
+  auto dialog = new FieldEntryDialog(fields, results);
+  dialog->setModal(true);
+  dialog->exec();
+
+  for (const auto& r : results)
+    std::cout << r << std::endl;
   return true;
 }
