@@ -1,0 +1,19 @@
+#!/bin/bash
+
+inputLoop() {
+  echo -n "> "
+  while read line; do
+    # the echo "s" sleep 1 bit open the radios vox squelch?
+    (echo "s" ; sleep 1 ; echo $line) | festival --tts
+    echo -n "> "
+  done
+}
+
+main() {
+  echo "$0"
+  echo "Dont forget to setup vox 1 [menu] 4"
+
+  inputLoop
+}
+
+main $@
