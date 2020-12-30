@@ -12,6 +12,7 @@
 #include <unistd.h>
 
 #include "MainWindow.hpp"
+#include "StringThings.hpp"
 
 extern "C" const char version[] = VERSION;
 const char* copyright;
@@ -45,7 +46,7 @@ void radioUpload(const std::string& file)
 void radioDownload(const std::string& file)
 {
   std::string imageFilename = file;
-  ConfBlock::replace(imageFilename, ".conf", ".img");
+  StringThings::replace(imageFilename, ".conf", ".img");
   radio_connect(-1);
   radio_download();
   radio_print_version(stdout);
