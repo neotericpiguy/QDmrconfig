@@ -3,8 +3,10 @@
 inputLoop() {
   echo -n "> "
   while read line; do
-    # the echo "s" sleep 1 bit open the radios vox squelch?
-    (echo "s" ; sleep 1 ; echo $line) | festival --tts
+    # the echo "s" sleep bit open the radios vox squelch?
+    echo "ss" | festival --tts
+    sleep 1 
+    echo $line | festival --tts
     echo -n "> "
   done
 }
