@@ -271,15 +271,15 @@ void ConfBlock::metaUpdate()
               newValue[0] == '-')
           {
             int currentVal;
-            StringThings::strTo(rows[row - 1][targetColumnIndex], currentVal);
+            StringThings::strTo(currentVal, rows[row - 1][targetColumnIndex]);
 
             int delta;
-            StringThings::strTo(newValue, delta);
+            StringThings::strTo(delta, newValue);
 
             auto newOffsetValue = std::to_string(currentVal + delta);
             rows[row][targetColumnIndex] = newOffsetValue;
           }
-          else if (StringThings::strTo(newValue, temp))
+          else if (StringThings::strTo(temp, newValue))
           {
             rows[row][targetColumnIndex] = newValue;
           }
@@ -300,7 +300,7 @@ void ConfBlock::metaUpdate()
                 int temp;
                 for (const auto& line : srcBlock.getLines())
                 {
-                  if (StringThings::strTo(line[srcColumn], temp))
+                  if (StringThings::strTo(temp, line[srcColumn]))
                   {
                     if (temp > max)
                       max = temp;
@@ -384,7 +384,7 @@ bool ConfBlock::appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs)
       if (bsonDocKey == "Frequency")
       {
         double temp;
-        if (!StringThings::strTo(doc.get<std::string>(bsonDocKey), temp))
+        if (!StringThings::strTo(temp, doc.get<std::string>(bsonDocKey)))
           continue;
 
         results[column] = StringThings::fixed(temp, 3);
@@ -394,8 +394,8 @@ bool ConfBlock::appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs)
         double rxFreq;
         double txFreq;
 
-        if (!StringThings::strTo(doc.get<std::string>("Frequency"), rxFreq) ||
-            !StringThings::strTo(doc.get<std::string>(bsonDocKey), txFreq))
+        if (!StringThings::strTo(rxFreq, doc.get<std::string>("Frequency")) ||
+            !StringThings::strTo(txFreq, doc.get<std::string>(bsonDocKey)))
           continue;
 
         double offset = txFreq - rxFreq;
@@ -466,7 +466,7 @@ void ConfBlock::updateChannelList(const std::map<ConfBlock*, std::string>& src, 
       for (const auto& scanlistNumber : StringThings::unrangify(sourceRow[sourceColumnIndex]))
       {
         int channel;
-        if (!StringThings::strTo(sourceRow[0], channel))
+        if (!StringThings::strTo(channel, sourceRow[0]))
           continue;
 
         auto scanlistNumberStr = std::to_string(scanlistNumber);

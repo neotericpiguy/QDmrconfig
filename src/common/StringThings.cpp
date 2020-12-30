@@ -152,4 +152,17 @@ std::string vecToStr(const std::vector<T>& vec, const std::string& seperator)
 }
 template std::string vecToStr<int>(const std::vector<int>& vec, const std::string& seperator);
 
+template <typename T>
+bool strTo(T& retval, const std::string& tempStr)
+{
+  std::istringstream iss(tempStr);
+
+  iss >> retval;
+  if (iss.fail())
+    return false;
+  return true;
+}
+template bool strTo<int>(int& retval, const std::string& tempStr);
+template bool strTo<double>(double& retval, const std::string& tempStr);
+
 }  // namespace StringThings

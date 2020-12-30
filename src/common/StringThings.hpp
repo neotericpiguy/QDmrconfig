@@ -23,15 +23,7 @@ template <typename T>
 std::string vecToStr(const std::vector<T>& vec, const std::string& seperator);
 
 template <typename T>
-static bool strTo(const std::string& tempStr, T& retval)
-{
-  std::istringstream iss(tempStr);
-
-  iss >> retval;
-  if (iss.fail())
-    return false;
-  return true;
-}
+bool strTo(T& retval, const std::string& tempStr);
 
 }  // namespace StringThings
 #endif
