@@ -163,8 +163,7 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
 
       for (int i = 0; i < _tabWidget->count(); i++)
       {
-        _tabWidget->setCurrentIndex(i);
-        auto confFileWidget = dynamic_cast<ConfFileWidget*>(_tabWidget->currentWidget());
+        auto confFileWidget = dynamic_cast<ConfFileWidget*>(_tabWidget->widget(i));
         if (!confFileWidget)
           continue;
         QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Export",
@@ -181,6 +180,8 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
           }
 
           nameBlockMap.at("Analog")->appendRepeaterDoc(results);
+          confFileWidget->setTab("Analog");
+          _tabWidget->setCurrentIndex(i);
         }
       }
     }
