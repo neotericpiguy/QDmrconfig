@@ -22,7 +22,7 @@ public:
   virtual ~FieldEntryDialog();
 
 public slots:
-  virtual void done(int r);
+  virtual void accept();
 
 private:
   std::vector<std::string> _fields;

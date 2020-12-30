@@ -17,6 +17,13 @@ FieldEntryDialog::FieldEntryDialog(std::vector<std::string> fields, std::vector<
     leftLayout->addWidget(_resultsLineEdit.at(i));
     vlayout->addLayout(leftLayout);
   }
+  auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+  auto leftLayout = new QHBoxLayout;
+  leftLayout->addWidget(buttonBox);
+  vlayout->addLayout(leftLayout);
+
+  connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+  connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
   setLayout(vlayout);
 }
@@ -25,12 +32,11 @@ FieldEntryDialog::~FieldEntryDialog()
 {
 }
 
-void FieldEntryDialog::done(int r)
+void FieldEntryDialog::accept()
 {
   _results.resize(_resultsLineEdit.size());
 
   for (unsigned int i = 0; i < _results.size(); ++i)
     _results[i] = _resultsLineEdit[i]->text().toStdString();
-
-  QDialog::done(r);
+  QDialog::accept();
 }
