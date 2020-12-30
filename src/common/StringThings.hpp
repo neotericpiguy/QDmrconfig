@@ -1,5 +1,5 @@
-#ifndef STRINGTHING_HPP
-#define STRINGTHING_HPP
+#ifndef STRINGTHINGS_HPP
+#define STRINGTHINGS_HPP
 
 #include <fstream>
 #include <iomanip>
