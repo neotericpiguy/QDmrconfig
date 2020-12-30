@@ -1,6 +1,6 @@
 #include "FieldEntryDialog.hpp"
 
-FieldEntryDialog::FieldEntryDialog(std::vector<std::string> fields, std::vector<std::string>& results, QWidget* parent) :
+FieldEntryDialog::FieldEntryDialog(const std::vector<std::string> fields, std::vector<std::string>& results, QWidget* parent) :
     QDialog(parent),
     _fields(fields),
     _results(results),

@@ -16,7 +16,7 @@ class FieldEntryDialog : public QDialog
   Q_OBJECT
 
 public:
-  FieldEntryDialog(std::vector<std::string> _fields, std::vector<std::string>& _results, QWidget* parent = 0);
+  FieldEntryDialog(const std::vector<std::string> _fields, std::vector<std::string>& _results, QWidget* parent = 0);
   FieldEntryDialog(const FieldEntryDialog&) = delete;
   FieldEntryDialog& operator=(const FieldEntryDialog&) = delete;
   virtual ~FieldEntryDialog();
