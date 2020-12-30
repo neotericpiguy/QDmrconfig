@@ -3,13 +3,8 @@
 
 #pragma GCC diagnostic ignored "-Weffc++"
 #include <QtWidgets/QDialog>
-#include <QtWidgets/QPlainTextEdit>
-#include <QtWidgets/QTableWidget>
 #include <QtWidgets/QtWidgets>
 #pragma GCC diagnostic pop
-
-#include <iostream>
-#include <memory>
 
 class FieldEntryDialog : public QDialog
 {
