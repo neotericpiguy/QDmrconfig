@@ -18,6 +18,16 @@ ConfFileWidget::~ConfFileWidget()
 {
 }
 
+void ConfFileWidget::setTab(const std::string& tabName)
+{
+  for (int i = 0; i < _tabWidget->count(); i++)
+  {
+    _tabWidget->setCurrentIndex(i);
+    if (_tabWidget->tabText(i) == QString(tabName.c_str()))
+      break;
+  }
+}
+
 void ConfFileWidget::nextTab(int step)
 {
   int tab = _tabWidget->currentIndex() + 2 * _tabWidget->count();

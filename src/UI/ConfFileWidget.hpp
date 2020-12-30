@@ -28,6 +28,7 @@ public:
   void clear();
 
   void nextTab(int step);
+  void setTab(const std::string& tabName);
 
   ConfFile& getConfFile();
 
