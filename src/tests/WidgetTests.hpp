@@ -7,6 +7,7 @@
 #include "BSONDocTests.hpp"
 #include "BSONDocWidget.hpp"
 #include "ConfFileWidget.hpp"
+#include "FieldEntryDialog.hpp"
 #include "SimpleTest.hpp"
 
 class WidgetTests : public QMainWindow
@@ -20,6 +21,7 @@ public:
 
   bool initBsonDocWidget();
   bool initConfFileWidget();
+  bool initFieldEntryDialog();
 
 private:
   QTabWidget* _tabWidget;
