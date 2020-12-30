@@ -8,6 +8,7 @@
 #include <QtWidgets/QtWidgets>
 #pragma GCC diagnostic pop
 
+#include <iostream>
 #include <memory>
 
 class FieldEntryDialog : public QDialog
@@ -19,6 +20,9 @@ public:
   FieldEntryDialog(const FieldEntryDialog&) = delete;
   FieldEntryDialog& operator=(const FieldEntryDialog&) = delete;
   virtual ~FieldEntryDialog();
+
+public slots:
+  virtual void done(int r);
 
 private:
   std::vector<std::string> _fields;

@@ -77,7 +77,12 @@ bool WidgetTests::initFieldEntryDialog()
 {
   std::vector<std::string> fields = {"Last name", "first name"};
   std::vector<std::string> results;
+
   auto dialog = new FieldEntryDialog(fields, results);
+  dialog->setModal(true);
   dialog->exec();
+
+  for (const auto& r : results)
+    std::cout << r << std::endl;
   return true;
 }

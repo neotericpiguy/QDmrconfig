@@ -4,13 +4,8 @@ FieldEntryDialog::FieldEntryDialog(std::vector<std::string> fields, std::vector<
     QDialog(parent),
     _fields(fields),
     _results(results),
-    _resultsLineEdit()
+    _resultsLineEdit(std::vector<QLineEdit*>(_fields.size(), nullptr))
 {
-  //  auto cname = new QLineEdit;
-  //  auto button = new QPushButton(tr("ok"));
-  //  auto Warning = new QLabel(tr("Plase provide the name to new CoverLetter"));
-  //  Warning->hide();
-
   auto vlayout = new QVBoxLayout;
   for (unsigned int i = 0; i < _fields.size(); ++i)
   {
@@ -18,13 +13,11 @@ FieldEntryDialog::FieldEntryDialog(std::vector<std::string> fields, std::vector<
     auto leftLayout = new QHBoxLayout;
 
     leftLayout->addWidget(new QLabel(field.c_str()));
-    // _resultsLineEdit[i] = new QLineEdit();
-    // leftLayout->addWidget(_resultsLineEdit[i]);
-    leftLayout->addWidget(new QLineEdit());
+    _resultsLineEdit[i] = new QLineEdit();
+    leftLayout->addWidget(_resultsLineEdit.at(i));
     vlayout->addLayout(leftLayout);
   }
 
-  //  vlayout->addWidget(Warning);
   setLayout(vlayout);
 }
 
@@ -32,3 +25,12 @@ FieldEntryDialog::~FieldEntryDialog()
 {
 }
 
+void FieldEntryDialog::done(int r)
+{
+  _results.resize(_resultsLineEdit.size());
+
+  for (unsigned int i = 0; i < _results.size(); ++i)
+    _results[i] = _resultsLineEdit[i]->text().toStdString();
+
+  QDialog::done(r);
+}
