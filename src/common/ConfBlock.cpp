@@ -17,13 +17,6 @@ ConfBlock::ConfBlock() :
 {
 }
 
-void ConfBlock::replace(std::string& str, const std::string& from, const std::string& to)
-{
-  size_t start_pos = str.find(from);
-  if (start_pos != std::string::npos)
-    str.replace(start_pos, from.length(), to);
-}
-
 void ConfBlock::setLines(const std::vector<std::string>& lines)
 {
   if (lines.size() == 0)
@@ -31,8 +24,8 @@ void ConfBlock::setLines(const std::vector<std::string>& lines)
 
   _header = lines[0];
 
-  ConfBlock::replace(_header, "# Table of ", "");
-  ConfBlock::replace(_header, "# ", "");
+  StringThings::replace(_header, "# Table of ", "");
+  StringThings::replace(_header, "# ", "");
 
   if (_header == "#")
     _header = "Info";
@@ -64,7 +57,7 @@ void ConfBlock::setLines(const std::vector<std::string>& lines)
       else
       {
         // Use a table
-        _columnName = strToVec(line, ' ');
+        _columnName = StringThings::strToVec(line, ' ');
 
         _header = _columnName[0];
 
@@ -86,7 +79,7 @@ void ConfBlock::setLines(const std::vector<std::string>& lines)
     else
     {
       // A table row
-      _lines.push_back(strToVec(line, ' '));
+      _lines.push_back(StringThings::strToVec(line, ' '));
       _lines.back().resize(_columnStart.size());
     }
   }
@@ -187,32 +180,6 @@ int ConfBlock::getMetaIndex() const
   return _metaIndex;
 }
 
-std::vector<std::string> ConfBlock::strToVec(const std::string& vec, char seperator)
-{
-  if (vec.size() == 0)
-    return {};
-
-  std::string tempVal;
-  std::istringstream vecStream(vec);
-  std::vector<std::string> result;
-
-  while (std::getline(vecStream, tempVal, seperator))
-  {
-    if (!tempVal.empty())
-      result.push_back(tempVal);
-  }
-
-  //  for (std::string item; std::getline(vecStream, item, seperator);)
-  //  {
-  //    std::stringstream tempStream(item);
-  //    tempStream >> tempVal;
-  //    if(!tempVal.empty())
-  //      result.push_back(tempVal);
-  //  }
-
-  return result;
-}
-
 unsigned int ConfBlock::getRowCount() const
 {
   return _lines.size();
@@ -261,7 +228,7 @@ void ConfBlock::metaUpdate()
         std::string dstBlockColumn = targetColumn.substr(0, targetColumn.find("Range"));
 
         std::string temp = targetColumn;
-        ConfBlock::replace(temp, dstBlockColumn + "Range-", "");
+        StringThings::replace(temp, dstBlockColumn + "Range-", "");
 
         while (temp.find("-") != std::string::npos && !temp.empty())
         {
@@ -282,7 +249,7 @@ void ConfBlock::metaUpdate()
             srcBlocks[sourceBlock] = srcBlockColumn;
           }
 
-          ConfBlock::replace(temp, srcBlockHeader + "-" + srcBlockColumn, "");
+          StringThings::replace(temp, srcBlockHeader + "-" + srcBlockColumn, "");
           if (!temp.empty() && temp[0] == '-')
             temp = temp.substr(1, temp.length() - 1);
         }
@@ -292,7 +259,7 @@ void ConfBlock::metaUpdate()
       }
       else if (targetColumn.find("Offset") != std::string::npos)
       {
-        ConfBlock::replace(targetColumn, "Offset", "");
+        StringThings::replace(targetColumn, "Offset", "");
         // auto newValue = _tableWidget->item(row, column)->text().toStdString();
         auto newValue = rows[row][column];
 
@@ -304,15 +271,15 @@ void ConfBlock::metaUpdate()
               newValue[0] == '-')
           {
             int currentVal;
-            ConfBlock::strTo(rows[row - 1][targetColumnIndex], currentVal);
+            StringThings::strTo(currentVal, rows[row - 1][targetColumnIndex]);
 
             int delta;
-            ConfBlock::strTo(newValue, delta);
+            StringThings::strTo(delta, newValue);
 
             auto newOffsetValue = std::to_string(currentVal + delta);
             rows[row][targetColumnIndex] = newOffsetValue;
           }
-          else if (ConfBlock::strTo(newValue, temp))
+          else if (StringThings::strTo(temp, newValue))
           {
             rows[row][targetColumnIndex] = newValue;
           }
@@ -321,7 +288,7 @@ void ConfBlock::metaUpdate()
             std::string column = newValue.substr(0, newValue.find("-"));
             std::string srcHeader = newValue.substr(newValue.find("-") + 1, newValue.length() - 1 - newValue.find("-"));
             std::string srcColumnStr = srcHeader.substr(srcHeader.find("-") + 1, srcHeader.length() - 1 - srcHeader.find("-"));
-            ConfBlock::replace(srcHeader, "-" + srcColumnStr, "");
+            StringThings::replace(srcHeader, "-" + srcColumnStr, "");
 
             if (_confBlocks.find(srcHeader) != _confBlocks.end())
             {
@@ -333,7 +300,7 @@ void ConfBlock::metaUpdate()
                 int temp;
                 for (const auto& line : srcBlock.getLines())
                 {
-                  if (ConfBlock::strTo(line[srcColumn], temp))
+                  if (StringThings::strTo(temp, line[srcColumn]))
                   {
                     if (temp > max)
                       max = temp;
@@ -417,25 +384,25 @@ bool ConfBlock::appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs)
       if (bsonDocKey == "Frequency")
       {
         double temp;
-        if (!strTo(doc.get<std::string>(bsonDocKey), temp))
+        if (!StringThings::strTo(temp, doc.get<std::string>(bsonDocKey)))
           continue;
 
-        results[column] = fixed(temp, 3);
+        results[column] = StringThings::fixed(temp, 3);
       }
       else if (bsonDocKey == "Input Freq")
       {
         double rxFreq;
         double txFreq;
 
-        if (!strTo(doc.get<std::string>("Frequency"), rxFreq) ||
-            !strTo(doc.get<std::string>(bsonDocKey), txFreq))
+        if (!StringThings::strTo(rxFreq, doc.get<std::string>("Frequency")) ||
+            !StringThings::strTo(txFreq, doc.get<std::string>(bsonDocKey)))
           continue;
 
         double offset = txFreq - rxFreq;
         if (offset == 0)
           results[column] = "+0";
         else
-          results[column] = fixed(offset, 1);
+          results[column] = StringThings::fixed(offset, 1);
 
         if (offset > 0)
           results[column] = "+" + results[column];
@@ -484,108 +451,6 @@ std::vector<std::string>& ConfBlock::getRow(int i)
   return _lines[i];
 }
 
-template <typename T>
-std::string ConfBlock::vecToStr(const std::vector<T>& vec, const std::string& seperator)
-{
-  if (vec.size() == 0)
-    return "";
-
-  std::stringstream ss;
-  auto iter = vec.begin();
-
-  ss << *iter;
-
-  iter++;
-
-  for (; iter != vec.end(); iter++)
-    ss << seperator << *iter;
-
-  return ss.str();
-}
-template std::string ConfBlock::vecToStr<int>(const std::vector<int>& vec, const std::string& seperator);
-
-std::string ConfBlock::rangify(std::vector<int>& vec)
-{
-  if (vec.size() == 1)
-    return std::to_string(vec[0]);
-
-  std::sort(vec.begin(), vec.end());
-
-  std::vector<std::string> result;
-  auto vecIter = vec.begin();
-  int startRange = *vecIter;
-  int rangeCounter = startRange;
-
-  vecIter++;
-  for (; vecIter != vec.end(); vecIter++)
-  {
-    if (*vecIter == rangeCounter + 1)
-    {
-      rangeCounter++;
-      if (vecIter == vec.end() - 1)
-      {
-        if (startRange != rangeCounter)
-          result.push_back(std::to_string(startRange) + "-" + std::to_string(rangeCounter));
-        else
-          result.push_back(std::to_string(startRange));
-      }
-    }
-    else
-    {
-      if (startRange != rangeCounter)
-        result.push_back(std::to_string(startRange) + "-" + std::to_string(rangeCounter));
-      else
-        result.push_back(std::to_string(startRange));
-
-      startRange = *vecIter;
-      rangeCounter = startRange;
-
-      if (vecIter == vec.end() - 1)
-      {
-        result.push_back(std::to_string(*vecIter));
-      }
-    }
-  }
-
-  if (result.size())
-    return vecToStr(result, ",");
-  return "";
-}
-
-std::vector<int> ConfBlock::unrangify(const std::string& range)
-{
-  std::stringstream ss(range);
-  std::vector<int> result;
-  int temp;
-
-  if (range == "-")
-    return {};
-  else if (range.find_first_of(",-") == std::string::npos)
-  {
-    ss >> temp;
-    return {temp};
-  }
-
-  while (!ss.eof())
-  {
-    char c;
-    ss >> temp;
-    ss >> c;
-    if (c == ',')
-      result.push_back(temp);
-    else if (c == '-')
-    {
-      int start = temp;
-      int end;
-      ss >> end;
-      for (int i = start; i <= end; i++)
-        result.push_back(i);
-    }
-  }
-
-  return result;
-}
-
 void ConfBlock::updateChannelList(const std::map<ConfBlock*, std::string>& src, ConfBlock& destBlock, const std::string& destColumn)
 {
   std::map<std::string, std::vector<int>> scanIndexToChanMap;
@@ -598,10 +463,10 @@ void ConfBlock::updateChannelList(const std::map<ConfBlock*, std::string>& src, 
     auto sourceColumnIndex = sourceBlock.getColumnIndex(sourceColumn);
     for (const auto& sourceRow : sourceBlock.getLines())  // use getLines because it returns a const vector
     {
-      for (const auto& scanlistNumber : ConfBlock::unrangify(sourceRow[sourceColumnIndex]))
+      for (const auto& scanlistNumber : StringThings::unrangify(sourceRow[sourceColumnIndex]))
       {
         int channel;
-        if (!ConfBlock::strTo(sourceRow[0], channel))
+        if (!StringThings::strTo(channel, sourceRow[0]))
           continue;
 
         auto scanlistNumberStr = std::to_string(scanlistNumber);
@@ -616,7 +481,7 @@ void ConfBlock::updateChannelList(const std::map<ConfBlock*, std::string>& src, 
     std::string range = "";
     if (scanIndexToChanMap.find(destRow[0]) != scanIndexToChanMap.end())
     {
-      range = ConfBlock::rangify(scanIndexToChanMap[destRow[0]]);
+      range = StringThings::rangify(scanIndexToChanMap[destRow[0]]);
     }
 
     destRow[destColumnIndex] = range;

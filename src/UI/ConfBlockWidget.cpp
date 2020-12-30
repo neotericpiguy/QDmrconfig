@@ -196,10 +196,10 @@ void ConfBlockWidget::removeValueAction()
     //    std::string cellText = _tableWidget->item(i, j)->text().toStdString();
     std::string cellText = item->text().toStdString();
 
-    ConfBlock::replaceRegex(cellText, "^" + textToRemove + "$", "");
-    ConfBlock::replaceRegex(cellText, "^" + textToRemove + ",", "");
-    ConfBlock::replaceRegex(cellText, "," + textToRemove + ",", ",");
-    ConfBlock::replaceRegex(cellText, "," + textToRemove + "(,|$)", "");
+    StringThings::replaceRegex(cellText, "^" + textToRemove + "$", "");
+    StringThings::replaceRegex(cellText, "^" + textToRemove + ",", "");
+    StringThings::replaceRegex(cellText, "," + textToRemove + ",", ",");
+    StringThings::replaceRegex(cellText, "," + textToRemove + "(,|$)", "");
     if (cellText == "")
       cellText = "-";
     item->setText(cellText.c_str());
@@ -242,7 +242,7 @@ void ConfBlockWidget::itemUpdate(QTableWidgetItem* item)
   bool needMetaUpdate = false;
   auto newValue = item->text().toStdString();
   newValue.erase(std::remove_if(newValue.begin(), newValue.end(), isspace), newValue.end());
-  ConfBlock::replace(newValue, " ", "_");
+  StringThings::replace(newValue, " ", "_");
 
   for (const auto& item : _tableWidget->selectedItems())
   {
