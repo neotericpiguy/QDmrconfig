@@ -24,28 +24,34 @@ int main(int argc, char** argv)
   parser.addHelpOption();
   parser.addVersionOption();
   parser.addOptions({
-      {{"b", "bson-tests"}, "Only bson parsing tests."},
-      {{"c", "chirpcsv-tests"}, "Only Test Chirp parsing tests."},
-      {{"n", "net-tests"}, "Only net tests."},
+      {{"b", "bsonDocTests"}, "Only bson parsing tests."},
+      {{"c", "chirpCsvTest"}, "Only Test Chirp parsing tests."},
+      {{"n", "netTests"}, "Only net tests."},
       {{"w", "widget-tests"}, "Only widget tests."},
   });
   parser.process(app);
 
   bool allTests = (argc == 1);
 
-  if (parser.isSet("bson-tests") || allTests)
+  if (parser.isSet("bsonDocTests") || allTests)
   {
     BSONDocTests bsonDocTests;
     bsonDocTests.runAllTests();
   }
 
-  if (parser.isSet("chirpcsv-tests") || allTests)
+  if (parser.isSet("chirpCsvTest") || allTests)
   {
     ChirpCsvTests chirpCsvTests;
     chirpCsvTests.runAllTests();
   }
 
-  if (parser.isSet("net-tests"))
+  if (parser.isSet("chirpCsvTest") || allTests)
+  {
+    ChirpCsvTests chirpCsvTests;
+    chirpCsvTests.runAllTests();
+  }
+
+  if (parser.isSet("netTests"))
   {
     NetworkApiTests networkApiTests;
     networkApiTests.fccCallsignSearchTest();
