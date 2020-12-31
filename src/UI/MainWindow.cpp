@@ -83,7 +83,6 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
     auto confFileWidget = dynamic_cast<ConfFileWidget*>(_tabWidget->currentWidget());
     if (confFileWidget)
     {
-      std::cout << "ConfFile widget found" << std::endl;
       confFileWidget->getConfFile().uploadFile();
       statusBar()->showMessage(tr("Uploaded..."), 2000);
     }
@@ -137,7 +136,6 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
           this, &MainWindow::callsignSearchReady);
 
   connect(repeaterBookAct, &QAction::triggered, this, [this]() {
-    std::cout << "in" << std::endl;
     const std::vector<std::string> fields = {
         "callsign",
         "city",
