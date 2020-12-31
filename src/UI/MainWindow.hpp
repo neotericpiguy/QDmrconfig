@@ -7,15 +7,10 @@
 #include <QMainWindow>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include <QNetworkRequest>
 #include <QtWidgets>
 #pragma GCC diagnostic pop
 
 #include <memory>
-
-#include "BSONDoc.hpp"
-#include "BSONDocWidget.hpp"
-#include "ConfFileWidget.hpp"
 
 class MainWindow : public QMainWindow
 {

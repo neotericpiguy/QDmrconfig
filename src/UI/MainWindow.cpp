@@ -1,5 +1,10 @@
 #include "MainWindow.hpp"
 
+#include "BSONDoc.hpp"
+#include "BSONDocWidget.hpp"
+#include "ConfFileWidget.hpp"
+#include "FieldEntryDialog.hpp"
+
 MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploadFile, const std::function<void(const std::string&)>& radioDownloadFile) :
     QMainWindow(),
     _fccSearchString(),
@@ -131,18 +136,46 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
           this, &MainWindow::callsignSearchReady);
 
   connect(repeaterBookAct, &QAction::triggered, this, [this]() {
-    bool ok;
-    QString text = QInputDialog::getText(this, tr("Search Repeater"),
-                                         tr("Nearest City"), QLineEdit::Normal,
-                                         _repeaterBookSearchString.c_str(), &ok);
-    if (!ok)
+    std::cout << "in" << std::endl;
+    const std::vector<std::string> fields = {
+        "callsign",
+        "city",
+        "landmark",
+        "state",
+        "country",
+        "county",
+        "frequency",
+    };
+    std::vector<std::string> results;
+
+    auto dialog = new FieldEntryDialog(fields, results);
+    dialog->setModal(true);
+    dialog->exec();
+
+    if (results.empty())
       return;
 
-    _repeaterBookSearchString = text.toStdString();
+    // if all elements are ""
+    if (std::all_of(results.begin(), results.end(), [](const std::string& i) {
+          return i.empty();
+        }))
+      return;
 
+    std::string urlStr("https://www.repeaterbook.com/api/export.php?");
+    for (unsigned int i = 0; i < results.size(); ++i)
+    {
+      if (results[i] == "")
+        continue;
+
+      results[i] = fields[i] + "=" + results[i];
+    }
+
+    // Remove blank vector elements
+    results.erase(std::remove(results.begin(), results.end(), ""), results.end());
+
+    urlStr += StringThings::vecToStr(results, "&");
     QNetworkRequest request;
-    QString url("https://www.repeaterbook.com/api/export.php?city=" + text);
-    request.setUrl(url);
+    request.setUrl(QString(urlStr.c_str()));
 
     _repeaterBookNetworkManager->get(request);
     statusBar()->showMessage("Searching Repeaterbook");
