@@ -336,75 +336,30 @@ const std::vector<std::vector<std::string>>& ConfBlock::getLines() const
   return _lines;
 }
 
-bool ConfBlock::appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs,
-                                  const std::map<std::string, std::string>& repeaterMap,
-                                  const std::map<std::string, std::string>& columnDefault)
+bool ConfBlock::appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs)
 {
   if (docs.empty())
     return false;
 
+  std::vector<std::string> keys = {"Analog", "Name", "Receive", "Transmit", "Power", "Scan", "TOT", "RO", "Admit", "Squelch", "RxTone", "TxTone", "Width", "#"};
   std::vector<std::string> results;
-
-  for (const auto& doc : docs)
+  for (unsigned int i = 0; i < docs.size(); ++i)
   {
+    const auto& doc = docs.at(i);
     results.clear();
-    results.resize(getColumnCount());
-    for (const auto& keyPair : columnDefault)
+    //    results.resize(getColumnCount());
+
+    std::cout << doc.toString() << std::endl;
+    for (const auto key : keys)
     {
-      int column = getColumnIndex(keyPair.first);
-      if (column == -1)
-        continue;
-      results[column] = keyPair.second;
+      std::cout << key << std::endl;
+      std::cout << doc.get<std::string>(key) << std::endl;
+      results.push_back(doc.get<std::string>(key));
     }
-    for (const auto& keyPair : repeaterMap)
-    {
-      const auto& bsonDocKey = keyPair.second;
-      const auto& confBlockKey = keyPair.first;
-      int column = getColumnIndex(confBlockKey);
-      if (column == -1)
-        continue;
-      if (confBlockKey == "Receive")
-      {
-        double temp;
-        if (!StringThings::strTo(temp, doc.get<std::string>(bsonDocKey)))
-          continue;
-
-        results[column] = StringThings::fixed(temp, 3);
-      }
-      else if (confBlockKey == "Transmit")
-      {
-        double rxFreq;
-        double txFreq;
-
-        if (!StringThings::strTo(rxFreq, doc.get<std::string>(repeaterMap.at("Receive"))) ||
-            !StringThings::strTo(txFreq, doc.get<std::string>(bsonDocKey)))
-          continue;
-
-        double offset = txFreq - rxFreq;
-
-        std::cout << txFreq << " - " << rxFreq << std::endl;
-        if (doc.has("Tone"))
-        {
-          if (doc.get<std::string>("Tone") == "Tone")
-            offset = txFreq;
-          else
-            offset = 0;
-        }
-
-        if (offset == 0)
-          results[column] = "+0.0";
-        else
-          results[column] = StringThings::fixed(offset, 1);
-
-        if (offset > 0)
-          results[column] = "+" + results[column];
-      }
-      else
-      {
-        if (doc.get<std::string>(bsonDocKey) != "")
-          results[column] = doc.get<std::string>(bsonDocKey);
-      }
-    }
+    std::cout << "r: ";
+    for (const auto& r : results)
+      std::cout << r << " ";
+    std::cout << std::endl;
 
     insertRow(getRowCount(), results);
   }

@@ -209,45 +209,45 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
 
       for (int i = 0; i < _tabWidget->count(); i++)
       {
-        auto confFileWidget = dynamic_cast<ConfFileWidget*>(_tabWidget->widget(i));
-        if (!confFileWidget)
-          continue;
-        QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Export",
-                                                                   "Export into Analog " + _tabWidget->tabText(i),
-                                                                   QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes,
-                                                                   QMessageBox::Yes);
-        if (resBtn == QMessageBox::Yes)
-        {
-          auto nameBlockMap = confFileWidget->getConfFile().getNameBlocks();
-          if (nameBlockMap.find("Analog") == nameBlockMap.end())
-          {
-            QMessageBox::critical(this, "Failed to export", tr("Couldn't find Analog tab"));
-            continue;
-          }
-
-          const std::map<std::string, std::string> repeaterMap = {
-              {"Name", "Callsign"},
-              {"Receive", "Frequency"},
-              {"Transmit", "Input Freq"},  // need offset not freq
-              {"TxTone", "PL"},
-          };
-
-          const std::map<std::string, std::string> columnDefault = {
-              {"Power", "High"},
-              {"Scan", "-"},
-              {"TOT", "-"},
-              {"RO", "-"},
-              {"Admit", "-"},
-              {"Squelch", "Normal"},
-              {"RxTone", "-"},
-              {"TxTone", "-"},
-              {"Width", "25"},
-              {"#", "#"},
-          };
-          nameBlockMap.at("Analog")->appendRepeaterDoc(results, repeaterMap, columnDefault);
-          confFileWidget->setTab("Analog");
-          _tabWidget->setCurrentIndex(i);
-        }
+        //        auto confFileWidget = dynamic_cast<ConfFileWidget*>(_tabWidget->widget(i));
+        //        if (!confFileWidget)
+        //          continue;
+        //        QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Export",
+        //                                                                   "Export into Analog " + _tabWidget->tabText(i),
+        //                                                                   QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes,
+        //                                                                   QMessageBox::Yes);
+        //        if (resBtn == QMessageBox::Yes)
+        //        {
+        //          auto nameBlockMap = confFileWidget->getConfFile().getNameBlocks();
+        //          if (nameBlockMap.find("Analog") == nameBlockMap.end())
+        //          {
+        //            QMessageBox::critical(this, "Failed to export", tr("Couldn't find Analog tab"));
+        //            continue;
+        //          }
+        //
+        //          const std::map<std::string, std::string> repeaterMap = {
+        //              {"Name", "Callsign"},
+        //              {"Receive", "Frequency"},
+        //              {"Transmit", "Input Freq"},  // need offset not freq
+        //              {"TxTone", "PL"},
+        //          };
+        //
+        //          const std::map<std::string, std::string> columnDefault = {
+        //              {"Power", "High"},
+        //              {"Scan", "-"},
+        //              {"TOT", "-"},
+        //              {"RO", "-"},
+        //              {"Admit", "-"},
+        //              {"Squelch", "Normal"},
+        //              {"RxTone", "-"},
+        //              {"TxTone", "-"},
+        //              {"Width", "25"},
+        //              {"#", "#"},
+        //          };
+        //          nameBlockMap.at("Analog")->appendRepeaterDoc(results, repeaterMap, columnDefault);
+        //          confFileWidget->setTab("Analog");
+        //          _tabWidget->setCurrentIndex(i);
+        // }
       }
     }
     else

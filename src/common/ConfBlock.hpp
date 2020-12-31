@@ -35,9 +35,7 @@ public:
   int removeRow(int);
 
   // BSONDocs
-  bool appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs,
-                         const std::map<std::string, std::string>& repeaterMap,
-                         const std::map<std::string, std::string>& columnDefault);
+  bool appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs);
 
   // Map getter/setter
   std::map<std::string, std::string>& getMap();

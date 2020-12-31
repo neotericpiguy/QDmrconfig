@@ -20,6 +20,7 @@ public:
 
   void resize(size_t n);
   size_t size() const;
+  std::vector<Mongo::BSONDoc> getAnalogFormat() const;
 
 private:
   std::string _filename;
