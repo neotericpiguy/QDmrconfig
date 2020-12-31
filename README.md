@@ -6,6 +6,11 @@ Qt Frontend to https://github.com/sergev/dmrconfig
 Basically a glorified configuration file editor. Only really used and tested
 with a BTECH DMR 6x2
 
+### Chirp Import
+Import an exported csv from chirp into QDmrconfig. Handy for when you want to grab your friend's chirp frequency list and import it into its own zone in your higher capacity DMR radio.
+
+<img src="https://raw.githubusercontent.com/neotericpiguy/i/master/QDmrconfig/ChirpImport.gif" width="650">
+
 ### Filtering
 Filtering is possible thanks to regex. Filter any column by regex string if
 needed. This is handy when you want to find certain scanlists or zones
