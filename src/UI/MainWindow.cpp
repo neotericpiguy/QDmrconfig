@@ -131,8 +131,7 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
     _networkManager->get(request);
     statusBar()->showMessage("Searching fcc callsign: " + text);
   });
-  connect(_networkManager, &QNetworkAccessManager::finished,
-          this, &MainWindow::callsignSearchReady);
+  connect(_networkManager, &QNetworkAccessManager::finished, this, &MainWindow::callsignSearchReady);
 
   connect(repeaterBookAct, &QAction::triggered, this, [this]() {
     const std::vector<std::string> fields = {
@@ -204,49 +203,38 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
     auto bsonDocWidget = dynamic_cast<BSONDocWidget*>(_tabWidget->currentWidget());
     if (bsonDocWidget)
     {
-      auto results = bsonDocWidget->getVisibleDocs();
+      std::vector<Mongo::BSONDoc> results = bsonDocWidget->getVisibleDocs();
 
       for (int i = 0; i < _tabWidget->count(); i++)
       {
-        //        auto confFileWidget = dynamic_cast<ConfFileWidget*>(_tabWidget->widget(i));
-        //        if (!confFileWidget)
-        //          continue;
-        //        QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Export",
-        //                                                                   "Export into Analog " + _tabWidget->tabText(i),
-        //                                                                   QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes,
-        //                                                                   QMessageBox::Yes);
-        //        if (resBtn == QMessageBox::Yes)
-        //        {
-        //          auto nameBlockMap = confFileWidget->getConfFile().getNameBlocks();
-        //          if (nameBlockMap.find("Analog") == nameBlockMap.end())
-        //          {
-        //            QMessageBox::critical(this, "Failed to export", tr("Couldn't find Analog tab"));
-        //            continue;
-        //          }
-        //
-        //          const std::map<std::string, std::string> repeaterMap = {
-        //              {"Name", "Callsign"},
-        //              {"Receive", "Frequency"},
-        //              {"Transmit", "Input Freq"},  // need offset not freq
-        //              {"TxTone", "PL"},
-        //          };
-        //
-        //          const std::map<std::string, std::string> columnDefault = {
-        //              {"Power", "High"},
-        //              {"Scan", "-"},
-        //              {"TOT", "-"},
-        //              {"RO", "-"},
-        //              {"Admit", "-"},
-        //              {"Squelch", "Normal"},
-        //              {"RxTone", "-"},
-        //              {"TxTone", "-"},
-        //              {"Width", "25"},
-        //              {"#", "#"},
-        //          };
-        //          nameBlockMap.at("Analog")->appendRepeaterDoc(results, repeaterMap, columnDefault);
-        //          confFileWidget->setTab("Analog");
-        //          _tabWidget->setCurrentIndex(i);
-        // }
+        auto confFileWidget = dynamic_cast<ConfFileWidget*>(_tabWidget->widget(i));
+        if (!confFileWidget)
+          continue;
+        QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Export",
+                                                                   "Export into Analog " + _tabWidget->tabText(i),
+                                                                   QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes,
+                                                                   QMessageBox::Yes);
+        if (resBtn == QMessageBox::Yes)
+        {
+          auto nameBlockMap = confFileWidget->getConfFile().getNameBlocks();
+          if (nameBlockMap.find("Analog") == nameBlockMap.end())
+          {
+            QMessageBox::critical(this, "Failed to export", tr("Couldn't find Analog tab"));
+            continue;
+          }
+
+          Mongo::BSONDoc tempDoc;
+          tempDoc.append("count", (unsigned)results.size());
+          tempDoc.append("results", results);
+          std::cout << tempDoc.toString() << std::endl;
+
+          RepeaterBook repeaterBook;
+          repeaterBook.fromStdString(tempDoc.toString());
+
+          nameBlockMap.at("Analog")->appendRepeaterDoc(repeaterBook.getAnalogFormat());
+          confFileWidget->setTab("Analog");
+          _tabWidget->setCurrentIndex(i);
+        }
       }
     }
     else
