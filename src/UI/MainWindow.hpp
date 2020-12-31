@@ -12,6 +12,7 @@
 #include <QtWidgets>
 #pragma GCC diagnostic pop
 
+#include "ChirpCsv.hpp"
 #include "RepeaterBook.hpp"
 
 class MainWindow : public QMainWindow
