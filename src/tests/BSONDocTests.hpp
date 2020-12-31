@@ -2,6 +2,7 @@
 #define BSONDOCTESTS_HPP
 
 #include "BSONDoc.hpp"
+#include "RepeaterBookTests.hpp"
 #include "SimpleTest.hpp"
 
 class BSONDocTests : public SimpleTest
@@ -19,6 +20,5 @@ public:
   bool repeaterResultsTest();
 
   static const std::string str;
-  static const std::string repeaterStr;
 };
 #endif

@@ -131,7 +131,6 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
     _networkManager->get(request);
     statusBar()->showMessage("Searching fcc callsign: " + text);
   });
-
   connect(_networkManager, &QNetworkAccessManager::finished,
           this, &MainWindow::callsignSearchReady);
 

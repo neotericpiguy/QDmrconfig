@@ -3,10 +3,8 @@
 WidgetTests::WidgetTests() :
     QMainWindow(),
     _tabWidget(new QTabWidget(this)),
-    _layout(new QVBoxLayout),
-    _bsonDocs(),
-    _bsonDocWidget(new BSONDocWidget(_bsonDocs)),
-    _confFileWidget(new ConfFileWidget(nullptr, nullptr))
+    _layout(new QVBoxLayout)
+//    _confFileWidget(new ConfFileWidget(nullptr, nullptr))
 {
   setCentralWidget(new QLineEdit("text"));
   _layout->addWidget(_tabWidget);
@@ -22,9 +20,9 @@ WidgetTests::WidgetTests() :
     initFieldEntryDialog();
   });
 
-  initConfFileWidget();
-  initBsonDocWidget();
   initChirpCsvTests();
+  initBsonDocWidget();
+  initConfFileWidget();
 }
 
 WidgetTests::~WidgetTests()
@@ -33,25 +31,23 @@ WidgetTests::~WidgetTests()
 
 bool WidgetTests::initBsonDocWidget()
 {
-  _tabWidget->addTab(_bsonDocWidget, "BSONDocWidget");
-
-  Mongo::BSONDoc temp(BSONDocTests::repeaterStr);
+  Mongo::BSONDoc temp(RepeaterBookTests::repeaterStr);
   TEST(temp.has("results"), ==, true);
   TEST(temp.get<int32_t>("count"), ==, 51);
-  _bsonDocs = temp.get<std::vector<Mongo::BSONDoc>>("results");
-  _bsonDocs.resize(temp.get<int32_t>("count"));
+  auto bsonDocs = temp.get<std::vector<Mongo::BSONDoc>>("results");
+  bsonDocs.resize(temp.get<int32_t>("count"));
 
-  _bsonDocWidget->update();
+  _tabWidget->addTab(new BSONDocWidget(bsonDocs), __PRETTY_FUNCTION__);
   return true;
 }
 
 bool WidgetTests::initConfFileWidget()
 {
-  _tabWidget->addTab(_confFileWidget, "ConfFileWidget");
-
-  auto& confFile = _confFileWidget->getConfFile();
-  confFile.loadFile("examples/btech-6x2.conf");
-  _confFileWidget->updateTabs();
+  //  _tabWidget->addTab(_confFileWidget, "ConfFileWidget");
+  //
+  //  auto& confFile = _confFileWidget->getConfFile();
+  //  confFile.loadFile("examples/btech-6x2.conf");
+  //  _confFileWidget->updateTabs();
 
   //  auto nameBlockMap = confFile.getNameBlocks();
   //
@@ -110,17 +106,22 @@ bool WidgetTests::initFieldEntryDialog()
 
 bool WidgetTests::initChirpCsvTests()
 {
-  //auto tempDoc = temp.get<std::vector<Mongo::BSONDoc>>("results");
-  //tempDoc.resize(temp.get<int32_t>("count"));
+  auto confFileWidget = new ConfFileWidget(nullptr, nullptr);
+  auto& confFile = confFileWidget->getConfFile();
+  confFile.loadFile("examples/btech-6x2.conf");
+  confFileWidget->updateTabs();
 
   ChirpCsv chirpCsv;
   TEST(chirpCsv.open("./examples/not_exist_File"), ==, false);
   TEST(chirpCsv.open("./examples/Baofeng_UV-5R_20200529.csv"), ==, true);
   TEST(chirpCsv.size(), ==, 124);
+
   auto tempDocs = chirpCsv.getAnalogFormat();
   TEST(tempDocs.size(), ==, 124);
-  auto nameBlockMap = _confFileWidget->getConfFile().getNameBlocks();
-  auto& confBlock = *nameBlockMap.at("Analog");
+
+  auto& confBlock = *(confFile.getNameBlocks()).at("Analog");
   confBlock.appendRepeaterDoc(tempDocs);
+
+  _tabWidget->addTab(confFileWidget, __PRETTY_FUNCTION__);
   return true;
 }

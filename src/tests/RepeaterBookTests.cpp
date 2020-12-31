@@ -15,12 +15,13 @@ RepeaterBookTests::~RepeaterBookTests()
 
 bool RepeaterBookTests::openParse()
 {
-  RepeaterBook chirpCsv;
-  TEST(chirpCsv.open("./examples/not_exist_File"), ==, false);
-  TEST(chirpCsv.open("./examples/Baofeng_UV-5R_20200529.csv"), ==, true);
-  TEST(chirpCsv.size(), ==, 124);
-  auto docs = chirpCsv.getAnalogFormat();
-  TEST(docs.size(), ==, 124);
+  RepeaterBook repeaterBook;
+  TEST(repeaterBook.open("./examples/not_exist_File"), ==, false);
+  TEST(repeaterBook.open("./examples/Baofeng_UV-5R_20200529.csv"), ==, false);
+  TEST(repeaterBook.fromStdString(RepeaterBookTests::repeaterStr), ==, true);
+  TEST(repeaterBook.size(), ==, 51);
+  auto docs = repeaterBook.getAnalogFormat();
+  TEST(docs.size(), ==, 51);
 
   // Have the necessary keys to perform a append
   std::vector<std::string> keys = {"Analog", "Name", "Receive", "Transmit", "Power", "Scan", "TOT", "RO", "Admit", "Squelch", "RxTone", "TxTone", "Width", "#"};

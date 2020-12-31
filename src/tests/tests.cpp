@@ -9,6 +9,7 @@
 #include "BSONDocTests.hpp"
 #include "ChirpCsvTests.cpp"
 #include "NetworkApiTests.hpp"
+#include "RepeaterBookTests.cpp"
 #include "SimpleTest.hpp"
 #include "WidgetTests.cpp"
 
@@ -26,6 +27,7 @@ int main(int argc, char** argv)
   parser.addOptions({
       {{"b", "bsonDocTests"}, "Only bson parsing tests."},
       {{"c", "chirpCsvTest"}, "Only Test Chirp parsing tests."},
+      {{"r", "repeaterBookTests"}, "Only Test RepeaterBook parsing tests."},
       {{"n", "netTests"}, "Only net tests."},
       {{"w", "widget-tests"}, "Only widget tests."},
   });
@@ -45,9 +47,9 @@ int main(int argc, char** argv)
     chirpCsvTests.runAllTests();
   }
 
-  if (parser.isSet("chirpCsvTest") || allTests)
+  if (parser.isSet("repeaterBookTests") || allTests)
   {
-    ChirpCsvTests chirpCsvTests;
+    RepeaterBookTests chirpCsvTests;
     chirpCsvTests.runAllTests();
   }
 

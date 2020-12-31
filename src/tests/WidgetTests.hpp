@@ -28,12 +28,8 @@ private:
   QTabWidget* _tabWidget;
   QVBoxLayout* _layout;
 
-  // BSONDocWidget
-  std::vector<Mongo::BSONDoc> _bsonDocs;
-  BSONDocWidget* _bsonDocWidget;
-
   // ConfFileWidget
-  ConfFileWidget* _confFileWidget;
+  //  ConfFileWidget* _confFileWidget;
 };
 
 #endif
