@@ -178,7 +178,7 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
     request.setUrl(QString(urlStr.c_str()));
 
     _repeaterBookNetworkManager->get(request);
-    statusBar()->showMessage("Searching Repeaterbook");
+    statusBar()->showMessage("Searching Repeaterbook:" + QString(urlStr.c_str()));
   });
 
   connect(_repeaterBookNetworkManager, &QNetworkAccessManager::finished,
@@ -303,6 +303,8 @@ void MainWindow::repeaterBookSlotReadyRead(QNetworkReply* reply)
 {
   QString replyStr(reply->readAll());
   reply->deleteLater();
+  std::string url = reply->url().toString().toStdString();
+  url = url.substr(url.rfind("?") + 1, url.length() - url.rfind("?") - 1);
 
   Mongo::BSONDoc results(replyStr.toStdString());
 
@@ -319,7 +321,7 @@ void MainWindow::repeaterBookSlotReadyRead(QNetworkReply* reply)
   entries.resize(count);
 
   statusBar()->showMessage(tr("Repeater Results: ") + QString::number(count));
-  _tabWidget->addTab(new BSONDocWidget(entries), QString("Repeater search: ") + QString(_repeaterBookSearchString.c_str()));
+  _tabWidget->addTab(new BSONDocWidget(entries), QString("Repeater search: ") + QString(url.c_str()));
   _tabWidget->setCurrentIndex(_tabWidget->count() - 1);
 }
 
