@@ -21,6 +21,7 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
   layout->addWidget(_tabWidget);
   centralWidget()->setLayout(layout);
   _tabWidget->setTabsClosable(true);
+
   QMenu* fileMenu = menuBar()->addMenu(tr("&File"));
   QAction* openAct = new QAction(tr("&Open"), this);
   openAct->setShortcuts(QKeySequence::Open);
@@ -180,12 +181,26 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
     _repeaterBookNetworkManager->get(request);
     statusBar()->showMessage("Searching Repeaterbook:" + QString(urlStr.c_str()));
   });
-
   connect(_repeaterBookNetworkManager, &QNetworkAccessManager::finished,
           this, &MainWindow::repeaterBookSlotReadyRead);
 
   connect(closeAct, &QAction::triggered, this, [this]() {
-    close();
+    QWidget* tab = _tabWidget->currentWidget();
+    auto confFileWidget = dynamic_cast<ConfFileWidget*>(tab);
+    if (confFileWidget && confFileWidget->getConfFile().isModified())
+    {
+      QMessageBox::StandardButton resBtn = QMessageBox::question(this, "QDmrconfig",
+                                                                 "Save changes",
+                                                                 QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes,
+                                                                 QMessageBox::Yes);
+      if (resBtn == QMessageBox::Yes)
+      {
+        confFileWidget->getConfFile().saveFile();
+      }
+    }
+    disconnect(tab, 0, 0, 0);
+    tab->close();
+    delete tab;
   });
 
   connect(exportAct, &QAction::triggered, this, [this]() {
@@ -225,25 +240,17 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
   });
 
   connect(changeTabAct, &QAction::triggered, this, [this]() {
-    if (_tabWidget->count() == 0)
+    auto confFileWidget = dynamic_cast<ConfFileWidget*>(_tabWidget->currentWidget());
+    if (!confFileWidget)
       return;
-
-    int step = 1;
-    int tab = _tabWidget->currentIndex() + 2 * _tabWidget->count();
-    tab = (tab + step) % _tabWidget->count();
-
-    _tabWidget->setCurrentIndex(tab);
+    confFileWidget->nextTab(+1);
   });
 
   connect(backTabAct, &QAction::triggered, this, [this]() {
-    if (_tabWidget->count() == 0)
+    auto confFileWidget = dynamic_cast<ConfFileWidget*>(_tabWidget->currentWidget());
+    if (!confFileWidget)
       return;
-
-    int step = -1;
-    int tab = _tabWidget->currentIndex() + 2 * _tabWidget->count();
-    tab = (tab + step) % _tabWidget->count();
-
-    _tabWidget->setCurrentIndex(tab);
+    confFileWidget->nextTab(-1);
   });
 
   connect(_tabWidget, &QTabWidget::tabCloseRequested, this, [this](int index) {
