@@ -118,6 +118,7 @@ bool WidgetTests::initChirpCsvTests()
   TEST(chirpCsv.open("./examples/Baofeng_UV-5R_20200529.csv"), ==, true);
   TEST(chirpCsv.size(), ==, 124);
   auto tempDocs = chirpCsv.getAnalogFormat();
+  TEST(tempDocs.size(), ==, 124);
   auto nameBlockMap = _confFileWidget->getConfFile().getNameBlocks();
   auto& confBlock = *nameBlockMap.at("Analog");
   confBlock.appendRepeaterDoc(tempDocs);

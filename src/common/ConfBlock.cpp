@@ -347,19 +347,11 @@ bool ConfBlock::appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs)
   {
     const auto& doc = docs.at(i);
     results.clear();
-    //    results.resize(getColumnCount());
 
-    std::cout << doc.toString() << std::endl;
     for (const auto key : keys)
     {
-      std::cout << key << std::endl;
-      std::cout << doc.get<std::string>(key) << std::endl;
       results.push_back(doc.get<std::string>(key));
     }
-    std::cout << "r: ";
-    for (const auto& r : results)
-      std::cout << r << " ";
-    std::cout << std::endl;
 
     insertRow(getRowCount(), results);
   }

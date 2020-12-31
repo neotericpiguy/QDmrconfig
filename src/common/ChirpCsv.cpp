@@ -84,22 +84,30 @@ std::vector<Mongo::BSONDoc> ChirpCsv::getAnalogFormat() const
     temp.append("Width", "25");
     temp.append("#", "#");
 
-    double rTone;
-    if (!StringThings::strTo(rTone, entry.get<std::string>("cToneFreq")))
-      continue;
-    if (rTone != 88.5)
-      temp.append("RxTone", StringThings::fixed(rTone, 3));
+    if (entry.get<std::string>("Tone") == "DTCS")
+    {
+      std::string code = "D" + entry.get<std::string>("DtcsCode") + entry.get<std::string>("DtcsPolarity")[0];
+      temp.append("RxTone", code);
+      temp.append("TxTone", code);
+    }
     else
-      temp.append("RxTone", "-");
+    {
+      double rTone;
+      if (!StringThings::strTo(rTone, entry.get<std::string>("cToneFreq")))
+        continue;
+      if (rTone != 88.5)
+        temp.append("RxTone", StringThings::fixed(rTone, 1));
+      else
+        temp.append("RxTone", "-");
 
-    double cTone;
-    if (!StringThings::strTo(cTone, entry.get<std::string>("rToneFreq")))
-      continue;
-    if (cTone != 88.5)
-      temp.append("TxTone", StringThings::fixed(cTone, 3));
-    else
-      temp.append("TxTone", "-");
-
+      double cTone;
+      if (!StringThings::strTo(cTone, entry.get<std::string>("rToneFreq")))
+        continue;
+      if (cTone != 88.5)
+        temp.append("TxTone", StringThings::fixed(cTone, 1));
+      else
+        temp.append("TxTone", "-");
+    }
     results.push_back(temp);
   }
   return results;
