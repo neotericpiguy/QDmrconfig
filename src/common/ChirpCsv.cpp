@@ -49,9 +49,12 @@ std::vector<Mongo::BSONDoc> ChirpCsv::getAnalogFormat() const
   {
     if (!entry.has("Name") ||
         !entry.has("Frequency") ||
-        !entry.has("Duplex") ||
         !entry.has("Offset") ||
-        !entry.has("Name"))
+        !entry.has("Duplex") ||
+        !entry.has("Tone") ||
+        !entry.has("DtcsCode") ||
+        !entry.has("cToneFreq") ||
+        !entry.has("rToneFreq"))
       continue;
 
     Mongo::BSONDoc temp;
