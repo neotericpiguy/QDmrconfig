@@ -3,13 +3,10 @@
 #pragma GCC diagnostic ignored "-Weffc++"
 #include <QtCore/QCommandLineOption>
 #include <QtCore/QCommandLineParser>
-#include <QtCore/QtDebug>
 #include <QtWidgets/QApplication>
 #pragma GCC diagnostic pop
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
+#include <iostream>
 
 #include "MainWindow.hpp"
 #include "StringThings.hpp"
