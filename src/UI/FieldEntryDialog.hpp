@@ -18,6 +18,7 @@ public:
 
 public slots:
   virtual void accept();
+  virtual void reject();
 
 private:
   std::vector<std::string> _fields;

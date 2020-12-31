@@ -151,6 +151,7 @@ std::string vecToStr(const std::vector<T>& vec, const std::string& seperator)
   return ss.str();
 }
 template std::string vecToStr<int>(const std::vector<int>& vec, const std::string& seperator);
+template std::string vecToStr<std::string>(const std::vector<std::string>& vec, const std::string& seperator);
 
 template <typename T>
 bool strTo(T& retval, const std::string& tempStr)

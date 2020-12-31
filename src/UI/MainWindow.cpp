@@ -1,5 +1,10 @@
 #include "MainWindow.hpp"
 
+#include "BSONDoc.hpp"
+#include "BSONDocWidget.hpp"
+#include "ConfFileWidget.hpp"
+#include "FieldEntryDialog.hpp"
+
 MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploadFile, const std::function<void(const std::string&)>& radioDownloadFile) :
     QMainWindow(),
     _fccSearchString(),
@@ -16,6 +21,7 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
   layout->addWidget(_tabWidget);
   centralWidget()->setLayout(layout);
   _tabWidget->setTabsClosable(true);
+
   QMenu* fileMenu = menuBar()->addMenu(tr("&File"));
   QAction* openAct = new QAction(tr("&Open"), this);
   openAct->setShortcuts(QKeySequence::Open);
@@ -77,7 +83,6 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
     auto confFileWidget = dynamic_cast<ConfFileWidget*>(_tabWidget->currentWidget());
     if (confFileWidget)
     {
-      std::cout << "ConfFile widget found" << std::endl;
       confFileWidget->getConfFile().uploadFile();
       statusBar()->showMessage(tr("Uploaded..."), 2000);
     }
@@ -131,28 +136,69 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
           this, &MainWindow::callsignSearchReady);
 
   connect(repeaterBookAct, &QAction::triggered, this, [this]() {
-    bool ok;
-    QString text = QInputDialog::getText(this, tr("Search Repeater"),
-                                         tr("Nearest City"), QLineEdit::Normal,
-                                         _repeaterBookSearchString.c_str(), &ok);
-    if (!ok)
+    const std::vector<std::string> fields = {
+        "callsign",
+        "city",
+        "landmark",
+        "state",
+        "country",
+        "county",
+        "frequency",
+    };
+    std::vector<std::string> results;
+
+    auto dialog = new FieldEntryDialog(fields, results);
+    dialog->setModal(true);
+    dialog->exec();
+
+    if (results.empty())
       return;
 
-    _repeaterBookSearchString = text.toStdString();
+    // if all elements are ""
+    if (std::all_of(results.begin(), results.end(), [](const std::string& i) {
+          return i.empty();
+        }))
+      return;
 
+    std::string urlStr("https://www.repeaterbook.com/api/export.php?");
+    for (unsigned int i = 0; i < results.size(); ++i)
+    {
+      if (results[i] == "")
+        continue;
+
+      results[i] = fields[i] + "=" + results[i];
+    }
+
+    // Remove blank vector elements
+    results.erase(std::remove(results.begin(), results.end(), ""), results.end());
+
+    urlStr += StringThings::vecToStr(results, "&");
     QNetworkRequest request;
-    QString url("https://www.repeaterbook.com/api/export.php?city=" + text);
-    request.setUrl(url);
+    request.setUrl(QString(urlStr.c_str()));
 
     _repeaterBookNetworkManager->get(request);
-    statusBar()->showMessage("Searching Repeaterbook");
+    statusBar()->showMessage("Searching Repeaterbook:" + QString(urlStr.c_str()));
   });
-
   connect(_repeaterBookNetworkManager, &QNetworkAccessManager::finished,
           this, &MainWindow::repeaterBookSlotReadyRead);
 
   connect(closeAct, &QAction::triggered, this, [this]() {
-    close();
+    QWidget* tab = _tabWidget->currentWidget();
+    auto confFileWidget = dynamic_cast<ConfFileWidget*>(tab);
+    if (confFileWidget && confFileWidget->getConfFile().isModified())
+    {
+      QMessageBox::StandardButton resBtn = QMessageBox::question(this, "QDmrconfig",
+                                                                 "Save changes",
+                                                                 QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes,
+                                                                 QMessageBox::Yes);
+      if (resBtn == QMessageBox::Yes)
+      {
+        confFileWidget->getConfFile().saveFile();
+      }
+    }
+    disconnect(tab, 0, 0, 0);
+    tab->close();
+    delete tab;
   });
 
   connect(exportAct, &QAction::triggered, this, [this]() {
@@ -192,25 +238,17 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
   });
 
   connect(changeTabAct, &QAction::triggered, this, [this]() {
-    if (_tabWidget->count() == 0)
+    auto confFileWidget = dynamic_cast<ConfFileWidget*>(_tabWidget->currentWidget());
+    if (!confFileWidget)
       return;
-
-    int step = 1;
-    int tab = _tabWidget->currentIndex() + 2 * _tabWidget->count();
-    tab = (tab + step) % _tabWidget->count();
-
-    _tabWidget->setCurrentIndex(tab);
+    confFileWidget->nextTab(+1);
   });
 
   connect(backTabAct, &QAction::triggered, this, [this]() {
-    if (_tabWidget->count() == 0)
+    auto confFileWidget = dynamic_cast<ConfFileWidget*>(_tabWidget->currentWidget());
+    if (!confFileWidget)
       return;
-
-    int step = -1;
-    int tab = _tabWidget->currentIndex() + 2 * _tabWidget->count();
-    tab = (tab + step) % _tabWidget->count();
-
-    _tabWidget->setCurrentIndex(tab);
+    confFileWidget->nextTab(-1);
   });
 
   connect(_tabWidget, &QTabWidget::tabCloseRequested, this, [this](int index) {
@@ -270,6 +308,8 @@ void MainWindow::repeaterBookSlotReadyRead(QNetworkReply* reply)
 {
   QString replyStr(reply->readAll());
   reply->deleteLater();
+  std::string url = reply->url().toString().toStdString();
+  url = url.substr(url.rfind("?") + 1, url.length() - url.rfind("?") - 1);
 
   Mongo::BSONDoc results(replyStr.toStdString());
 
@@ -286,7 +326,7 @@ void MainWindow::repeaterBookSlotReadyRead(QNetworkReply* reply)
   entries.resize(count);
 
   statusBar()->showMessage(tr("Repeater Results: ") + QString::number(count));
-  _tabWidget->addTab(new BSONDocWidget(entries), QString("Repeater search: ") + QString(_repeaterBookSearchString.c_str()));
+  _tabWidget->addTab(new BSONDocWidget(entries), QString("Repeater search: ") + QString(url.c_str()));
   _tabWidget->setCurrentIndex(_tabWidget->count() - 1);
 }
 
