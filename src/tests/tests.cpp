@@ -7,6 +7,7 @@
 #pragma GCC diagnostic pop
 
 #include "BSONDocTests.hpp"
+#include "ChirpCsvTests.cpp"
 #include "NetworkApiTests.hpp"
 #include "SimpleTest.hpp"
 #include "WidgetTests.cpp"
@@ -23,8 +24,9 @@ int main(int argc, char** argv)
   parser.addHelpOption();
   parser.addVersionOption();
   parser.addOptions({
-      {{"n", "net-tests"}, "Only net tests."},
       {{"b", "bson-tests"}, "Only bson parsing tests."},
+      {{"c", "chirpcsv-tests"}, "Only Test Chirp parsing tests."},
+      {{"n", "net-tests"}, "Only net tests."},
       {{"w", "widget-tests"}, "Only widget tests."},
   });
   parser.process(app);
@@ -35,6 +37,12 @@ int main(int argc, char** argv)
   {
     BSONDocTests bsonDocTests;
     bsonDocTests.runAllTests();
+  }
+
+  if (parser.isSet("chirpcsv-tests") || allTests)
+  {
+    ChirpCsvTests chirpCsvTests;
+    chirpCsvTests.runAllTests();
   }
 
   if (parser.isSet("net-tests"))
