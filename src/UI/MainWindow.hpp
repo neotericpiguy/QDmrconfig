@@ -3,6 +3,8 @@
 
 #include <stdlib.h>
 
+#include <memory>
+
 #pragma GCC diagnostic ignored "-Weffc++"
 #include <QMainWindow>
 #include <QNetworkAccessManager>
@@ -10,7 +12,8 @@
 #include <QtWidgets>
 #pragma GCC diagnostic pop
 
-#include <memory>
+#include "ChirpCsv.hpp"
+#include "RepeaterBook.hpp"
 
 class MainWindow : public QMainWindow
 {

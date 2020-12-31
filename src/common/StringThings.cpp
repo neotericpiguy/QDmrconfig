@@ -80,7 +80,7 @@ std::string rangify(std::vector<int>& vec)
   return "";
 }
 
-std::vector<std::string> strToVec(const std::string& vec, char seperator)
+std::vector<std::string> strToVec(const std::string& vec, char seperator, bool skipEmpty)
 {
   if (vec.size() == 0)
     return {};
@@ -91,7 +91,7 @@ std::vector<std::string> strToVec(const std::string& vec, char seperator)
 
   while (std::getline(vecStream, tempVal, seperator))
   {
-    if (!tempVal.empty())
+    if (!tempVal.empty() || !skipEmpty)
       result.push_back(tempVal);
   }
 

@@ -3,10 +3,7 @@
 WidgetTests::WidgetTests() :
     QMainWindow(),
     _tabWidget(new QTabWidget(this)),
-    _layout(new QVBoxLayout),
-    _bsonDocs(),
-    _bsonDocWidget(new BSONDocWidget(_bsonDocs)),
-    _confFileWidget(new ConfFileWidget(nullptr, nullptr))
+    _layout(new QVBoxLayout)
 {
   setCentralWidget(new QLineEdit("text"));
   _layout->addWidget(_tabWidget);
@@ -22,7 +19,8 @@ WidgetTests::WidgetTests() :
     initFieldEntryDialog();
   });
 
-  initConfFileWidget();
+  repeaterBookExport();
+  initChirpCsvTests();
   initBsonDocWidget();
 }
 
@@ -32,44 +30,47 @@ WidgetTests::~WidgetTests()
 
 bool WidgetTests::initBsonDocWidget()
 {
-  _tabWidget->addTab(_bsonDocWidget, "BSONDocWidget");
-
-  Mongo::BSONDoc temp(BSONDocTests::repeaterStr);
+  Mongo::BSONDoc temp(RepeaterBookTests::repeaterStr);
   TEST(temp.has("results"), ==, true);
   TEST(temp.get<int32_t>("count"), ==, 51);
-  _bsonDocs = temp.get<std::vector<Mongo::BSONDoc>>("results");
-  _bsonDocs.resize(temp.get<int32_t>("count"));
+  auto bsonDocs = temp.get<std::vector<Mongo::BSONDoc>>("results");
+  bsonDocs.resize(temp.get<int32_t>("count"));
 
-  _bsonDocWidget->update();
+  _tabWidget->addTab(new BSONDocWidget(bsonDocs), __PRETTY_FUNCTION__);
   return true;
 }
 
-bool WidgetTests::initConfFileWidget()
+bool WidgetTests::repeaterBookExport()
 {
-  _tabWidget->addTab(_confFileWidget, "ConfFileWidget");
-
-  auto& confFile = _confFileWidget->getConfFile();
+  auto confFileWidget = new ConfFileWidget(nullptr, nullptr);
+  auto& confFile = confFileWidget->getConfFile();
   confFile.loadFile("examples/btech-6x2.conf");
-  _confFileWidget->updateTabs();
+  confFileWidget->updateTabs();
 
-  auto nameBlockMap = confFile.getNameBlocks();
+  RepeaterBook repeaterBook;
+  TEST(repeaterBook.open("./examples/not_exist_File"), ==, false);
+  TEST(repeaterBook.open("./examples/Baofeng_UV-5R_20200529.csv"), ==, false);
+  TEST(repeaterBook.fromStdString(RepeaterBookTests::repeaterStr), ==, true);
+  TEST(repeaterBook.size(), ==, 51);
+  auto docs = repeaterBook.getAnalogFormat();
+  TEST(docs.size(), ==, 51);
 
-  TEST_EXP(nameBlockMap.find("Analog") != nameBlockMap.end());
+  // Have the necessary keys to perform a append
+  std::vector<std::string> keys = {"Analog", "Name", "Receive", "Transmit", "Power", "Scan", "TOT", "RO", "Admit", "Squelch", "RxTone", "TxTone", "Width", "#"};
+  std::sort(keys.begin(), keys.end());
 
-  if (nameBlockMap.find("Analog") == nameBlockMap.end())
-    return false;
+  auto docKeys = docs[0].getKeys();
+  std::sort(docKeys.begin(), docKeys.end());
+  TEST(std::equal(keys.begin(), keys.end(), docKeys.begin()), ==, true);
 
-  Mongo::BSONDoc temp(BSONDocTests::repeaterStr);
-  TEST(temp.has("results"), ==, true);
-  TEST(temp.get<int32_t>("count"), ==, 51);
-  auto tempDoc = temp.get<std::vector<Mongo::BSONDoc>>("results");
-  tempDoc.resize(temp.get<int32_t>("count"));
+  auto tempDocs = repeaterBook.getAnalogFormat();
+  TEST(tempDocs.size(), ==, 51);
 
-  auto& confBlock = *nameBlockMap.at("Analog");
-  TEST(confBlock.getLines().size(), ==, 298);
-  confBlock.appendRepeaterDoc(tempDoc);
-  TEST(confBlock.getLines().size(), ==, 349);
+  auto& confBlock = *(confFile.getNameBlocks()).at("Analog");
+  confBlock.appendRepeaterDoc(tempDocs);
 
+  _tabWidget->addTab(confFileWidget, __PRETTY_FUNCTION__);
+  return true;
   return true;
 }
 
@@ -84,5 +85,28 @@ bool WidgetTests::initFieldEntryDialog()
 
   for (const auto& r : results)
     std::cout << r << std::endl;
+
+  return true;
+}
+
+bool WidgetTests::initChirpCsvTests()
+{
+  auto confFileWidget = new ConfFileWidget(nullptr, nullptr);
+  auto& confFile = confFileWidget->getConfFile();
+  confFile.loadFile("examples/btech-6x2.conf");
+  confFileWidget->updateTabs();
+
+  ChirpCsv chirpCsv;
+  TEST(chirpCsv.open("./examples/not_exist_File"), ==, false);
+  TEST(chirpCsv.open("./examples/Baofeng_UV-5R_20200529.csv"), ==, true);
+  TEST(chirpCsv.size(), ==, 124);
+
+  auto tempDocs = chirpCsv.getAnalogFormat();
+  TEST(tempDocs.size(), ==, 124);
+
+  auto& confBlock = *(confFile.getNameBlocks()).at("Analog");
+  confBlock.appendRepeaterDoc(tempDocs);
+
+  _tabWidget->addTab(confFileWidget, __PRETTY_FUNCTION__);
   return true;
 }

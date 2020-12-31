@@ -33,8 +33,11 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
   saveAct->setStatusTip(tr("SaveFile"));
   fileMenu->addAction(saveAct);
 
-  QAction* exportAct = new QAction(tr("&Export to ConfFile"), this);
+  QAction* exportAct = new QAction(tr("&Import Search to ConfFile"), this);
   fileMenu->addAction(exportAct);
+
+  QAction* importAct = new QAction(tr("I&mport Chirp Csv to ConfFile"), this);
+  fileMenu->addAction(importAct);
 
   QAction* closeAct = new QAction(tr("&Close"), this);
   closeAct->setShortcuts(QKeySequence::Close);
@@ -131,9 +134,7 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
     _networkManager->get(request);
     statusBar()->showMessage("Searching fcc callsign: " + text);
   });
-
-  connect(_networkManager, &QNetworkAccessManager::finished,
-          this, &MainWindow::callsignSearchReady);
+  connect(_networkManager, &QNetworkAccessManager::finished, this, &MainWindow::callsignSearchReady);
 
   connect(repeaterBookAct, &QAction::triggered, this, [this]() {
     const std::vector<std::string> fields = {
@@ -205,7 +206,14 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
     auto bsonDocWidget = dynamic_cast<BSONDocWidget*>(_tabWidget->currentWidget());
     if (bsonDocWidget)
     {
-      auto results = bsonDocWidget->getVisibleDocs();
+      std::vector<Mongo::BSONDoc> results = bsonDocWidget->getVisibleDocs();
+
+      Mongo::BSONDoc tempDoc;
+      tempDoc.append("count", (unsigned)results.size());
+      tempDoc.append("results", results);
+
+      RepeaterBook repeaterBook;
+      repeaterBook.fromStdString(tempDoc.toString());
 
       for (int i = 0; i < _tabWidget->count(); i++)
       {
@@ -225,7 +233,7 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
             continue;
           }
 
-          nameBlockMap.at("Analog")->appendRepeaterDoc(results);
+          nameBlockMap.at("Analog")->appendRepeaterDoc(repeaterBook.getAnalogFormat());
           confFileWidget->setTab("Analog");
           _tabWidget->setCurrentIndex(i);
         }
@@ -234,6 +242,41 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
     else
     {
       QMessageBox::critical(this, "Failed to export", tr("Tab in focus is not a BSONDoc"));
+    }
+  });
+
+  connect(importAct, &QAction::triggered, this, [this]() {
+    auto filename = QFileDialog::getOpenFileName(this, tr("Open Chirp Exported csv"), "./", tr("Csv (*.csv)"));
+
+    if (filename.isEmpty())
+      return;
+
+    ChirpCsv chirpCsv;
+    if (!chirpCsv.open(filename.toStdString()))
+      return;
+
+    for (int i = 0; i < _tabWidget->count(); i++)
+    {
+      auto confFileWidget = dynamic_cast<ConfFileWidget*>(_tabWidget->widget(i));
+      if (!confFileWidget)
+        continue;
+      QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Import",
+                                                                 "Import into Analog " + _tabWidget->tabText(i),
+                                                                 QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes,
+                                                                 QMessageBox::Yes);
+      if (resBtn == QMessageBox::Yes)
+      {
+        auto nameBlockMap = confFileWidget->getConfFile().getNameBlocks();
+        if (nameBlockMap.find("Analog") == nameBlockMap.end())
+        {
+          QMessageBox::critical(this, "Failed to export", tr("Couldn't find Analog tab"));
+          continue;
+        }
+
+        nameBlockMap.at("Analog")->appendRepeaterDoc(chirpCsv.getAnalogFormat());
+        confFileWidget->setTab("Analog");
+        _tabWidget->setCurrentIndex(i);
+      }
     }
   });
 

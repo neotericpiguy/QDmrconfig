@@ -18,7 +18,7 @@ void replace(std::string& str, const std::string& from, const std::string& to);
 std::string rangify(std::vector<int>& vec);
 std::vector<int> unrangify(const std::string& range);
 
-std::vector<std::string> strToVec(const std::string& vec, char seperator);
+std::vector<std::string> strToVec(const std::string& vec, char seperator, bool skipEmpty = true);
 template <typename T>
 std::string vecToStr(const std::vector<T>& vec, const std::string& seperator);
 

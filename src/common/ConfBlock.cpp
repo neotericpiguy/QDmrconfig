@@ -341,77 +341,19 @@ bool ConfBlock::appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs)
   if (docs.empty())
     return false;
 
-  const std::map<std::string, std::string> repeaterMap = {
-      {"Callsign", "Name"},
-      {"Frequency", "Receive"},
-      {"Input Freq", "Transmit"},  // need offset not freq
-      {"PL", "TxTone"},
-  };
-
-  const std::map<std::string, std::string> columnDefault = {
-      {"Power", "High"},
-      {"Scan", "-"},
-      {"TOT", "-"},
-      {"RO", "-"},
-      {"Admit", "-"},
-      {"Squelch", "Normal"},
-      {"RxTone", "-"},
-      {"TxTone", "-"},
-      {"Width", "25"},
-      {"#", "#"},
-  };
+  std::vector<std::string> keys = getColumnNames();
+  auto poundIter = std::find(keys.begin(), keys.end(), "#");
+  keys.resize(poundIter - keys.begin() + 1);
 
   std::vector<std::string> results;
-
-  for (const auto& doc : docs)
+  for (unsigned int i = 0; i < docs.size(); ++i)
   {
+    const auto& doc = docs.at(i);
     results.clear();
-    results.resize(getColumnCount());
-    for (const auto& keyPair : columnDefault)
+
+    for (const auto key : keys)
     {
-      int column = getColumnIndex(keyPair.first);
-      if (column == -1)
-        continue;
-      results[column] = keyPair.second;
-    }
-    for (const auto& keyPair : repeaterMap)
-    {
-      const auto& bsonDocKey = keyPair.first;
-      const auto& confBlockKey = keyPair.second;
-      int column = getColumnIndex(confBlockKey);
-      if (column == -1)
-        continue;
-      if (bsonDocKey == "Frequency")
-      {
-        double temp;
-        if (!StringThings::strTo(temp, doc.get<std::string>(bsonDocKey)))
-          continue;
-
-        results[column] = StringThings::fixed(temp, 3);
-      }
-      else if (bsonDocKey == "Input Freq")
-      {
-        double rxFreq;
-        double txFreq;
-
-        if (!StringThings::strTo(rxFreq, doc.get<std::string>("Frequency")) ||
-            !StringThings::strTo(txFreq, doc.get<std::string>(bsonDocKey)))
-          continue;
-
-        double offset = txFreq - rxFreq;
-        if (offset == 0)
-          results[column] = "+0";
-        else
-          results[column] = StringThings::fixed(offset, 1);
-
-        if (offset > 0)
-          results[column] = "+" + results[column];
-      }
-      else
-      {
-        if (doc.get<std::string>(bsonDocKey) != "")
-          results[column] = doc.get<std::string>(bsonDocKey);
-      }
+      results.push_back(doc.get<std::string>(key));
     }
 
     insertRow(getRowCount(), results);
