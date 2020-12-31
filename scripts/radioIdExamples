@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# dmr ids
+wget http://www.dmrcontacts.com/d868uv-d878uv.csv
+
 https://database.radioid.net/database/api#!
 curl "https://database.radioid.net/api/dmr/repeater/?city=tucson" | jq | less
 curl "https://database.radioid.net/api/dmr/user/?city=tucson" | jq | less
