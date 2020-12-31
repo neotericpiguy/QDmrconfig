@@ -208,6 +208,13 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
     {
       std::vector<Mongo::BSONDoc> results = bsonDocWidget->getVisibleDocs();
 
+      Mongo::BSONDoc tempDoc;
+      tempDoc.append("count", (unsigned)results.size());
+      tempDoc.append("results", results);
+
+      RepeaterBook repeaterBook;
+      repeaterBook.fromStdString(tempDoc.toString());
+
       for (int i = 0; i < _tabWidget->count(); i++)
       {
         auto confFileWidget = dynamic_cast<ConfFileWidget*>(_tabWidget->widget(i));
@@ -225,14 +232,6 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
             QMessageBox::critical(this, "Failed to export", tr("Couldn't find Analog tab"));
             continue;
           }
-
-          Mongo::BSONDoc tempDoc;
-          tempDoc.append("count", (unsigned)results.size());
-          tempDoc.append("results", results);
-          std::cout << tempDoc.toString() << std::endl;
-
-          RepeaterBook repeaterBook;
-          repeaterBook.fromStdString(tempDoc.toString());
 
           nameBlockMap.at("Analog")->appendRepeaterDoc(repeaterBook.getAnalogFormat());
           confFileWidget->setTab("Analog");
