@@ -40,3 +40,9 @@ void FieldEntryDialog::accept()
     _results[i] = _resultsLineEdit[i]->text().toStdString();
   QDialog::accept();
 }
+
+void FieldEntryDialog::reject()
+{
+  _results.clear();
+  QDialog::reject();
+}
