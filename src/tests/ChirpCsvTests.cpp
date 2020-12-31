@@ -19,6 +19,15 @@ bool ChirpCsvTests::openParse()
   TEST(chirpCsv.size(), ==, 124);
   auto docs = chirpCsv.getAnalogFormat();
   TEST(docs.size(), ==, 124);
+
+  // Have the necessary keys to perform a append
+  std::vector<std::string> keys = {"Analog", "Name", "Receive", "Transmit", "Power", "Scan", "TOT", "RO", "Admit", "Squelch", "RxTone", "TxTone", "Width", "#"};
+  std::sort(keys.begin(), keys.end());
+
+  auto docKeys = docs[0].getKeys();
+  std::sort(docKeys.begin(), docKeys.end());
+  TEST(std::equal(keys.begin(), keys.end(), docKeys.begin()), ==, true);
+
   return true;
 }
 
