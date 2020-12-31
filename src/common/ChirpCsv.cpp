@@ -52,13 +52,17 @@ std::vector<Mongo::BSONDoc> ChirpCsv::getAnalogFormat() const
         !entry.has("Offset") ||
         !entry.has("Duplex") ||
         !entry.has("Tone") ||
+        !entry.has("DtcsPolarity") ||
         !entry.has("DtcsCode") ||
         !entry.has("cToneFreq") ||
         !entry.has("rToneFreq"))
       continue;
 
     Mongo::BSONDoc temp;
-    temp.append("Name", entry.get<std::string>("Name"));
+    std::string name = entry.get<std::string>("Name");
+    StringThings::replace(name, " ", "_");
+
+    temp.append("Name", name);
 
     double rxFreq;
     if (!StringThings::strTo(rxFreq, entry.get<std::string>("Frequency")))
@@ -89,7 +93,11 @@ std::vector<Mongo::BSONDoc> ChirpCsv::getAnalogFormat() const
 
     if (entry.get<std::string>("Tone") == "DTCS")
     {
-      std::string code = "D" + entry.get<std::string>("DtcsCode") + entry.get<std::string>("DtcsPolarity")[0];
+      char polarity = entry.get<std::string>("DtcsPolarity")[0];
+      if (polarity == 'R')
+        polarity = 'I';
+
+      std::string code = "D" + entry.get<std::string>("DtcsCode") + polarity;
       temp.append("RxTone", code);
       temp.append("TxTone", code);
     }
