@@ -341,7 +341,10 @@ bool ConfBlock::appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs)
   if (docs.empty())
     return false;
 
-  std::vector<std::string> keys = {"Analog", "Name", "Receive", "Transmit", "Power", "Scan", "TOT", "RO", "Admit", "Squelch", "RxTone", "TxTone", "Width", "#"};
+  std::vector<std::string> keys = getColumnNames();
+  auto poundIter = std::find(keys.begin(), keys.end(), "#");
+  keys.resize(poundIter - keys.begin() + 1);
+
   std::vector<std::string> results;
   for (unsigned int i = 0; i < docs.size(); ++i)
   {
