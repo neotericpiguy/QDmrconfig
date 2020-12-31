@@ -4,7 +4,6 @@ WidgetTests::WidgetTests() :
     QMainWindow(),
     _tabWidget(new QTabWidget(this)),
     _layout(new QVBoxLayout)
-//    _confFileWidget(new ConfFileWidget(nullptr, nullptr))
 {
   setCentralWidget(new QLineEdit("text"));
   _layout->addWidget(_tabWidget);
