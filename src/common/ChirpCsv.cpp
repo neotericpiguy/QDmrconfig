@@ -51,3 +51,8 @@ size_t ChirpCsv::size() const
 {
   return _entries.size();
 }
+
+void ChirpCsv::resize(size_t n)
+{
+  _entries.resize(n);
+}

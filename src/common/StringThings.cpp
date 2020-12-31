@@ -91,8 +91,8 @@ std::vector<std::string> strToVec(const std::string& vec, char seperator)
 
   while (std::getline(vecStream, tempVal, seperator))
   {
-    if (!tempVal.empty())
-      result.push_back(tempVal);
+    //    if (!tempVal.empty())
+    result.push_back(tempVal);
   }
 
   return result;

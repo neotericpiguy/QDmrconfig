@@ -13,12 +13,12 @@ class ChirpCsv
 {
 public:
   ChirpCsv();
-  ChirpCsv(const ChirpCsv&) = delete;
   ~ChirpCsv();
 
   bool open(const std::string& file);
   const std::vector<Mongo::BSONDoc>& getEntries() const;
 
+  void resize(size_t n);
   size_t size() const;
 
 private:

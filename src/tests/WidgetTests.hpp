@@ -22,6 +22,7 @@ public:
   bool initBsonDocWidget();
   bool initConfFileWidget();
   bool initFieldEntryDialog();
+  bool initChirpCsvTests();
 
 private:
   QTabWidget* _tabWidget;

@@ -225,7 +225,26 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
             continue;
           }
 
-          nameBlockMap.at("Analog")->appendRepeaterDoc(results);
+          const std::map<std::string, std::string> repeaterMap = {
+              {"Name", "Callsign"},
+              {"Receive", "Frequency"},
+              {"Transmit", "Input Freq"},  // need offset not freq
+              {"TxTone", "PL"},
+          };
+
+          const std::map<std::string, std::string> columnDefault = {
+              {"Power", "High"},
+              {"Scan", "-"},
+              {"TOT", "-"},
+              {"RO", "-"},
+              {"Admit", "-"},
+              {"Squelch", "Normal"},
+              {"RxTone", "-"},
+              {"TxTone", "-"},
+              {"Width", "25"},
+              {"#", "#"},
+          };
+          nameBlockMap.at("Analog")->appendRepeaterDoc(results, repeaterMap, columnDefault);
           confFileWidget->setTab("Analog");
           _tabWidget->setCurrentIndex(i);
         }

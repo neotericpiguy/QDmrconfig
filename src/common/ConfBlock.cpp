@@ -336,30 +336,12 @@ const std::vector<std::vector<std::string>>& ConfBlock::getLines() const
   return _lines;
 }
 
-bool ConfBlock::appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs)
+bool ConfBlock::appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs,
+                                  const std::map<std::string, std::string>& repeaterMap,
+                                  const std::map<std::string, std::string>& columnDefault)
 {
   if (docs.empty())
     return false;
-
-  const std::map<std::string, std::string> repeaterMap = {
-      {"Callsign", "Name"},
-      {"Frequency", "Receive"},
-      {"Input Freq", "Transmit"},  // need offset not freq
-      {"PL", "TxTone"},
-  };
-
-  const std::map<std::string, std::string> columnDefault = {
-      {"Power", "High"},
-      {"Scan", "-"},
-      {"TOT", "-"},
-      {"RO", "-"},
-      {"Admit", "-"},
-      {"Squelch", "Normal"},
-      {"RxTone", "-"},
-      {"TxTone", "-"},
-      {"Width", "25"},
-      {"#", "#"},
-  };
 
   std::vector<std::string> results;
 
@@ -376,12 +358,12 @@ bool ConfBlock::appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs)
     }
     for (const auto& keyPair : repeaterMap)
     {
-      const auto& bsonDocKey = keyPair.first;
-      const auto& confBlockKey = keyPair.second;
+      const auto& bsonDocKey = keyPair.second;
+      const auto& confBlockKey = keyPair.first;
       int column = getColumnIndex(confBlockKey);
       if (column == -1)
         continue;
-      if (bsonDocKey == "Frequency")
+      if (confBlockKey == "Receive")
       {
         double temp;
         if (!StringThings::strTo(temp, doc.get<std::string>(bsonDocKey)))
@@ -389,18 +371,28 @@ bool ConfBlock::appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs)
 
         results[column] = StringThings::fixed(temp, 3);
       }
-      else if (bsonDocKey == "Input Freq")
+      else if (confBlockKey == "Transmit")
       {
         double rxFreq;
         double txFreq;
 
-        if (!StringThings::strTo(rxFreq, doc.get<std::string>("Frequency")) ||
+        if (!StringThings::strTo(rxFreq, doc.get<std::string>(repeaterMap.at("Receive"))) ||
             !StringThings::strTo(txFreq, doc.get<std::string>(bsonDocKey)))
           continue;
 
         double offset = txFreq - rxFreq;
+
+        std::cout << txFreq << " - " << rxFreq << std::endl;
+        if (doc.has("Tone"))
+        {
+          if (doc.get<std::string>("Tone") == "Tone")
+            offset = txFreq;
+          else
+            offset = 0;
+        }
+
         if (offset == 0)
-          results[column] = "+0";
+          results[column] = "+0.0";
         else
           results[column] = StringThings::fixed(offset, 1);
 
