@@ -30,4 +30,3 @@ bool ChirpCsvTests::openParse()
 
   return true;
 }
-
