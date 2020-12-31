@@ -19,17 +19,15 @@ public:
   WidgetTests(const WidgetTests&) = delete;
   ~WidgetTests();
 
-  bool initBsonDocWidget();
-  bool initConfFileWidget();
   bool initFieldEntryDialog();
+
+  bool initBsonDocWidget();
+  bool repeaterBookExport();
   bool initChirpCsvTests();
 
 private:
   QTabWidget* _tabWidget;
   QVBoxLayout* _layout;
-
-  // ConfFileWidget
-  //  ConfFileWidget* _confFileWidget;
 };
 
 #endif

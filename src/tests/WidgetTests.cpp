@@ -20,9 +20,9 @@ WidgetTests::WidgetTests() :
     initFieldEntryDialog();
   });
 
+  repeaterBookExport();
   initChirpCsvTests();
   initBsonDocWidget();
-  initConfFileWidget();
 }
 
 WidgetTests::~WidgetTests()
@@ -41,51 +41,37 @@ bool WidgetTests::initBsonDocWidget()
   return true;
 }
 
-bool WidgetTests::initConfFileWidget()
+bool WidgetTests::repeaterBookExport()
 {
-  //  _tabWidget->addTab(_confFileWidget, "ConfFileWidget");
-  //
-  //  auto& confFile = _confFileWidget->getConfFile();
-  //  confFile.loadFile("examples/btech-6x2.conf");
-  //  _confFileWidget->updateTabs();
+  auto confFileWidget = new ConfFileWidget(nullptr, nullptr);
+  auto& confFile = confFileWidget->getConfFile();
+  confFile.loadFile("examples/btech-6x2.conf");
+  confFileWidget->updateTabs();
 
-  //  auto nameBlockMap = confFile.getNameBlocks();
-  //
-  //  TEST_EXP(nameBlockMap.find("Analog") != nameBlockMap.end());
-  //
-  //  if (nameBlockMap.find("Analog") == nameBlockMap.end())
-  //    return false;
-  //
-  //  Mongo::BSONDoc temp(BSONDocTests::repeaterStr);
-  //  TEST(temp.has("results"), ==, true);
-  //  TEST(temp.get<int32_t>("count"), ==, 51);
-  //  auto tempDoc = temp.get<std::vector<Mongo::BSONDoc>>("results");
-  //  tempDoc.resize(temp.get<int32_t>("count"));
-  //
-  //  auto& confBlock = *nameBlockMap.at("Analog");
-  //  TEST(confBlock.getLines().size(), ==, 298);
-  //  const std::map<std::string, std::string> repeaterMap = {
-  //      {"Name", "Callsign"},
-  //      {"Receive", "Frequency"},
-  //      {"Transmit", "Input Freq"},  // need offset not freq
-  //      {"TxTone", "PL"},
-  //  };
-  //
-  //  const std::map<std::string, std::string> columnDefault = {
-  //      {"Power", "High"},
-  //      {"Scan", "-"},
-  //      {"TOT", "-"},
-  //      {"RO", "-"},
-  //      {"Admit", "-"},
-  //      {"Squelch", "Normal"},
-  //      {"RxTone", "-"},
-  //      {"TxTone", "-"},
-  //      {"Width", "25"},
-  //      {"#", "#"},
-  //  };
-  //  confBlock.appendRepeaterDoc(tempDoc, repeaterMap, columnDefault);
-  //  TEST(confBlock.getLines().size(), ==, 349);
+  RepeaterBook repeaterBook;
+  TEST(repeaterBook.open("./examples/not_exist_File"), ==, false);
+  TEST(repeaterBook.open("./examples/Baofeng_UV-5R_20200529.csv"), ==, false);
+  TEST(repeaterBook.fromStdString(RepeaterBookTests::repeaterStr), ==, true);
+  TEST(repeaterBook.size(), ==, 51);
+  auto docs = repeaterBook.getAnalogFormat();
+  TEST(docs.size(), ==, 51);
 
+  // Have the necessary keys to perform a append
+  std::vector<std::string> keys = {"Analog", "Name", "Receive", "Transmit", "Power", "Scan", "TOT", "RO", "Admit", "Squelch", "RxTone", "TxTone", "Width", "#"};
+  std::sort(keys.begin(), keys.end());
+
+  auto docKeys = docs[0].getKeys();
+  std::sort(docKeys.begin(), docKeys.end());
+  TEST(std::equal(keys.begin(), keys.end(), docKeys.begin()), ==, true);
+
+  auto tempDocs = repeaterBook.getAnalogFormat();
+  TEST(tempDocs.size(), ==, 51);
+
+  auto& confBlock = *(confFile.getNameBlocks()).at("Analog");
+  confBlock.appendRepeaterDoc(tempDocs);
+
+  _tabWidget->addTab(confFileWidget, __PRETTY_FUNCTION__);
+  return true;
   return true;
 }
 
