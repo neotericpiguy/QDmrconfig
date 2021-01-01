@@ -7,6 +7,7 @@ const std::string RepeaterBookTests::repeaterStr = "{ \"count\": 51, \"results\"
 RepeaterBookTests::RepeaterBookTests()
 {
   ADD_TEST(RepeaterBookTests::openParse);
+  ADD_TEST(RepeaterBookTests::append);
 }
 
 RepeaterBookTests::~RepeaterBookTests()
@@ -31,5 +32,17 @@ bool RepeaterBookTests::openParse()
   std::sort(docKeys.begin(), docKeys.end());
   TEST(std::equal(keys.begin(), keys.end(), docKeys.begin()), ==, true);
 
+  return true;
+}
+
+bool RepeaterBookTests::append()
+{
+  RepeaterBook repeaterBook;
+  TEST(repeaterBook.fromStdString(RepeaterBookTests::repeaterStr), ==, true);
+  TEST(repeaterBook.size(), ==, 51);
+
+  repeaterBook.append(RepeaterBookTests::repeaterStr);
+  TEST(Mongo::BSONDoc::isValid("asdf"), ==, false);
+  TEST(repeaterBook.size(), ==, 51 + 51);
   return true;
 }

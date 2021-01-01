@@ -1,5 +1,7 @@
 #include "WidgetTests.hpp"
 
+#include "ChirpCsv.hpp"
+
 WidgetTests::WidgetTests() :
     QMainWindow(),
     _tabWidget(new QTabWidget(this)),

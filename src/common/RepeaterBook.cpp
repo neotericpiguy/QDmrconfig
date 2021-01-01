@@ -83,6 +83,22 @@ const std::vector<Mongo::BSONDoc>& RepeaterBook::getEntries() const
   return _entries;
 }
 
+bool RepeaterBook::append(const std::string& results)
+{
+  Mongo::BSONDoc resultsDoc(results);
+
+  if (!resultsDoc.has("count") || !resultsDoc.has("results"))
+    return false;
+
+  int32_t count = resultsDoc.get<int32_t>("count");
+
+  auto entries = resultsDoc.get<std::vector<Mongo::BSONDoc>>("results");
+  entries.resize(count);
+
+  _entries.insert(_entries.end(), entries.begin(), entries.end());
+  return true;
+}
+
 size_t RepeaterBook::size() const
 {
   return _entries.size();

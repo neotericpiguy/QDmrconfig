@@ -32,6 +32,20 @@ BSONDoc::BSONDoc(const std::string& json) :
   }
 }
 
+bool BSONDoc::isValid(const std::string& json)
+{
+  bson_error_t error;
+
+  const unsigned char* data = reinterpret_cast<const unsigned char*>(json.c_str());
+
+  bson_t* temp = bson_new_from_json(data, -1, &error);
+
+  if (temp)
+    bson_destroy(temp);
+
+  return static_cast<bool>(temp);
+}
+
 BSONDoc::BSONDoc(const std::string& key, const std::string& value) :
     _doc(bson_new())
 {

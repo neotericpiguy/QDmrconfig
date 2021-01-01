@@ -18,6 +18,7 @@ public:
   bool fromStdString(const std::string& results);
   const std::vector<Mongo::BSONDoc>& getEntries() const;
 
+  bool append(const std::string& results);
   void resize(size_t n);
   size_t size() const;
   std::vector<Mongo::BSONDoc> getAnalogFormat() const;

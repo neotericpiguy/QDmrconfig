@@ -129,6 +129,8 @@ public:
 
   int getType(const std::string& path) const;
 
+  static bool isValid(const std::string& json);
+
   /** \deprecated Kind of a dangerous function */
   bson_t* get() const;
   /** Remove all fields and children from Document */

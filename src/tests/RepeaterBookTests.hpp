@@ -14,5 +14,6 @@ public:
 public:
   static const std::string repeaterStr;
   bool openParse();
+  bool append();
 };
 #endif
