@@ -14,7 +14,8 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
     _tabWidget(new QTabWidget(this)),
     radioUploadFile(radioUploadFile),
     radioDownloadFile(radioDownloadFile),
-    _debug(false)
+    _debug(false),
+    _multiRepeaterBookSearch(false)
 {
   setCentralWidget(new QLineEdit(""));
   QVBoxLayout* layout = new QVBoxLayout();
@@ -54,6 +55,9 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
   repeaterBookAct->setShortcut(QKeySequence(tr("Ctrl+r")));
   searchMenu->addAction(repeaterBookAct);
 
+  QAction* multiRepeaterBookAct = new QAction(tr("&Multi Repeaterbook Search"), this);
+  searchMenu->addAction(multiRepeaterBookAct);
+
   QMenu* radioMenu = menuBar()->addMenu(tr("&Radio"));
   QAction* uploadAct = new QAction(tr("&Upload"), this);
   uploadAct->setShortcut(QKeySequence(tr("Ctrl+U")));
@@ -76,9 +80,8 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
   connect(openAct, &QAction::triggered, this, [this]() {
     auto filename = QFileDialog::getOpenFileName(this, tr("Open Config"), "./", tr("Config Files (*.conf)"));
     if (filename.length() <= 0)
-    {
       return;
-    }
+
     loadFile(filename.toStdString());
   });
 
@@ -137,51 +140,17 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
   connect(_networkManager, &QNetworkAccessManager::finished, this, &MainWindow::callsignSearchReady);
 
   connect(repeaterBookAct, &QAction::triggered, this, [this]() {
-    const std::vector<std::string> fields = {
-        "callsign",
-        "city",
-        "landmark",
-        "state",
-        "country",
-        "county",
-        "frequency",
-    };
-    std::vector<std::string> results;
-
-    auto dialog = new FieldEntryDialog(fields, results);
-    dialog->setModal(true);
-    dialog->exec();
-
-    if (results.empty())
-      return;
-
-    // if all elements are ""
-    if (std::all_of(results.begin(), results.end(), [](const std::string& i) {
-          return i.empty();
-        }))
-      return;
-
-    std::string urlStr("https://www.repeaterbook.com/api/export.php?");
-    for (unsigned int i = 0; i < results.size(); ++i)
-    {
-      if (results[i] == "")
-        continue;
-
-      results[i] = fields[i] + "=" + results[i];
-    }
-
-    // Remove blank vector elements
-    results.erase(std::remove(results.begin(), results.end(), ""), results.end());
-
-    urlStr += StringThings::vecToStr(results, "&");
-    QNetworkRequest request;
-    request.setUrl(QString(urlStr.c_str()));
-
-    _repeaterBookNetworkManager->get(request);
-    statusBar()->showMessage("Searching Repeaterbook:" + QString(urlStr.c_str()));
+    _multiRepeaterBookSearch = false;
+    repeaterBookSearch();
   });
   connect(_repeaterBookNetworkManager, &QNetworkAccessManager::finished,
           this, &MainWindow::repeaterBookSlotReadyRead);
+
+  connect(multiRepeaterBookAct, &QAction::triggered, this, [this]() {
+    _multiRepeaterBookSearch = true;
+    _multiRepeaterBookSearchResults.clear();
+    repeaterBookSearch();
+  });
 
   connect(closeAct, &QAction::triggered, this, [this]() {
     QWidget* tab = _tabWidget->currentWidget();
@@ -354,22 +323,22 @@ void MainWindow::repeaterBookSlotReadyRead(QNetworkReply* reply)
   std::string url = reply->url().toString().toStdString();
   url = url.substr(url.rfind("?") + 1, url.length() - url.rfind("?") - 1);
 
-  Mongo::BSONDoc results(replyStr.toStdString());
-
-  if (!results.has("results") || !results.has("count"))
+  RepeaterBook results;
+  if (!results.fromStdString(replyStr.toStdString()))
   {
     statusBar()->showMessage(tr("Done messed up... Try again later"));
     return;
   }
 
-  int32_t count = results.get<int32_t>("count");
-  auto entries = results.get<std::vector<Mongo::BSONDoc>>("results");
+  if (_multiRepeaterBookSearch)
+  {
+    _multiRepeaterBookSearchResults.append(replyStr.toStdString());
+    repeaterBookSearch();
+    return;
+  }
 
-  // Ensure dimensions match the docs.
-  entries.resize(count);
-
-  statusBar()->showMessage(tr("Repeater Results: ") + QString::number(count));
-  _tabWidget->addTab(new BSONDocWidget(entries), QString("Repeater search: ") + QString(url.c_str()));
+  statusBar()->showMessage(tr("Repeater Results: ") + QString::number(results.size()));
+  _tabWidget->addTab(new BSONDocWidget(results.getEntries()), QString("Repeater search: ") + QString(url.c_str()));
   _tabWidget->setCurrentIndex(_tabWidget->count() - 1);
 }
 
@@ -427,4 +396,66 @@ void MainWindow::loadFile(const std::string& filename)
   statusBar()->showMessage(tr("File loaded"), 2000);
   _tabWidget->addTab(confFileWidget, filename.substr(filename.rfind("/") + 1, filename.length() - filename.rfind("/") - 1).c_str());
   _tabWidget->setCurrentIndex(_tabWidget->count() - 1);
+}
+
+void MainWindow::repeaterBookSearch()
+{
+  const std::vector<std::string> fields = {
+      "city",
+      "callsign",
+      "landmark",
+      "state",
+      "country",
+      "county",
+      "frequency",
+  };
+  std::vector<std::string> results;
+
+  auto dialog = new FieldEntryDialog(fields, results);
+  dialog->setModal(true);
+  dialog->exec();
+
+  if (results.empty())
+  {
+    if (_multiRepeaterBookSearch)
+    {
+      _multiRepeaterBookSearch = false;
+      processRepeaterBookSearchResults();
+    }
+    return;
+  }
+
+  // if all elements are ""
+  if (std::all_of(results.begin(), results.end(), [](const std::string& i) {
+        return i.empty();
+      }))
+  {
+    _multiRepeaterBookSearch = false;
+    processRepeaterBookSearchResults();
+  }
+
+  std::string urlStr("https://www.repeaterbook.com/api/export.php?");
+  for (unsigned int i = 0; i < results.size(); ++i)
+  {
+    if (results[i] == "")
+      continue;
+
+    results[i] = fields[i] + "=" + results[i];
+  }
+
+  // Remove blank vector elements
+  results.erase(std::remove(results.begin(), results.end(), ""), results.end());
+
+  urlStr += StringThings::vecToStr(results, "&");
+  QNetworkRequest request;
+  request.setUrl(QString(urlStr.c_str()));
+
+  _repeaterBookNetworkManager->get(request);
+  statusBar()->showMessage("Searching Repeaterbook:" + QString(urlStr.c_str()));
+}
+
+void MainWindow::processRepeaterBookSearchResults()
+{
+  _multiRepeaterBookSearchResults.removeDuplicates("Rptr ID");
+  _tabWidget->addTab(new BSONDocWidget(_multiRepeaterBookSearchResults.getEntries()), QString("Multi search Results "));
 }

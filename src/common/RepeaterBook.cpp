@@ -110,3 +110,8 @@ void RepeaterBook::resize(size_t n)
 {
   _entries.resize(n);
 }
+
+void RepeaterBook::clear()
+{
+  _entries.clear();
+}

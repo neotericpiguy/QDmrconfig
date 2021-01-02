@@ -27,6 +27,9 @@ public:
   void closeEvent(QCloseEvent* event) override;
   void setDebug(bool state);
 
+  void repeaterBookSearch();
+  void processRepeaterBookSearchResults();
+
 private slots:
   void callsignSearchReady(QNetworkReply* reply);
   void repeaterBookSlotReadyRead(QNetworkReply* reply);
@@ -43,6 +46,9 @@ private:
   std::function<void(const std::string&)> radioDownloadFile;
 
   bool _debug;
+
+  bool _multiRepeaterBookSearch;
+  RepeaterBook _multiRepeaterBookSearchResults;
 };
 
 #endif
