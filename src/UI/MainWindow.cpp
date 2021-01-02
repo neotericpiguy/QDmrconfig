@@ -153,22 +153,7 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
   });
 
   connect(closeAct, &QAction::triggered, this, [this]() {
-    QWidget* tab = _tabWidget->currentWidget();
-    auto confFileWidget = dynamic_cast<ConfFileWidget*>(tab);
-    if (confFileWidget && confFileWidget->getConfFile().isModified())
-    {
-      QMessageBox::StandardButton resBtn = QMessageBox::question(this, "QDmrconfig",
-                                                                 "Save changes",
-                                                                 QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes,
-                                                                 QMessageBox::Yes);
-      if (resBtn == QMessageBox::Yes)
-      {
-        confFileWidget->getConfFile().saveFile();
-      }
-    }
-    disconnect(tab, 0, 0, 0);
-    tab->close();
-    delete tab;
+    _tabWidget->removeTab(_tabWidget->currentIndex());
   });
 
   connect(exportAct, &QAction::triggered, this, [this]() {
