@@ -610,10 +610,16 @@ int BSONDoc::getType(const std::string& path) const
 
 bool BSONDoc::removeDuplicates(std::vector<Mongo::BSONDoc>& v, const std::string& key)
 {
+  if (v.empty())
+    return false;
+
   // https://kodlogs.com/38749/c-remove-duplicates-from-vector-without-sorting
   auto end = v.end();
   for (auto it = v.begin(); it != end; ++it)
   {
+    if (!it->has(key))
+      continue;
+
     auto origVal = it->get<std::string>(key);
 
     end = std::remove_if(it + 1, end, [&origVal, &key](const Mongo::BSONDoc& doc) {

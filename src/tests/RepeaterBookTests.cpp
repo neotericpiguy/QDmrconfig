@@ -60,15 +60,24 @@ bool RepeaterBookTests::append()
   repeaterBook.append(RepeaterBookTests::bensonResults);
   TEST(repeaterBook.size(), ==, 51 + 8 + 3);  // 62
 
+  // Remove by a key that is always unique shouldn't change size
   repeaterBook.removeDuplicates("Rptr ID");
   TEST(repeaterBook.size(), ==, 62);
 
+  // Size should change if you want to remove by a key that doesn't
+  // exist
+  repeaterBook.removeDuplicates("asdf");
+  TEST(repeaterBook.size(), ==, 62);
+
+  // Remove duplicates without sorting
   repeaterBook.removeDuplicates("Callsign");
   TEST(repeaterBook.size(), ==, 39);  // 39
 
+  // If you call it twice it shouldn't change size
   repeaterBook.removeDuplicates("Callsign");
   TEST(repeaterBook.size(), ==, 39);  // 39
 
+  // add entries that are all duplicates and then remove should
   repeaterBook.append(RepeaterBookTests::vailResults);
   TEST(repeaterBook.size(), ==, 39 + 8);
   repeaterBook.removeDuplicates("Callsign");
