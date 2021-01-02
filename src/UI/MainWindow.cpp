@@ -56,7 +56,6 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
   searchMenu->addAction(repeaterBookAct);
 
   QAction* multiRepeaterBookAct = new QAction(tr("&Multi Repeaterbook Search"), this);
-  //  multiRepeaterBookAct->setShortcut(QKeySequence(tr("Ctrl+r")));
   searchMenu->addAction(multiRepeaterBookAct);
 
   QMenu* radioMenu = menuBar()->addMenu(tr("&Radio"));
