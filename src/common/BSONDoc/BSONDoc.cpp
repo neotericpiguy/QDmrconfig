@@ -32,6 +32,20 @@ BSONDoc::BSONDoc(const std::string& json) :
   }
 }
 
+bool BSONDoc::isValid(const std::string& json)
+{
+  bson_error_t error;
+
+  const unsigned char* data = reinterpret_cast<const unsigned char*>(json.c_str());
+
+  bson_t* temp = bson_new_from_json(data, -1, &error);
+
+  if (temp)
+    bson_destroy(temp);
+
+  return static_cast<bool>(temp);
+}
+
 BSONDoc::BSONDoc(const std::string& key, const std::string& value) :
     _doc(bson_new())
 {
@@ -592,6 +606,29 @@ int BSONDoc::getType(const std::string& path) const
     return bson_iter_type(&baz);
   }
   return 0;
+}
+
+bool BSONDoc::removeDuplicates(std::vector<Mongo::BSONDoc>& v, const std::string& key)
+{
+  if (v.empty())
+    return false;
+
+  // https://kodlogs.com/38749/c-remove-duplicates-from-vector-without-sorting
+  auto end = v.end();
+  for (auto it = v.begin(); it != end; ++it)
+  {
+    if (!it->has(key))
+      continue;
+
+    auto origVal = it->get<std::string>(key);
+
+    end = std::remove_if(it + 1, end, [&origVal, &key](const Mongo::BSONDoc& doc) {
+      return doc.get<std::string>(key) == origVal;
+    });
+  }
+  v.erase(end, v.end());
+
+  return true;
 }
 
 }  // namespace Mongo

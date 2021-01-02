@@ -7,11 +7,11 @@
 #pragma GCC diagnostic pop
 
 #include "BSONDocTests.hpp"
-#include "ChirpCsvTests.cpp"
+#include "ChirpCsvTests.hpp"
 #include "NetworkApiTests.hpp"
-#include "RepeaterBookTests.cpp"
+#include "RepeaterBookTests.hpp"
 #include "SimpleTest.hpp"
-#include "WidgetTests.cpp"
+#include "WidgetTests.hpp"
 
 int main(int argc, char** argv)
 {
