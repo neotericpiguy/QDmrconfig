@@ -608,4 +608,21 @@ int BSONDoc::getType(const std::string& path) const
   return 0;
 }
 
+bool BSONDoc::removeDuplicates(std::vector<Mongo::BSONDoc>& v, const std::string& key)
+{
+  // https://kodlogs.com/38749/c-remove-duplicates-from-vector-without-sorting
+  auto end = v.end();
+  for (auto it = v.begin(); it != end; ++it)
+  {
+    auto origVal = it->get<std::string>(key);
+
+    end = std::remove_if(it + 1, end, [&origVal, &key](const Mongo::BSONDoc& doc) {
+      return doc.get<std::string>(key) == origVal;
+    });
+  }
+  v.erase(end, v.end());
+
+  return true;
+}
+
 }  // namespace Mongo

@@ -13,6 +13,9 @@ public:
 
 public:
   static const std::string repeaterStr;
+  static const std::string tucsonResults;
+  static const std::string bensonResults;
+  static const std::string vailResults;
   bool openParse();
   bool append();
 };

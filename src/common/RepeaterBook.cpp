@@ -17,15 +17,8 @@ bool RepeaterBook::open(const std::string& file)
 
 bool RepeaterBook::fromStdString(const std::string& results)
 {
-  Mongo::BSONDoc resultsDoc(results);
-
-  if (!resultsDoc.has("count") || !resultsDoc.has("results"))
-    return false;
-
-  int32_t count = resultsDoc.get<int32_t>("count");
-
-  _entries = resultsDoc.get<std::vector<Mongo::BSONDoc>>("results");
-  _entries.resize(count);
+  _entries.clear();
+  append(results);
 
   return true;
 }
@@ -85,6 +78,9 @@ const std::vector<Mongo::BSONDoc>& RepeaterBook::getEntries() const
 
 bool RepeaterBook::append(const std::string& results)
 {
+  if (!Mongo::BSONDoc::isValid(results))
+    return false;
+
   Mongo::BSONDoc resultsDoc(results);
 
   if (!resultsDoc.has("count") || !resultsDoc.has("results"))
@@ -96,6 +92,12 @@ bool RepeaterBook::append(const std::string& results)
   entries.resize(count);
 
   _entries.insert(_entries.end(), entries.begin(), entries.end());
+  return true;
+}
+
+bool RepeaterBook::removeDuplicates(const std::string& key)
+{
+  Mongo::BSONDoc::removeDuplicates(_entries, key);
   return true;
 }
 

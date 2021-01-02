@@ -6,6 +6,8 @@
 #include <ctime>
 #include <fstream>
 #include <functional>
+#include <iostream>
+#include <iterator>
 #include <vector>
 
 namespace Mongo {
@@ -130,6 +132,7 @@ public:
   int getType(const std::string& path) const;
 
   static bool isValid(const std::string& json);
+  static bool removeDuplicates(std::vector<Mongo::BSONDoc>& vec, const std::string& key);
 
   /** \deprecated Kind of a dangerous function */
   bson_t* get() const;

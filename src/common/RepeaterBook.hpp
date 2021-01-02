@@ -21,6 +21,8 @@ public:
   bool append(const std::string& results);
   void resize(size_t n);
   size_t size() const;
+  bool removeDuplicates(const std::string& key);
+
   std::vector<Mongo::BSONDoc> getAnalogFormat() const;
 
 private:
