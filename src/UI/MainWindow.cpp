@@ -76,9 +76,8 @@ MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploa
   connect(openAct, &QAction::triggered, this, [this]() {
     auto filename = QFileDialog::getOpenFileName(this, tr("Open Config"), "./", tr("Config Files (*.conf)"));
     if (filename.length() <= 0)
-    {
       return;
-    }
+
     loadFile(filename.toStdString());
   });
 
