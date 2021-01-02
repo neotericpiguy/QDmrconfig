@@ -323,19 +323,12 @@ void MainWindow::repeaterBookSlotReadyRead(QNetworkReply* reply)
   std::string url = reply->url().toString().toStdString();
   url = url.substr(url.rfind("?") + 1, url.length() - url.rfind("?") - 1);
 
-  Mongo::BSONDoc results(replyStr.toStdString());
-
-  if (!results.has("results") || !results.has("count"))
+  RepeaterBook results;
+  if (!results.fromStdString(replyStr.toStdString()))
   {
     statusBar()->showMessage(tr("Done messed up... Try again later"));
     return;
   }
-
-  int32_t count = results.get<int32_t>("count");
-  auto entries = results.get<std::vector<Mongo::BSONDoc>>("results");
-
-  // Ensure dimensions match the docs.
-  entries.resize(count);
 
   if (_multiRepeaterBookSearch)
   {
@@ -344,8 +337,8 @@ void MainWindow::repeaterBookSlotReadyRead(QNetworkReply* reply)
     return;
   }
 
-  statusBar()->showMessage(tr("Repeater Results: ") + QString::number(count));
-  _tabWidget->addTab(new BSONDocWidget(entries), QString("Repeater search: ") + QString(url.c_str()));
+  statusBar()->showMessage(tr("Repeater Results: ") + QString::number(results.size()));
+  _tabWidget->addTab(new BSONDocWidget(results.getEntries()), QString("Repeater search: ") + QString(url.c_str()));
   _tabWidget->setCurrentIndex(_tabWidget->count() - 1);
 }
 
