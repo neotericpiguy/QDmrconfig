@@ -4,13 +4,13 @@
 
 BSONDocWidget::BSONDocWidget(const std::vector<Mongo::BSONDoc>& bsonDocs, QWidget* parent) :
     QWidget(parent),
-    _isDebug(false),
+    _layout(new QVBoxLayout),
+    _tableWidget(new QTableWidget(this)),
     _bsonDocs(bsonDocs),
-    _tableWidget(new QTableWidget(this))
+    _nameColumnMap()
 {
-  QVBoxLayout* layout = new QVBoxLayout;
-  layout->addWidget(_tableWidget);
-  setLayout(layout);
+  _layout->addWidget(_tableWidget);
+  setLayout(_layout);
 
   // Fit contents of table cells
   _tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -27,22 +27,12 @@ BSONDocWidget::BSONDocWidget(const std::vector<Mongo::BSONDoc>& bsonDocs, QWidge
   hideAction->setShortcut(QKeySequence(tr("Ctrl+h")));
   addAction(hideAction);
   connect(hideAction, &QAction::triggered, this, [this]() { hideRow(); });
+
+  // Update contents of table
   update();
 }
 
 BSONDocWidget::~BSONDocWidget()
-{
-}
-
-void BSONDocWidget::duplicateTableRow()
-{
-}
-
-void BSONDocWidget::removeTableRow()
-{
-}
-
-void BSONDocWidget::sortTableRow()
 {
 }
 
@@ -75,24 +65,7 @@ void BSONDocWidget::filterTableColumn()
   for (const auto& item : _tableWidget->selectedItems())
   {
     int j = item->column();
-    for (int i = 0; i < _tableWidget->rowCount(); i++)
-    {
-      std::string cellText = _tableWidget->item(i, j)->text().toStdString();
-
-      try
-      {
-        std::regex e(".*" + text.toStdString() + ".*", std::regex_constants::icase);
-
-        if (text == "")
-          _tableWidget->showRow(i);
-        else if (!std::regex_match(cellText, e))
-          _tableWidget->hideRow(i);
-      }
-      catch (const std::exception& e)
-      {
-        //Msg box error to user
-      }
-    }
+    filterColumn(j, text.toStdString());
   }
 }
 
@@ -102,30 +75,6 @@ void BSONDocWidget::hideRow()
   {
     _tableWidget->hideRow(item->row());
   }
-}
-
-void BSONDocWidget::removeValueAction()
-{
-}
-
-void BSONDocWidget::addValueAction()
-{
-}
-
-void BSONDocWidget::itemUpdate(QTableWidgetItem* /*item*/)
-{
-}
-
-void BSONDocWidget::metaUpdate()
-{
-}
-
-void BSONDocWidget::updateTable()
-{
-}
-
-void BSONDocWidget::cellSelected(int, int)
-{
 }
 
 void BSONDocWidget::update()
@@ -143,8 +92,11 @@ void BSONDocWidget::update()
 
   // Set header info *has to be done after setting the row and column size
   QStringList headers;
-  for (const auto& key : keys)
-    headers << key.c_str();
+  for (uint16_t column = 0; column < keys.size(); ++column)
+  {
+    headers << keys[column].c_str();
+    _nameColumnMap[keys[column]] = column;
+  }
   _tableWidget->setHorizontalHeaderLabels(headers);
 
   for (uint16_t row = 0; row < _bsonDocs.size(); ++row)
@@ -162,6 +114,29 @@ void BSONDocWidget::update()
   _tableWidget->blockSignals(false);
 }
 
-void BSONDocWidget::setDebug(bool /*state*/)
+const std::map<std::string, unsigned int>& BSONDocWidget::getNameColumnMap() const
 {
+  return _nameColumnMap;
+}
+
+void BSONDocWidget::filterColumn(unsigned int column, const std::string& regexStr)
+{
+  for (int i = 0; i < _tableWidget->rowCount(); i++)
+  {
+    std::string cellText = _tableWidget->item(i, column)->text().toStdString();
+
+    try
+    {
+      std::regex e(".*" + regexStr + ".*", std::regex_constants::icase);
+
+      if (regexStr == "")
+        _tableWidget->showRow(i);
+      else if (!std::regex_match(cellText, e))
+        _tableWidget->hideRow(i);
+    }
+    catch (const std::exception& e)
+    {
+      //Msg box error to user
+    }
+  }
 }

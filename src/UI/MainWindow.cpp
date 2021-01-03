@@ -2,8 +2,10 @@
 
 #include "BSONDoc.hpp"
 #include "BSONDocWidget.hpp"
+#include "ChirpCsv.hpp"
 #include "ConfFileWidget.hpp"
 #include "FieldEntryDialog.hpp"
+#include "RepeaterBookResultsWidget.hpp"
 
 MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploadFile, const std::function<void(const std::string&)>& radioDownloadFile) :
     QMainWindow(),
@@ -323,7 +325,7 @@ void MainWindow::repeaterBookSlotReadyRead(QNetworkReply* reply)
   }
 
   statusBar()->showMessage(tr("Repeater Results: ") + QString::number(results.size()));
-  _tabWidget->addTab(new BSONDocWidget(results.getEntries()), QString("Repeater search: ") + QString(url.c_str()));
+  _tabWidget->addTab(new RepeaterBookResultsWidget(results.getEntries()), QString("Repeater search: ") + QString(url.c_str()));
   _tabWidget->setCurrentIndex(_tabWidget->count() - 1);
 }
 
@@ -442,5 +444,5 @@ void MainWindow::repeaterBookSearch()
 void MainWindow::processRepeaterBookSearchResults()
 {
   _multiRepeaterBookSearchResults.removeDuplicates("Rptr ID");
-  _tabWidget->addTab(new BSONDocWidget(_multiRepeaterBookSearchResults.getEntries()), QString("Multi search Results "));
+  _tabWidget->addTab(new RepeaterBookResultsWidget(_multiRepeaterBookSearchResults.getEntries()), QString("Multi search Results "));
 }

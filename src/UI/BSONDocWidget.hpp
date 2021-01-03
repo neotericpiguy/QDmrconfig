@@ -23,28 +23,23 @@ public:
   virtual ~BSONDocWidget();
 
   void update();
-  void metaUpdate();
   void setDebug(bool state);
-  void updateTable();
   std::vector<Mongo::BSONDoc> getVisibleDocs() const;
 
-private slots:
-  void itemUpdate(QTableWidgetItem* item);
-  void cellSelected(int nRow, int nCol);
-  void duplicateTableRow();
-  void removeTableRow();
   void filterTableColumn();
+  void filterColumn(unsigned int column, const std::string& regexStr);
   void hideRow();
-  void sortTableRow();
-  void removeValueAction();
-  void addValueAction();
+  const std::map<std::string, unsigned int>& getNameColumnMap() const;
+
+protected:
+  QVBoxLayout* _layout;
+  QTableWidget* _tableWidget;
 
 private:
-  bool _isDebug;
   std::vector<Mongo::BSONDoc> _bsonDocs;
 
   //  QPlainTextEdit* _textView;
-  QTableWidget* _tableWidget;
+  std::map<std::string, unsigned int> _nameColumnMap;
 };
 
 #endif

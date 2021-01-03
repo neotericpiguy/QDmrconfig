@@ -1,6 +1,12 @@
 #include "WidgetTests.hpp"
 
+#include "BSONDocTests.hpp"
+#include "BSONDocWidget.hpp"
 #include "ChirpCsv.hpp"
+#include "ConfFileWidget.hpp"
+#include "FieldEntryDialog.hpp"
+#include "RepeaterBookResultsWidget.hpp"
+#include "SimpleTest.hpp"
 
 WidgetTests::WidgetTests() :
     QMainWindow(),
@@ -21,6 +27,7 @@ WidgetTests::WidgetTests() :
     initFieldEntryDialog();
   });
 
+  initRepeaterBookSearchResultsWidget();
   repeaterBookExport();
   initChirpCsvTests();
   initBsonDocWidget();
@@ -110,5 +117,14 @@ bool WidgetTests::initChirpCsvTests()
   confBlock.appendRepeaterDoc(tempDocs);
 
   _tabWidget->addTab(confFileWidget, __PRETTY_FUNCTION__);
+  return true;
+}
+
+bool WidgetTests::initRepeaterBookSearchResultsWidget()
+{
+  RepeaterBook repeaterBook;
+  TEST(repeaterBook.fromStdString(RepeaterBookTests::repeaterStr), ==, true);
+
+  _tabWidget->addTab(new RepeaterBookResultsWidget(repeaterBook.getEntries()), __PRETTY_FUNCTION__);
   return true;
 }
