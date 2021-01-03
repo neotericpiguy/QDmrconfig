@@ -1,18 +1,11 @@
 #include "RepeaterBook.hpp"
 
-RepeaterBook::RepeaterBook() :
-    _filename(""),
-    _entries({})
+RepeaterBook::RepeaterBook()
 {
 }
 
 RepeaterBook::~RepeaterBook()
 {
-}
-
-bool RepeaterBook::open(const std::string& file)
-{
-  return false;
 }
 
 bool RepeaterBook::fromStdString(const std::string& results)
@@ -71,11 +64,6 @@ std::vector<Mongo::BSONDoc> RepeaterBook::getAnalogFormat() const
   return results;
 }
 
-const std::vector<Mongo::BSONDoc>& RepeaterBook::getEntries() const
-{
-  return _entries;
-}
-
 bool RepeaterBook::append(const std::string& results)
 {
   if (!Mongo::BSONDoc::isValid(results))
@@ -95,23 +83,3 @@ bool RepeaterBook::append(const std::string& results)
   return true;
 }
 
-bool RepeaterBook::removeDuplicates(const std::string& key)
-{
-  Mongo::BSONDoc::removeDuplicates(_entries, key);
-  return true;
-}
-
-size_t RepeaterBook::size() const
-{
-  return _entries.size();
-}
-
-void RepeaterBook::resize(size_t n)
-{
-  _entries.resize(n);
-}
-
-void RepeaterBook::clear()
-{
-  _entries.clear();
-}

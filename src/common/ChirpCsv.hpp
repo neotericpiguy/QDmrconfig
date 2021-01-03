@@ -7,24 +7,18 @@
 #include <vector>
 
 #include "BSONDoc.hpp"
+#include "ChannelSource.hpp"
 #include "StringThings.hpp"
 
-class ChirpCsv
+class ChirpCsv : public ChannelSource
 {
 public:
   ChirpCsv();
-  ~ChirpCsv();
+  virtual ~ChirpCsv();
 
-  bool open(const std::string& file);
-  const std::vector<Mongo::BSONDoc>& getEntries() const;
-
-  void resize(size_t n);
-  size_t size() const;
-  std::vector<Mongo::BSONDoc> getAnalogFormat() const;
-
-private:
-  std::string _filename;
-  std::vector<Mongo::BSONDoc> _entries;
+  virtual bool open(const std::string& file) override;
+  virtual std::vector<Mongo::BSONDoc> getAnalogFormat() const override;
+  virtual bool append(const std::string& results) override;
 };
 
 #endif

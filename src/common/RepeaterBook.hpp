@@ -6,29 +6,18 @@
 #include <vector>
 
 #include "BSONDoc.hpp"
+#include "ChannelSource.hpp"
 #include "StringThings.hpp"
 
-class RepeaterBook
+class RepeaterBook : public ChannelSource
 {
 public:
   RepeaterBook();
-  ~RepeaterBook();
+  virtual ~RepeaterBook();
 
-  bool open(const std::string& file);
-  bool fromStdString(const std::string& results);
-  const std::vector<Mongo::BSONDoc>& getEntries() const;
-
-  bool append(const std::string& results);
-  void resize(size_t n);
-  size_t size() const;
-  void clear();
-  bool removeDuplicates(const std::string& key);
-
-  std::vector<Mongo::BSONDoc> getAnalogFormat() const;
-
-private:
-  std::string _filename;
-  std::vector<Mongo::BSONDoc> _entries;
+  virtual bool fromStdString(const std::string& results) override;
+  virtual std::vector<Mongo::BSONDoc> getAnalogFormat() const override;
+  virtual bool append(const std::string& results) override;
 };
 
 #endif
