@@ -29,11 +29,15 @@ public:
   void filterTableColumn();
   void hideRow();
 
+protected:
+  QVBoxLayout* _layout;
+
 private:
   std::vector<Mongo::BSONDoc> _bsonDocs;
 
   //  QPlainTextEdit* _textView;
   QTableWidget* _tableWidget;
+  std::map<std::string, unsigned int> _nameColumnMap;
 };
 
 #endif

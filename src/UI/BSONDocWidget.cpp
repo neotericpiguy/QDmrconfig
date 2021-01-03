@@ -4,12 +4,13 @@
 
 BSONDocWidget::BSONDocWidget(const std::vector<Mongo::BSONDoc>& bsonDocs, QWidget* parent) :
     QWidget(parent),
+    _layout(new QVBoxLayout),
     _bsonDocs(bsonDocs),
-    _tableWidget(new QTableWidget(this))
+    _tableWidget(new QTableWidget(this)),
+    _nameColumnMap()
 {
-  QVBoxLayout* layout = new QVBoxLayout;
-  layout->addWidget(_tableWidget);
-  setLayout(layout);
+  _layout->addWidget(_tableWidget);
+  setLayout(_layout);
 
   // Fit contents of table cells
   _tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -26,6 +27,8 @@ BSONDocWidget::BSONDocWidget(const std::vector<Mongo::BSONDoc>& bsonDocs, QWidge
   hideAction->setShortcut(QKeySequence(tr("Ctrl+h")));
   addAction(hideAction);
   connect(hideAction, &QAction::triggered, this, [this]() { hideRow(); });
+
+  // Update contents of table
   update();
 }
 
@@ -106,8 +109,11 @@ void BSONDocWidget::update()
 
   // Set header info *has to be done after setting the row and column size
   QStringList headers;
-  for (const auto& key : keys)
-    headers << key.c_str();
+  for (uint16_t column = 0; column < keys.size(); ++column)
+  {
+    headers << keys[column].c_str();
+    _nameColumnMap[keys[column]] = column;
+  }
   _tableWidget->setHorizontalHeaderLabels(headers);
 
   for (uint16_t row = 0; row < _bsonDocs.size(); ++row)

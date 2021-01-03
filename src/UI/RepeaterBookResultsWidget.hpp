@@ -16,9 +16,11 @@ class RepeaterBookResultsWidget : public BSONDocWidget
 
 public:
   RepeaterBookResultsWidget(const std::vector<Mongo::BSONDoc>& bsonDocs, QWidget* parent = 0);
-  //  RepeaterBookResultsWidget(const RepeaterBookResultsWidget&) = delete;
-  //  RepeaterBookResultsWidget& operator=(const RepeaterBookResultsWidget&) = delete;
+  RepeaterBookResultsWidget(const RepeaterBookResultsWidget&) = delete;
+  RepeaterBookResultsWidget& operator=(const RepeaterBookResultsWidget&) = delete;
   virtual ~RepeaterBookResultsWidget();
+
+  void filterVhfUhfFrequencies();
 };
 
 #endif
