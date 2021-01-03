@@ -1,8 +1,6 @@
 #include "ChirpCsv.hpp"
 
-ChirpCsv::ChirpCsv() :
-    _filename(""),
-    _entries({})
+ChirpCsv::ChirpCsv()
 {
 }
 
@@ -12,7 +10,6 @@ ChirpCsv::~ChirpCsv()
 
 bool ChirpCsv::open(const std::string& file)
 {
-  _filename = file;
   std::ifstream fs(file);
 
   if (!fs.is_open())
@@ -122,19 +119,4 @@ std::vector<Mongo::BSONDoc> ChirpCsv::getAnalogFormat() const
     results.push_back(temp);
   }
   return results;
-}
-
-const std::vector<Mongo::BSONDoc>& ChirpCsv::getEntries() const
-{
-  return _entries;
-}
-
-size_t ChirpCsv::size() const
-{
-  return _entries.size();
-}
-
-void ChirpCsv::resize(size_t n)
-{
-  _entries.resize(n);
 }
