@@ -4,12 +4,6 @@
 #include <QMainWindow>
 #include <QtWidgets>
 
-#include "BSONDocTests.hpp"
-#include "BSONDocWidget.hpp"
-#include "ConfFileWidget.hpp"
-#include "FieldEntryDialog.hpp"
-#include "SimpleTest.hpp"
-
 class WidgetTests : public QMainWindow
 {
   Q_OBJECT
@@ -24,6 +18,7 @@ public:
   bool initBsonDocWidget();
   bool repeaterBookExport();
   bool initChirpCsvTests();
+  bool initRepeaterBookSearchResultsWidget();
 
 private:
   QTabWidget* _tabWidget;

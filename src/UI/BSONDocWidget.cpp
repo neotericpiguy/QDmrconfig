@@ -4,7 +4,6 @@
 
 BSONDocWidget::BSONDocWidget(const std::vector<Mongo::BSONDoc>& bsonDocs, QWidget* parent) :
     QWidget(parent),
-    _isDebug(false),
     _bsonDocs(bsonDocs),
     _tableWidget(new QTableWidget(this))
 {
@@ -31,18 +30,6 @@ BSONDocWidget::BSONDocWidget(const std::vector<Mongo::BSONDoc>& bsonDocs, QWidge
 }
 
 BSONDocWidget::~BSONDocWidget()
-{
-}
-
-void BSONDocWidget::duplicateTableRow()
-{
-}
-
-void BSONDocWidget::removeTableRow()
-{
-}
-
-void BSONDocWidget::sortTableRow()
 {
 }
 
@@ -104,30 +91,6 @@ void BSONDocWidget::hideRow()
   }
 }
 
-void BSONDocWidget::removeValueAction()
-{
-}
-
-void BSONDocWidget::addValueAction()
-{
-}
-
-void BSONDocWidget::itemUpdate(QTableWidgetItem* /*item*/)
-{
-}
-
-void BSONDocWidget::metaUpdate()
-{
-}
-
-void BSONDocWidget::updateTable()
-{
-}
-
-void BSONDocWidget::cellSelected(int, int)
-{
-}
-
 void BSONDocWidget::update()
 {
   if (_bsonDocs.empty())
@@ -162,6 +125,3 @@ void BSONDocWidget::update()
   _tableWidget->blockSignals(false);
 }
 
-void BSONDocWidget::setDebug(bool /*state*/)
-{
-}

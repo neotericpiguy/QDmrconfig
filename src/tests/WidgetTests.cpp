@@ -1,6 +1,12 @@
 #include "WidgetTests.hpp"
 
+#include "BSONDocTests.hpp"
+#include "BSONDocWidget.hpp"
 #include "ChirpCsv.hpp"
+#include "ConfFileWidget.hpp"
+#include "FieldEntryDialog.hpp"
+#include "RepeaterBookResultsWidget.hpp"
+#include "SimpleTest.hpp"
 
 WidgetTests::WidgetTests() :
     QMainWindow(),
@@ -21,6 +27,7 @@ WidgetTests::WidgetTests() :
     initFieldEntryDialog();
   });
 
+  initRepeaterBookSearchResultsWidget();
   repeaterBookExport();
   initChirpCsvTests();
   initBsonDocWidget();
@@ -110,5 +117,17 @@ bool WidgetTests::initChirpCsvTests()
   confBlock.appendRepeaterDoc(tempDocs);
 
   _tabWidget->addTab(confFileWidget, __PRETTY_FUNCTION__);
+  return true;
+}
+
+bool WidgetTests::initRepeaterBookSearchResultsWidget()
+{
+  Mongo::BSONDoc temp(RepeaterBookTests::repeaterStr);
+  TEST(temp.has("results"), ==, true);
+  TEST(temp.get<int32_t>("count"), ==, 51);
+  auto bsonDocs = temp.get<std::vector<Mongo::BSONDoc>>("results");
+  bsonDocs.resize(temp.get<int32_t>("count"));
+
+  _tabWidget->addTab(new RepeaterBookResultsWidget(bsonDocs), __PRETTY_FUNCTION__);
   return true;
 }
