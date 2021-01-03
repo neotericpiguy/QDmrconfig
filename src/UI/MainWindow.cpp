@@ -2,8 +2,10 @@
 
 #include "BSONDoc.hpp"
 #include "BSONDocWidget.hpp"
+#include "ChirpCsv.hpp"
 #include "ConfFileWidget.hpp"
 #include "FieldEntryDialog.hpp"
+#include "RepeaterBookResultsWidget.hpp"
 
 MainWindow::MainWindow(const std::function<void(const std::string&)>& radioUploadFile, const std::function<void(const std::string&)>& radioDownloadFile) :
     QMainWindow(),

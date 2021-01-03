@@ -1,18 +1,12 @@
 #ifndef MAINWINDOW_HPP
 #define MAINWINDOW_HPP
 
-#include <stdlib.h>
-
-#include <memory>
-
 #pragma GCC diagnostic ignored "-Weffc++"
 #include <QMainWindow>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include <QtWidgets>
 #pragma GCC diagnostic pop
 
-#include "ChirpCsv.hpp"
 #include "RepeaterBook.hpp"
 
 class MainWindow : public QMainWindow
