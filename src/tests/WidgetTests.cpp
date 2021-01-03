@@ -122,12 +122,9 @@ bool WidgetTests::initChirpCsvTests()
 
 bool WidgetTests::initRepeaterBookSearchResultsWidget()
 {
-  Mongo::BSONDoc temp(RepeaterBookTests::repeaterStr);
-  TEST(temp.has("results"), ==, true);
-  TEST(temp.get<int32_t>("count"), ==, 51);
-  auto bsonDocs = temp.get<std::vector<Mongo::BSONDoc>>("results");
-  bsonDocs.resize(temp.get<int32_t>("count"));
+  RepeaterBook repeaterBook;
+  TEST(repeaterBook.fromStdString(RepeaterBookTests::repeaterStr), ==, true);
 
-  _tabWidget->addTab(new RepeaterBookResultsWidget(bsonDocs), __PRETTY_FUNCTION__);
+  _tabWidget->addTab(new RepeaterBookResultsWidget(repeaterBook.getEntries()), __PRETTY_FUNCTION__);
   return true;
 }
