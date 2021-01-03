@@ -39,6 +39,5 @@ void RepeaterBookResultsWidget::filterPreset(const std::string& columnName, cons
     return;
 
   int j = nameColumnMap.at(columnName);
-  std::string text("^(1|4)\\d\\d\\.");
   filterColumn(j, regexStr);
 }
