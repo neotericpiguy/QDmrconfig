@@ -121,7 +121,3 @@ std::vector<Mongo::BSONDoc> ChirpCsv::getAnalogFormat() const
   return results;
 }
 
-bool ChirpCsv::append(const std::string& results)
-{
-  return false;
-}

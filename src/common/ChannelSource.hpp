@@ -16,8 +16,8 @@ public:
 
   virtual bool open(const std::string& file);
   virtual bool fromStdString(const std::string& results);
-  virtual std::vector<Mongo::BSONDoc> getAnalogFormat() const = 0;
-  virtual bool append(const std::string& results) = 0;
+  virtual std::vector<Mongo::BSONDoc> getAnalogFormat() const;
+  virtual bool append(const std::string& results);
 
   const std::vector<Mongo::BSONDoc>& getEntries() const;
   void resize(size_t n);

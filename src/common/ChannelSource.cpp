@@ -45,3 +45,12 @@ void ChannelSource::clear()
   _entries.clear();
 }
 
+std::vector<Mongo::BSONDoc> ChannelSource::getAnalogFormat() const
+{
+  return {};
+}
+
+bool ChannelSource::append(const std::string& results)
+{
+  return false;
+}

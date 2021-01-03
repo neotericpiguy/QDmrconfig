@@ -18,7 +18,6 @@ public:
 
   virtual bool open(const std::string& file) override;
   virtual std::vector<Mongo::BSONDoc> getAnalogFormat() const override;
-  virtual bool append(const std::string& results) override;
 };
 
 #endif
