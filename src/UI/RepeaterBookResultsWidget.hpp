@@ -20,7 +20,7 @@ public:
   RepeaterBookResultsWidget& operator=(const RepeaterBookResultsWidget&) = delete;
   virtual ~RepeaterBookResultsWidget();
 
-  void filterVhfUhfFrequencies();
+  void filterPreset(const std::string& columnName, const std::string& regexStr);
 };
 
 #endif

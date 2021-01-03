@@ -5,8 +5,8 @@
 BSONDocWidget::BSONDocWidget(const std::vector<Mongo::BSONDoc>& bsonDocs, QWidget* parent) :
     QWidget(parent),
     _layout(new QVBoxLayout),
-    _bsonDocs(bsonDocs),
     _tableWidget(new QTableWidget(this)),
+    _bsonDocs(bsonDocs),
     _nameColumnMap()
 {
   _layout->addWidget(_tableWidget);
@@ -65,24 +65,7 @@ void BSONDocWidget::filterTableColumn()
   for (const auto& item : _tableWidget->selectedItems())
   {
     int j = item->column();
-    for (int i = 0; i < _tableWidget->rowCount(); i++)
-    {
-      std::string cellText = _tableWidget->item(i, j)->text().toStdString();
-
-      try
-      {
-        std::regex e(".*" + text.toStdString() + ".*", std::regex_constants::icase);
-
-        if (text == "")
-          _tableWidget->showRow(i);
-        else if (!std::regex_match(cellText, e))
-          _tableWidget->hideRow(i);
-      }
-      catch (const std::exception& e)
-      {
-        //Msg box error to user
-      }
-    }
+    filterColumn(j, text.toStdString());
   }
 }
 
@@ -131,3 +114,29 @@ void BSONDocWidget::update()
   _tableWidget->blockSignals(false);
 }
 
+const std::map<std::string, unsigned int>& BSONDocWidget::getNameColumnMap() const
+{
+  return _nameColumnMap;
+}
+
+void BSONDocWidget::filterColumn(unsigned int column, const std::string& regexStr)
+{
+  for (int i = 0; i < _tableWidget->rowCount(); i++)
+  {
+    std::string cellText = _tableWidget->item(i, column)->text().toStdString();
+
+    try
+    {
+      std::regex e(".*" + regexStr + ".*", std::regex_constants::icase);
+
+      if (regexStr == "")
+        _tableWidget->showRow(i);
+      else if (!std::regex_match(cellText, e))
+        _tableWidget->hideRow(i);
+    }
+    catch (const std::exception& e)
+    {
+      //Msg box error to user
+    }
+  }
+}

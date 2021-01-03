@@ -27,16 +27,18 @@ public:
   std::vector<Mongo::BSONDoc> getVisibleDocs() const;
 
   void filterTableColumn();
+  void filterColumn(unsigned int column, const std::string& regexStr);
   void hideRow();
+  const std::map<std::string, unsigned int>& getNameColumnMap() const;
 
 protected:
   QVBoxLayout* _layout;
+  QTableWidget* _tableWidget;
 
 private:
   std::vector<Mongo::BSONDoc> _bsonDocs;
 
   //  QPlainTextEdit* _textView;
-  QTableWidget* _tableWidget;
   std::map<std::string, unsigned int> _nameColumnMap;
 };
 
