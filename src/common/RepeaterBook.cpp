@@ -82,4 +82,3 @@ bool RepeaterBook::append(const std::string& results)
   _entries.insert(_entries.end(), entries.begin(), entries.end());
   return true;
 }
-

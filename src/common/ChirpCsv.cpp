@@ -120,4 +120,3 @@ std::vector<Mongo::BSONDoc> ChirpCsv::getAnalogFormat() const
   }
   return results;
 }
-
