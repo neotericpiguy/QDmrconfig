@@ -521,7 +521,25 @@ int32_t BSONDoc::get<int32_t>(const std::string& path) const
     {
       return int32_t(bson_iter_int32(&baz));
     }
-    printf("no int");
+    printf("%d type\n", (bson_iter_type(&baz)));
+    printf("no int32_t\n");
+  }
+  return 0;
+}
+
+template <>
+int64_t BSONDoc::get<int64_t>(const std::string& path) const
+{
+  bson_iter_t iter;
+  bson_iter_t baz;
+  if (bson_iter_init(&iter, _doc) && bson_iter_find_descendant(&iter, path.c_str(), &baz))
+  {
+    if (BSON_ITER_HOLDS_INT64(&baz))
+    {
+      return int64_t(bson_iter_int64(&baz));
+    }
+    printf("%d type\n", (bson_iter_type(&baz)));
+    printf("no int64_t\n");
   }
   return 0;
 }
