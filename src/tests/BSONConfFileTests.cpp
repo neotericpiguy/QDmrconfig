@@ -21,4 +21,3 @@ bool BSONConfFileTests::simpleDoc()
   temp << bsonConfFile.toString() << std::endl;
   return true;
 }
-

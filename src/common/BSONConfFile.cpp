@@ -1,5 +1,7 @@
 #include "BSONConfFile.hpp"
 
+#include "StringThings.hpp"
+
 BSONConfFile::BSONConfFile() :
     _confDoc()
 {
@@ -17,6 +19,8 @@ bool BSONConfFile::loadFile(const std::string& filename)
   Mongo::BSONDoc currentDoc;
   Mongo::BSONDoc descDoc;
   Mongo::BSONDoc mapDoc;
+  std::vector<Mongo::BSONDoc> entryDoc;
+  std::vector<std::string> headerVec;
 
   std::string currentDocName;
   std::string line;
@@ -24,6 +28,7 @@ bool BSONConfFile::loadFile(const std::string& filename)
   while (std::getline(file, line))
   {
     // line is a comment
+    auto columns = StringThings::strToVec(line, ' ');
     if (line[0] == '#')
     {
       if (currentDocName.empty() && line.length() > 2)
@@ -51,6 +56,20 @@ bool BSONConfFile::loadFile(const std::string& filename)
       auto desc = line.substr(end + 2, line.length() - end - 2);
       mapDoc.append(key, desc);
     }
+    else if (columns.size() >= descDoc.count())
+    {
+      if (headerVec.empty())
+        headerVec = columns;
+      else
+      {
+        Mongo::BSONDoc temp;
+        for (unsigned int i = 0; i < columns.size(); ++i)
+        {
+          temp.append(headerVec[i], columns[i]);
+        }
+        entryDoc.push_back(temp);
+      }
+    }
 
     // End of block
     if (line.empty() || file.eof())
@@ -59,12 +78,16 @@ bool BSONConfFile::loadFile(const std::string& filename)
         currentDoc.append("Descriptions", descDoc);
       if (!mapDoc.empty())
         currentDoc.append("Map", mapDoc);
+      if (!entryDoc.empty())
+        currentDoc.append("Entires", entryDoc);
       _confDoc.append(currentDocName, currentDoc);
 
       currentDocName = "";
       currentDoc.clear();
       descDoc.clear();
       mapDoc.clear();
+      entryDoc.clear();
+      headerVec.clear();
       docCount++;
     }
   }
