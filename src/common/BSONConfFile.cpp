@@ -42,17 +42,14 @@ bool BSONConfFile::loadFile(const std::string& filename)
         descDoc.append(key, desc);
       }
     }
-    else
+    // Line is a key value pair
+    else if (line.find(":") != std::string::npos)
     {
-      // Line is a key value pair
-      if (line.find(":") != std::string::npos)
-      {
-        // Radio: BTECH DMR-6x2
-        auto end = line.find(":");
-        auto key = line.substr(0, end);
-        auto desc = line.substr(end + 2, line.length() - end - 2);
-        mapDoc.append(key, desc);
-      }
+      // Radio: BTECH DMR-6x2
+      auto end = line.find(":");
+      auto key = line.substr(0, end);
+      auto desc = line.substr(end + 2, line.length() - end - 2);
+      mapDoc.append(key, desc);
     }
 
     // End of block
