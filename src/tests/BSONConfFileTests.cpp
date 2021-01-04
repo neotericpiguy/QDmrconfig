@@ -16,7 +16,9 @@ bool BSONConfFileTests::simpleDoc()
   TEST(bsonConfFile.loadFile("./examples/btech-6x2.conf"), ==, true);
   TEST(bsonConfFile.size(), ==, 14);
 
-  std::cout << bsonConfFile.toString() << std::endl;
+  std::ofstream temp("out.json");
+
+  temp << bsonConfFile.toString() << std::endl;
   return true;
 }
 

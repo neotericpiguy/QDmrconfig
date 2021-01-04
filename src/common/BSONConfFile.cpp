@@ -15,24 +15,59 @@ bool BSONConfFile::loadFile(const std::string& filename)
   _confDoc.clear();
 
   Mongo::BSONDoc currentDoc;
+  Mongo::BSONDoc descDoc;
+  Mongo::BSONDoc mapDoc;
+
   std::string currentDocName;
   std::string line;
   int32_t docCount = 0;
   while (std::getline(file, line))
   {
     // line is a comment
-    if (line[0] == '#' && currentDocName.empty() && line.length() > 2)
+    if (line[0] == '#')
     {
-      currentDocName = line.substr(2, line.length() - 2);
+      if (currentDocName.empty() && line.length() > 2)
+      {
+        currentDocName = line.substr(2, line.length() - 2);
+      }
+
+      //# 1) Channel number: 1-4000
+      if (line.find(")") != std::string::npos && line.find(":") != std::string::npos)
+      {
+        // Comment is a description
+        auto start = line.find(")");
+        auto end = line.find(":");
+        auto key = line.substr(start + 2, end - start - 2);
+        auto desc = line.substr(end + 2, line.length() - end - 2);
+        descDoc.append(key, desc);
+      }
+    }
+    else
+    {
+      // Line is a key value pair
+      if (line.find(":") != std::string::npos)
+      {
+        // Radio: BTECH DMR-6x2
+        auto end = line.find(":");
+        auto key = line.substr(0, end);
+        auto desc = line.substr(end + 2, line.length() - end - 2);
+        mapDoc.append(key, desc);
+      }
     }
 
     // End of block
     if (line.empty() || file.eof())
     {
+      if (!descDoc.empty())
+        currentDoc.append("Descriptions", descDoc);
+      if (!mapDoc.empty())
+        currentDoc.append("Map", mapDoc);
       _confDoc.append(currentDocName, currentDoc);
 
       currentDocName = "";
       currentDoc.clear();
+      descDoc.clear();
+      mapDoc.clear();
       docCount++;
     }
   }
