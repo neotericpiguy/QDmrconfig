@@ -132,6 +132,19 @@ bool BSONConfFile::saveFile(const std::string& filename)
     fileStream << "# " << key << std::endl;
     fileStream << "#" << std::endl;
 
+    if (doc.has("Descriptions"))
+    {
+      const auto& descDoc = doc.get<Mongo::BSONDoc>("Descriptions");
+      const auto descDocKeys = descDoc.getKeys();
+      for (unsigned int descDocIndex = 0; descDocIndex < descDocKeys.size(); ++descDocIndex)
+      {
+        const auto& descDocKey = descDocKeys.at(descDocIndex);
+        fileStream << "# " << descDocIndex + 1 << ") " << descDocKey << ": "
+                   << descDoc.get<std::string>(descDocKey) << std::endl;
+      }
+      fileStream << std::endl;
+    }
+
     if (doc.has("Map"))
     {
       const auto& mapDoc = doc.get<Mongo::BSONDoc>("Map");
