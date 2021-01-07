@@ -83,7 +83,22 @@ bool BSONConfFile::loadFile(const std::string& filename)
         entryDoc.push_back(temp);
 
         if (temp.has("Analog") || temp.has("Digital"))
+        {
+          if (temp.has("Analog"))
+          {
+            double channelNumber = temp.get<double>("Analog");
+            temp.append("Type", "Analog");
+            temp.append("Channel", channelNumber);
+          }
+          else if (temp.has("Digital"))
+          {
+            double channelNumber = temp.get<double>("Digital");
+            temp.append("Type", "Digital");
+            temp.append("Channel", channelNumber);
+          }
+
           channelDocs.push_back(temp);
+        }
       }
     }
 
@@ -142,7 +157,8 @@ bool BSONConfFile::saveFile(const std::string& filename)
         fileStream << "# " << descDocIndex + 1 << ") " << descDocKey << ": "
                    << descDoc.get<std::string>(descDocKey) << std::endl;
       }
-      fileStream << std::endl;
+      fileStream << "#\n"
+                 << std::endl;
     }
 
     if (doc.has("Map"))
@@ -156,6 +172,25 @@ bool BSONConfFile::saveFile(const std::string& filename)
     }
   }
 
+  std::cout << channelDocs.size() << std::endl;
+  sortChannelDocs("Channel");
+  std::cout << channelDocs.size() << std::endl;
+
+  std::cout << channelDocs.size() << std::endl;
+  for (const auto& channelDoc : channelDocs)
+  {
+    std::cout << channelDoc.toString() << std::endl;
+  }
+  std::cout << channelDocs.size() << std::endl;
+
+  return true;
+}
+
+bool BSONConfFile::sortChannelDocs(const std::string& key)
+{
+  std::sort(channelDocs.begin(), channelDocs.end(), [&key](const Mongo::BSONDoc& a, const Mongo::BSONDoc& b) {
+    return a.get<double>(key) < b.get<double>(key);
+  });
   return true;
 }
 

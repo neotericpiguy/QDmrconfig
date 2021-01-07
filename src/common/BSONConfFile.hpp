@@ -24,6 +24,8 @@ public:
   std::string toString() const;
   size_t size() const;
 
+  bool sortChannelDocs(const std::string& key);
+
 private:
   Mongo::BSONDoc _confDoc;
   std::map<std::string, Mongo::BSONDoc> _confDocs;
