@@ -27,6 +27,7 @@ bool BSONConfFile::loadFile(const std::string& filename)
   int32_t docCount = 0;
   while (std::getline(file, line))
   {
+    std::cout << line << std::endl;
     // line is a comment
     auto columns = StringThings::strToVec(line, ' ');
     if (line[0] == '#')
@@ -65,7 +66,8 @@ bool BSONConfFile::loadFile(const std::string& filename)
         Mongo::BSONDoc temp;
         for (unsigned int i = 0; i < columns.size(); ++i)
         {
-          temp.append(headerVec[i], columns[i]);
+          if (i < headerVec.size())
+            temp.append(headerVec[i], columns[i]);
         }
         entryDoc.push_back(temp);
       }

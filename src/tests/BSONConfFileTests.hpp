@@ -11,6 +11,7 @@ public:
   BSONConfFileTests(const BSONConfFileTests&) = delete;
   ~BSONConfFileTests();
 
-  bool simpleDoc();
+  bool btechSimpleOpen();
+  bool rd5rSimpleOpen();
 };
 #endif
