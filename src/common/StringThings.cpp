@@ -166,4 +166,11 @@ bool strTo(T& retval, const std::string& tempStr)
 template bool strTo<int>(int& retval, const std::string& tempStr);
 template bool strTo<double>(double& retval, const std::string& tempStr);
 
+bool isNumber(const std::string& string)
+{
+  if (string.length() == 0)
+    return false;
+  return string.find_first_not_of("0123456789,-+.") == std::string::npos;
+}
+
 }  // namespace StringThings

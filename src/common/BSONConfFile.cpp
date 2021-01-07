@@ -3,7 +3,8 @@
 #include "StringThings.hpp"
 
 BSONConfFile::BSONConfFile() :
-    _confDoc()
+    _confDoc(),
+    _confDocs()
 {
 }
 
@@ -17,6 +18,7 @@ bool BSONConfFile::loadFile(const std::string& filename)
   _confDoc.clear();
 
   Mongo::BSONDoc currentDoc;
+  std::vector<Mongo::BSONDoc> channelDocs;
   Mongo::BSONDoc descDoc;
   Mongo::BSONDoc mapDoc;
   std::vector<Mongo::BSONDoc> entryDoc;
@@ -67,9 +69,22 @@ bool BSONConfFile::loadFile(const std::string& filename)
         for (unsigned int i = 0; i < columns.size(); ++i)
         {
           if (i < headerVec.size())
-            temp.append(headerVec[i], columns[i]);
+          {
+            double tempNumber;
+            if (StringThings::isNumber(columns.at(i)) && StringThings::strTo(tempNumber, columns.at(i)))
+            {
+              temp.append(headerVec[i], tempNumber);
+            }
+            else
+            {
+              temp.append(headerVec[i], columns.at(i));
+            }
+          }
         }
         entryDoc.push_back(temp);
+
+        if (temp.has("Analog") || temp.has("Digital"))
+          channelDocs.push_back(temp);
       }
     }
 
@@ -80,9 +95,11 @@ bool BSONConfFile::loadFile(const std::string& filename)
         currentDoc.append("Descriptions", descDoc);
       if (!mapDoc.empty())
         currentDoc.append("Map", mapDoc);
-      if (!entryDoc.empty())
+      if (!entryDoc.empty() && !entryDoc[0].has("Analog") && !entryDoc[0].has("Digital"))
         currentDoc.append("Entires", entryDoc);
+
       _confDoc.append(currentDocName, currentDoc);
+      _confDocs[currentDocName] = currentDoc;
 
       currentDocName = "";
       currentDoc.clear();
@@ -94,6 +111,7 @@ bool BSONConfFile::loadFile(const std::string& filename)
     }
   }
   _confDoc.append("count", docCount);
+  _confDoc.append("Channels", channelDocs);
 
   return true;
 }

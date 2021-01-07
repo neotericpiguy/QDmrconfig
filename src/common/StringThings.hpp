@@ -25,5 +25,7 @@ std::string vecToStr(const std::vector<T>& vec, const std::string& seperator);
 template <typename T>
 bool strTo(T& retval, const std::string& tempStr);
 
+bool isNumber(const std::string& string);
+
 }  // namespace StringThings
 #endif

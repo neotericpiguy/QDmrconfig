@@ -97,6 +97,7 @@ public:
   BSONDoc& append(const std::string& key, int val);
   /** Add a child field and unsigned */
   BSONDoc& append(const std::string& key, unsigned val);
+  BSONDoc& append(const std::string& key, double val);
   /** Add a child field and time_t */
   BSONDoc& append(const std::string& key, time_t time);
   /** Add a child field and bool */

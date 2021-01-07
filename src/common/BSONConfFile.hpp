@@ -34,6 +34,7 @@ private:
   //  std::function<void(const std::string&)> _radioUploadFile;
   //  std::function<void(const std::string&)> _radioDownloadFile;
   Mongo::BSONDoc _confDoc;
+  std::map<std::string, Mongo::BSONDoc> _confDocs;
 };
 
 #endif
