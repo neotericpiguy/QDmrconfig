@@ -13,5 +13,6 @@ public:
 
   bool btechSimpleOpen();
   bool rd5rSimpleOpen();
+  bool rd5rSimpleWrite();
 };
 #endif

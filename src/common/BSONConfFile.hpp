@@ -15,7 +15,7 @@ public:
   BSONConfFile();
 
   bool loadFile(const std::string& filename);
-  void saveFile();
+  bool saveFile(const std::string& filename);
   void uploadFile();
   void downloadFile(const std::string& filename);
 
@@ -23,18 +23,11 @@ public:
 
   std::string toString() const;
   size_t size() const;
-  //  std::map<int, ConfBlock>& getConfBlocks();
-  //  std::map<std::string, ConfBlock*>& getNameBlocks();
 
 private:
-  //  std::string _filename;
-  //  std::map<int, ConfBlock> _confBlocks;
-  //  std::map<std::string, ConfBlock*> _confNameBlocks;
-  //
-  //  std::function<void(const std::string&)> _radioUploadFile;
-  //  std::function<void(const std::string&)> _radioDownloadFile;
   Mongo::BSONDoc _confDoc;
   std::map<std::string, Mongo::BSONDoc> _confDocs;
+  std::vector<Mongo::BSONDoc> channelDocs;
 };
 
 #endif

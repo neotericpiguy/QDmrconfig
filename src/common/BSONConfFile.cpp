@@ -4,7 +4,8 @@
 
 BSONConfFile::BSONConfFile() :
     _confDoc(),
-    _confDocs()
+    _confDocs(),
+    channelDocs()
 {
 }
 
@@ -18,7 +19,6 @@ bool BSONConfFile::loadFile(const std::string& filename)
   _confDoc.clear();
 
   Mongo::BSONDoc currentDoc;
-  std::vector<Mongo::BSONDoc> channelDocs;
   Mongo::BSONDoc descDoc;
   Mongo::BSONDoc mapDoc;
   std::vector<Mongo::BSONDoc> entryDoc;
@@ -29,7 +29,6 @@ bool BSONConfFile::loadFile(const std::string& filename)
   int32_t docCount = 0;
   while (std::getline(file, line))
   {
-    std::cout << line << std::endl;
     // line is a comment
     auto columns = StringThings::strToVec(line, ' ');
     if (line[0] == '#')
@@ -110,14 +109,41 @@ bool BSONConfFile::loadFile(const std::string& filename)
       docCount++;
     }
   }
-  _confDoc.append("count", docCount);
-  _confDoc.append("Channels", channelDocs);
 
   return true;
 }
 
-void BSONConfFile::saveFile()
+bool BSONConfFile::saveFile(const std::string& filename)
 {
+  std::ofstream fileStream(filename);
+  if (!fileStream.is_open())
+    return false;
+
+  std::vector<std::string> confDocKeys = _confDoc.getKeys();
+  for (unsigned int keyIndex = 0; keyIndex < confDocKeys.size(); ++keyIndex)
+  {
+    const auto& key = confDocKeys.at(keyIndex);
+    if (_confDocs.find(key) == _confDocs.end())
+      continue;
+
+    const auto& doc = _confDocs.at(key);
+    if (keyIndex == 0)
+      fileStream << "#" << std::endl;
+    fileStream << "# " << key << std::endl;
+    fileStream << "#" << std::endl;
+
+    if (doc.has("Map"))
+    {
+      const auto& mapDoc = doc.get<Mongo::BSONDoc>("Map");
+      for (const auto& mapKey : mapDoc.getKeys())
+      {
+        fileStream << mapKey << ": " << mapDoc.get<std::string>(mapKey) << std::endl;
+      }
+      fileStream << std::endl;
+    }
+  }
+
+  return true;
 }
 
 bool BSONConfFile::isModified() const
@@ -140,5 +166,5 @@ std::string BSONConfFile::toString() const
 
 size_t BSONConfFile::size() const
 {
-  return _confDoc.get<int64_t>("count");
+  return _confDoc.count();
 }

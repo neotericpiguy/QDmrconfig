@@ -4,6 +4,7 @@ BSONConfFileTests::BSONConfFileTests()
 {
   ADD_TEST(BSONConfFileTests::btechSimpleOpen);
   ADD_TEST(BSONConfFileTests::rd5rSimpleOpen);
+  ADD_TEST(BSONConfFileTests::rd5rSimpleWrite);
 }
 
 BSONConfFileTests::~BSONConfFileTests()
@@ -33,5 +34,16 @@ bool BSONConfFileTests::rd5rSimpleOpen()
   std::ofstream temp("build/" + std::string(__FUNCTION__) + ".json");
 
   temp << bsonConfFile.toString() << std::endl;
+  return true;
+}
+
+bool BSONConfFileTests::rd5rSimpleWrite()
+{
+  BSONConfFile bsonConfFile;
+  TEST(bsonConfFile.loadFile("examples/not_a_real_file"), ==, false);
+  TEST(bsonConfFile.loadFile("./src/dmrconfig/examples/rd5r-factory.conf"), ==, true);
+  TEST(bsonConfFile.size(), ==, 8);
+
+  bsonConfFile.saveFile("build/" + std::string(__FUNCTION__) + ".json");
   return true;
 }
