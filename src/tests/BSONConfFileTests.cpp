@@ -44,6 +44,6 @@ bool BSONConfFileTests::rd5rSimpleWrite()
   bsonConfFile.loadFile("./src/dmrconfig/examples/rd5r-factory.conf");
   TEST(bsonConfFile.size(), ==, 8);
 
-  bsonConfFile.saveFile("build/" + std::string(__FUNCTION__) + ".json");
+  bsonConfFile.saveFile("build/" + std::string(__FUNCTION__) + ".conf");
   return true;
 }

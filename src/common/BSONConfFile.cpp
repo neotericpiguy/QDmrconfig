@@ -157,8 +157,7 @@ bool BSONConfFile::saveFile(const std::string& filename)
         fileStream << "# " << descDocIndex + 1 << ") " << descDocKey << ": "
                    << descDoc.get<std::string>(descDocKey) << std::endl;
       }
-      fileStream << "#\n"
-                 << std::endl;
+      fileStream << "#\n";
     }
 
     if (doc.has("Map"))
@@ -170,18 +169,36 @@ bool BSONConfFile::saveFile(const std::string& filename)
       }
       fileStream << std::endl;
     }
+    else
+    {
+      std::vector<Mongo::BSONDoc> tempDocs;
+      if (key.find("digital") != std::string::npos)
+      {
+        for (const auto& channelDoc : channelDocs)
+        {
+          if (channelDoc.has("Type") && channelDoc.get<std::string>("Type") == "Digital")
+          {
+            tempDocs.push_back(channelDoc);
+          }
+        }
+        fileStream << vecToTable(tempDocs);
+      }
+      else if (key.find("analog") != std::string::npos)
+      {
+        for (const auto& channelDoc : channelDocs)
+        {
+          if (channelDoc.has("Type") && channelDoc.get<std::string>("Type") == "Analog")
+          {
+            tempDocs.push_back(channelDoc);
+          }
+        }
+        fileStream << vecToTable(tempDocs);
+      }
+      fileStream << std::endl;
+    }
   }
 
-  std::cout << channelDocs.size() << std::endl;
   sortChannelDocs("Channel");
-  std::cout << channelDocs.size() << std::endl;
-
-  std::cout << channelDocs.size() << std::endl;
-  for (const auto& channelDoc : channelDocs)
-  {
-    std::cout << channelDoc.toString() << std::endl;
-  }
-  std::cout << channelDocs.size() << std::endl;
 
   return true;
 }
@@ -215,4 +232,86 @@ std::string BSONConfFile::toString() const
 size_t BSONConfFile::size() const
 {
   return _confDoc.count();
+}
+
+std::string BSONConfFile::vecToTable(const std::vector<Mongo::BSONDoc>& docs)
+{
+  if (docs.empty())
+    return "";
+
+  std::stringstream ss;
+  std::vector<std::string> keys = docs.at(0).getKeys();
+  std::vector<unsigned> columnSizes(keys.size(), 0);
+
+  // Find max column size
+  for (unsigned i = 0; i < keys.size(); i++)
+  {
+    if (keys[i].length() > columnSizes[i])
+      columnSizes[i] = keys[i].length();
+  }
+  for (const auto& doc : docs)
+  {
+    for (unsigned i = 0; i < keys.size(); i++)
+    {
+      if (doc.isString(keys[i]))
+      {
+        std::string value = doc.get<std::string>(keys[i]);
+        if (value.length() > columnSizes[i])
+        {
+          columnSizes[i] = value.length();
+        }
+      }
+    }
+  }
+  //  ss << StringThings::vecToStr(columnSizes, ", ") << std::endl;
+
+  for (unsigned i = 0; i < keys.size(); i++)
+  {
+    ss << std::left << std::setw(columnSizes[i] + 1) << keys[i];
+  }
+  ss << std::endl;
+
+  //  ss << doc.toString() << std::endl;
+  for (unsigned i = 0; i < docs.size(); i++)
+  {
+    const auto& doc = docs.at(i);
+    for (unsigned j = 0; j < keys.size(); j++)
+    {
+      const auto& key = keys.at(j);
+
+      // first column
+      if (j == 0)
+      {
+        ss << std::right;
+        ss << std::setw(columnSizes[j] - 1);
+      }
+      else
+      {
+        ss << std::left;
+        ss << std::setw(columnSizes[j] + 1);
+      }
+
+      if (doc.isString(key))
+      {
+        ss << doc.get<std::string>(key);
+      }
+      else if (doc.isDouble(key))
+      {
+        ss << doc.get<double>(key);
+      }
+      else
+      {
+        ss << "unk";
+      }
+
+      // first column
+      if (j == 0)
+      {
+        ss << "  ";
+      }
+    }
+    ss << std::endl;
+  }
+
+  return ss.str();
 }

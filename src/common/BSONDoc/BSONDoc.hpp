@@ -122,6 +122,8 @@ public:
   std::vector<std::string> getKeys() const;
   bool isDocument(const std::string& path) const;
   bool isString(const std::string& path) const;
+  bool isDouble(const std::string& path) const;
+  bool isInt64(const std::string& path) const;
 
   /** Display the number of child fields */
   unsigned count() const;

@@ -26,6 +26,8 @@ public:
 
   bool sortChannelDocs(const std::string& key);
 
+  static std::string vecToTable(const std::vector<Mongo::BSONDoc>& docs);
+
 private:
   Mongo::BSONDoc _confDoc;
   std::map<std::string, Mongo::BSONDoc> _confDocs;

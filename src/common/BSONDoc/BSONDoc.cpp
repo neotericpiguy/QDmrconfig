@@ -501,6 +501,26 @@ bool BSONDoc::isString(const std::string& path) const
   return false;
 }
 
+bool BSONDoc::isDouble(const std::string& path) const
+{
+  bson_iter_t iter;
+  if (bson_iter_init_find(&iter, _doc, path.c_str()))
+  {
+    return BSON_ITER_HOLDS_DOUBLE(&iter);
+  }
+  return false;
+}
+
+bool BSONDoc::isInt64(const std::string& path) const
+{
+  bson_iter_t iter;
+  if (bson_iter_init_find(&iter, _doc, path.c_str()))
+  {
+    return BSON_ITER_HOLDS_INT64(&iter);
+  }
+  return false;
+}
+
 template <>
 std::string BSONDoc::get<std::string>(const std::string& path) const
 {
