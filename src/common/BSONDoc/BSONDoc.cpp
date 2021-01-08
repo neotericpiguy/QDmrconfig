@@ -548,7 +548,7 @@ int32_t BSONDoc::get<int32_t>(const std::string& path) const
       return int32_t(bson_iter_int32(&baz));
     }
     printf("%d type\n", (bson_iter_type(&baz)));
-    printf("no int32_t\n");
+    printf("%s no int32_t\n", path.c_str());
   }
   return 0;
 }
@@ -565,7 +565,7 @@ int64_t BSONDoc::get<int64_t>(const std::string& path) const
       return int64_t(bson_iter_int64(&baz));
     }
     printf("%d type\n", (bson_iter_type(&baz)));
-    printf("no int64_t\n");
+    printf("%s no int64_t\n", path.c_str());
   }
   return 0;
 }
@@ -582,7 +582,7 @@ double BSONDoc::get<double>(const std::string& path) const
       return double(bson_iter_double(&baz));
     }
     printf("%d type\n", (bson_iter_type(&baz)));
-    printf("no int64_t\n");
+    printf("%s no double\n", path.c_str());
   }
   return 0;
 }

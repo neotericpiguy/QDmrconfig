@@ -69,10 +69,24 @@ bool BSONConfFile::loadFile(const std::string& filename)
         {
           if (i < headerVec.size())
           {
-            double tempNumber;
-            if (StringThings::isNumber(columns.at(i)) && StringThings::strTo(tempNumber, columns.at(i)))
+            if (StringThings::isNumber(columns.at(i)) && columns.at(i) != "-")
             {
-              temp.append(headerVec[i], tempNumber);
+              if (columns.at(i).find(".") != std::string::npos)
+              {
+                double tempNumber;
+                if (StringThings::strTo(tempNumber, columns.at(i)))
+                {
+                  temp.append(headerVec[i], tempNumber);
+                }
+              }
+              else
+              {
+                int tempNumber;
+                if (StringThings::strTo(tempNumber, columns.at(i)))
+                {
+                  temp.append(headerVec[i], tempNumber);
+                }
+              }
             }
             else
             {
@@ -86,13 +100,13 @@ bool BSONConfFile::loadFile(const std::string& filename)
         {
           if (temp.has("Analog"))
           {
-            double channelNumber = temp.get<double>("Analog");
+            int channelNumber = temp.get<int64_t>("Analog");
             temp.append("Type", "Analog");
             temp.append("Channel", channelNumber);
           }
           else if (temp.has("Digital"))
           {
-            double channelNumber = temp.get<double>("Digital");
+            int channelNumber = temp.get<int64_t>("Digital");
             temp.append("Type", "Digital");
             temp.append("Channel", channelNumber);
           }
@@ -110,7 +124,7 @@ bool BSONConfFile::loadFile(const std::string& filename)
       if (!mapDoc.empty())
         currentDoc.append("Map", mapDoc);
       if (!entryDoc.empty() && !entryDoc[0].has("Analog") && !entryDoc[0].has("Digital"))
-        currentDoc.append("Entires", entryDoc);
+        currentDoc.append("Entries", entryDoc);
 
       _confDoc.append(currentDocName, currentDoc);
       _confDocs[currentDocName] = currentDoc;
@@ -181,7 +195,8 @@ bool BSONConfFile::saveFile(const std::string& filename)
             tempDocs.push_back(channelDoc);
           }
         }
-        fileStream << vecToTable(tempDocs);
+        if (!tempDocs.empty())
+          fileStream << vecToTable(tempDocs, tempDocs.at(0).getKeys().size() - 2);
       }
       else if (key.find("analog") != std::string::npos)
       {
@@ -192,7 +207,32 @@ bool BSONConfFile::saveFile(const std::string& filename)
             tempDocs.push_back(channelDoc);
           }
         }
-        fileStream << vecToTable(tempDocs);
+        if (!tempDocs.empty())
+          fileStream << vecToTable(tempDocs, tempDocs.at(0).getKeys().size() - 2);
+      }
+
+      std::vector<std::string> blockHeaders = {
+          "zones",
+          "contacts",
+          "group",
+          "text",
+          "scan",
+          "RadioID",
+      };
+      for (const auto& blockHeader : blockHeaders)
+      {
+        if (key.find(blockHeader) != std::string::npos)
+        {
+          if (_confDocs.find(key) != _confDocs.end())
+          {
+            if (_confDocs.at(key).has("Entries"))
+            {
+              auto entries = _confDocs.at(key).get<std::vector<Mongo::BSONDoc>>("Entries");
+              if (!entries.empty())
+                fileStream << vecToTable(entries, entries.at(0).getKeys().size());
+            }
+          }
+        }
       }
       fileStream << std::endl;
     }
@@ -206,7 +246,7 @@ bool BSONConfFile::saveFile(const std::string& filename)
 bool BSONConfFile::sortChannelDocs(const std::string& key)
 {
   std::sort(channelDocs.begin(), channelDocs.end(), [&key](const Mongo::BSONDoc& a, const Mongo::BSONDoc& b) {
-    return a.get<double>(key) < b.get<double>(key);
+    return a.get<int64_t>(key) < b.get<int64_t>(key);
   });
   return true;
 }
@@ -234,13 +274,14 @@ size_t BSONConfFile::size() const
   return _confDoc.count();
 }
 
-std::string BSONConfFile::vecToTable(const std::vector<Mongo::BSONDoc>& docs)
+std::string BSONConfFile::vecToTable(const std::vector<Mongo::BSONDoc>& docs, unsigned int columnLength)
 {
   if (docs.empty())
     return "";
 
   std::stringstream ss;
   std::vector<std::string> keys = docs.at(0).getKeys();
+  keys.resize(columnLength);
   std::vector<unsigned> columnSizes(keys.size(), 0);
 
   // Find max column size
@@ -259,6 +300,15 @@ std::string BSONConfFile::vecToTable(const std::vector<Mongo::BSONDoc>& docs)
         if (value.length() > columnSizes[i])
         {
           columnSizes[i] = value.length();
+        }
+      }
+      else if (doc.isInt64(keys[i]))
+      {
+        std::stringstream ss;
+        ss << doc.get<int64_t>(keys[i]);
+        if (ss.str().length() > columnSizes[i])
+        {
+          columnSizes[i] = ss.str().length();
         }
       }
     }
@@ -294,6 +344,10 @@ std::string BSONConfFile::vecToTable(const std::vector<Mongo::BSONDoc>& docs)
       if (doc.isString(key))
       {
         ss << doc.get<std::string>(key);
+      }
+      else if (doc.isInt64(key))
+      {
+        ss << doc.get<int64_t>(key);
       }
       else if (doc.isDouble(key))
       {

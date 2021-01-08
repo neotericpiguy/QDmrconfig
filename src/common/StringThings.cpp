@@ -165,6 +165,7 @@ bool strTo(T& retval, const std::string& tempStr)
   return true;
 }
 template bool strTo<int>(int& retval, const std::string& tempStr);
+template bool strTo<int64_t>(int64_t& retval, const std::string& tempStr);
 template bool strTo<double>(double& retval, const std::string& tempStr);
 
 bool isNumber(const std::string& string)
