@@ -347,11 +347,35 @@ std::string BSONConfFile::vecToTable(const std::vector<Mongo::BSONDoc>& docs, un
       }
       else if (doc.isInt64(key))
       {
-        ss << doc.get<int64_t>(key);
+        auto value = doc.get<int64_t>(key);
+        if (key == "Transmit")
+        {
+          std::string tempStr = std::to_string(value);
+          if (value >= 0)
+            tempStr = "+" + tempStr;
+          ss << tempStr;
+        }
+        else
+        {
+          ss << value;
+        }
       }
       else if (doc.isDouble(key))
       {
-        ss << doc.get<double>(key);
+        auto value = doc.get<double>(key);
+        if (key == "Receive")
+          ss << StringThings::fixed(value, 3);
+        else if (key == "Transmit")
+        {
+          std::string tempStr = StringThings::fixed(value, 1);
+          if (value >= 0)
+            tempStr = "+" + tempStr;
+          ss << tempStr;
+        }
+        else
+        {
+          ss << value;
+        }
       }
       else
       {
