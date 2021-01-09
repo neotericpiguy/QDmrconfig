@@ -151,6 +151,9 @@ $(BUILD_PATH)/run-unit-tests: $(TARGET_TESTS)
 	QT_QPA_PLATFORM='offscreen' $^
 	@touch $@
 
+$(BUILD_PATH)/run-new-conf-tests: $(BUILD_PATH)/run-unit-tests $(TARGET_CLI)
+	@$(TARGET_CLI) -c examples/btech6x2.img.bak build/btechSimpleOpen.conf
+
 $(BUILD_PATH)/run-net-tests: $(TARGET_TESTS)
 	QT_QPA_PLATFORM='offscreen' $^ -n
 
