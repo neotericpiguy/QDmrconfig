@@ -6,6 +6,7 @@
 #include <QtWidgets/QApplication>
 #pragma GCC diagnostic pop
 
+#include "BSONConfFileTests.hpp"
 #include "BSONDocTests.hpp"
 #include "ChirpCsvTests.hpp"
 #include "NetworkApiTests.hpp"
@@ -26,6 +27,7 @@ int main(int argc, char** argv)
   parser.addVersionOption();
   parser.addOptions({
       {{"b", "bsonDocTests"}, "Only bson parsing tests."},
+      {{"bc", "bsonConfFileTests"}, "BSON Conf File tests."},
       {{"c", "chirpCsvTest"}, "Only Test Chirp parsing tests."},
       {{"r", "repeaterBookTests"}, "Only Test RepeaterBook parsing tests."},
       {{"n", "netTests"}, "Only net tests."},
@@ -51,6 +53,12 @@ int main(int argc, char** argv)
   {
     RepeaterBookTests chirpCsvTests;
     chirpCsvTests.runAllTests();
+  }
+
+  if (parser.isSet("bsonConfFileTests") || allTests)
+  {
+    BSONConfFileTests bsonConfFileTests;
+    bsonConfFileTests.runAllTests();
   }
 
   if (parser.isSet("netTests"))

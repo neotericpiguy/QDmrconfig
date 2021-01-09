@@ -97,6 +97,7 @@ public:
   BSONDoc& append(const std::string& key, int val);
   /** Add a child field and unsigned */
   BSONDoc& append(const std::string& key, unsigned val);
+  BSONDoc& append(const std::string& key, double val);
   /** Add a child field and time_t */
   BSONDoc& append(const std::string& key, time_t time);
   /** Add a child field and bool */
@@ -121,6 +122,8 @@ public:
   std::vector<std::string> getKeys() const;
   bool isDocument(const std::string& path) const;
   bool isString(const std::string& path) const;
+  bool isDouble(const std::string& path) const;
+  bool isInt64(const std::string& path) const;
 
   /** Display the number of child fields */
   unsigned count() const;

@@ -324,6 +324,12 @@ BSONDoc& BSONDoc::append(const std::string& key, int val)
   return *this;
 }
 
+BSONDoc& BSONDoc::append(const std::string& key, double val)
+{
+  bson_append_double(_doc, key.c_str(), key.length(), val);
+  return *this;
+}
+
 std::tuple<bool, bool> BSONDoc::getBool(const std::string& key) const
 {
   bson_iter_t iter;
@@ -495,6 +501,26 @@ bool BSONDoc::isString(const std::string& path) const
   return false;
 }
 
+bool BSONDoc::isDouble(const std::string& path) const
+{
+  bson_iter_t iter;
+  if (bson_iter_init_find(&iter, _doc, path.c_str()))
+  {
+    return BSON_ITER_HOLDS_DOUBLE(&iter);
+  }
+  return false;
+}
+
+bool BSONDoc::isInt64(const std::string& path) const
+{
+  bson_iter_t iter;
+  if (bson_iter_init_find(&iter, _doc, path.c_str()))
+  {
+    return BSON_ITER_HOLDS_INT64(&iter);
+  }
+  return false;
+}
+
 template <>
 std::string BSONDoc::get<std::string>(const std::string& path) const
 {
@@ -521,7 +547,42 @@ int32_t BSONDoc::get<int32_t>(const std::string& path) const
     {
       return int32_t(bson_iter_int32(&baz));
     }
-    printf("no int");
+    printf("%d type\n", (bson_iter_type(&baz)));
+    printf("%s no int32_t\n", path.c_str());
+  }
+  return 0;
+}
+
+template <>
+int64_t BSONDoc::get<int64_t>(const std::string& path) const
+{
+  bson_iter_t iter;
+  bson_iter_t baz;
+  if (bson_iter_init(&iter, _doc) && bson_iter_find_descendant(&iter, path.c_str(), &baz))
+  {
+    if (BSON_ITER_HOLDS_INT64(&baz))
+    {
+      return int64_t(bson_iter_int64(&baz));
+    }
+    printf("%d type\n", (bson_iter_type(&baz)));
+    printf("%s no int64_t\n", path.c_str());
+  }
+  return 0;
+}
+
+template <>
+double BSONDoc::get<double>(const std::string& path) const
+{
+  bson_iter_t iter;
+  bson_iter_t baz;
+  if (bson_iter_init(&iter, _doc) && bson_iter_find_descendant(&iter, path.c_str(), &baz))
+  {
+    if (BSON_ITER_HOLDS_DOUBLE(&baz))
+    {
+      return double(bson_iter_double(&baz));
+    }
+    printf("%d type\n", (bson_iter_type(&baz)));
+    printf("%s no double\n", path.c_str());
   }
   return 0;
 }
