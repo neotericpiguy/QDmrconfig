@@ -170,7 +170,7 @@ $(BUILD_PATH)/style-check: $(GUI_SRCS) $(GUI_HDRS) $(TESTS_SRCS) $(TESTS_HDRS) $
 		exit 1;\
 	fi
 
-check: $(TARGET_GUI) $(BUILD_PATH)/run-unit-tests $(BUILD_PATH)/run-dmrconfig-tests $(BUILD_PATH)/run-net-tests 
+check: $(TARGET_GUI) $(BUILD_PATH)/run-unit-tests $(BUILD_PATH)/run-dmrconfig-tests $(BUILD_PATH)/run-net-tests $(BUILD_PATH)/run-new-conf-tests
 	@echo -e "\e[32mAll Checks Passed\e[0m"
 
 -include $(DMRCONFIG_OBJS:%.o=%.d) 
