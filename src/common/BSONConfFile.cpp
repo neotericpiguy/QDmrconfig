@@ -5,7 +5,7 @@
 BSONConfFile::BSONConfFile() :
     _confDoc(),
     _confDocs(),
-    channelDocs()
+    _channelDocs()
 {
 }
 
@@ -111,7 +111,7 @@ bool BSONConfFile::loadFile(const std::string& filename)
             temp.append("Channel", channelNumber);
           }
 
-          channelDocs.push_back(temp);
+          _channelDocs.push_back(temp);
         }
       }
     }
@@ -188,7 +188,7 @@ bool BSONConfFile::saveFile(const std::string& filename)
       std::vector<Mongo::BSONDoc> tempDocs;
       if (key.find("digital") != std::string::npos)
       {
-        for (const auto& channelDoc : channelDocs)
+        for (const auto& channelDoc : _channelDocs)
         {
           if (channelDoc.has("Type") && channelDoc.get<std::string>("Type") == "Digital")
           {
@@ -200,7 +200,7 @@ bool BSONConfFile::saveFile(const std::string& filename)
       }
       else if (key.find("analog") != std::string::npos)
       {
-        for (const auto& channelDoc : channelDocs)
+        for (const auto& channelDoc : _channelDocs)
         {
           if (channelDoc.has("Type") && channelDoc.get<std::string>("Type") == "Analog")
           {
@@ -245,7 +245,7 @@ bool BSONConfFile::saveFile(const std::string& filename)
 
 bool BSONConfFile::sortChannelDocs(const std::string& key)
 {
-  std::sort(channelDocs.begin(), channelDocs.end(), [&key](const Mongo::BSONDoc& a, const Mongo::BSONDoc& b) {
+  std::sort(_channelDocs.begin(), _channelDocs.end(), [&key](const Mongo::BSONDoc& a, const Mongo::BSONDoc& b) {
     return a.get<int64_t>(key) < b.get<int64_t>(key);
   });
   return true;
@@ -392,4 +392,19 @@ std::string BSONConfFile::vecToTable(const std::vector<Mongo::BSONDoc>& docs, un
   }
 
   return ss.str();
+}
+
+Mongo::BSONDoc& BSONConfFile::getConfDoc()
+{
+  return _confDoc;
+}
+
+std::map<std::string, Mongo::BSONDoc>& BSONConfFile::getConfDocs()
+{
+  return _confDocs;
+}
+
+std::vector<Mongo::BSONDoc>& BSONConfFile::getChannelDocs()
+{
+  return _channelDocs;
 }

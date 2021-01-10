@@ -1,75 +1,42 @@
-#include "ConfFileWidget.hpp"
+#include "BSONConfFileWidget.hpp"
 
-ConfFileWidget::ConfFileWidget(const std::function<void(const std::string&)>& radioUploadFile, const std::function<void(const std::string&)>& radioDownloadFile, QWidget* parent) :
+BSONConfFileWidget::BSONConfFileWidget(const std::string& filename, QWidget* parent) :
     QWidget(parent),
-    _confFile(radioUploadFile, radioDownloadFile),
-    _isDebug(false),
-    _filename(),
-    _confBlockWidgets(),
-    _tabWidget(new QTabWidget(this)),
-    _layout(new QVBoxLayout)
+    _bsonConfFile(),
+    _confDoc(_bsonConfFile.getConfDoc()),
+    _confDocs(_bsonConfFile.getConfDocs()),
+    _channelDocs(_bsonConfFile.getChannelDocs()),
+    _filename(filename),
+    _tabWidget(nullptr)
 {
-  _layout->addWidget(_tabWidget);
-  setLayout(_layout);
-  connect(_tabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabSelected()));
-}
+  auto layout = new QVBoxLayout;
+  setLayout(layout);
 
-ConfFileWidget::~ConfFileWidget()
-{
-}
-
-void ConfFileWidget::setTab(const std::string& tabName)
-{
-  for (int i = 0; i < _tabWidget->count(); i++)
+  if (!_bsonConfFile.loadFile(_filename))
   {
-    _tabWidget->setCurrentIndex(i);
-    if (_tabWidget->tabText(i) == QString(tabName.c_str()))
-      break;
+    layout->addWidget(new QLineEdit(QString::fromStdString("Could not open" + _filename)));
+    return;
   }
+
+  _tabWidget = new QTabWidget(this);
+  layout->addWidget(_tabWidget);
+  updateTabs();
 }
 
-void ConfFileWidget::nextTab(int step)
+BSONConfFileWidget::~BSONConfFileWidget()
 {
-  int tab = _tabWidget->currentIndex() + 2 * _tabWidget->count();
-  tab = (tab + step) % _tabWidget->count();
-
-  _tabWidget->setCurrentIndex(tab);
+  //    _tabWidget->addTab(temp, confBlock.getHeader().c_str());
 }
 
-void ConfFileWidget::tabSelected()
-{
-  if ((unsigned int)(_tabWidget->currentIndex()) < _confBlockWidgets.size())
-    _confBlockWidgets[_tabWidget->currentIndex()]->metaUpdate();
-}
-
-ConfFile& ConfFileWidget::getConfFile()
-{
-  return _confFile;
-}
-
-void ConfFileWidget::clear()
+void BSONConfFileWidget::updateTabs()
 {
   _tabWidget->clear();
-  _confBlockWidgets.clear();
-}
 
-void ConfFileWidget::updateTabs()
-{
-  _confBlockWidgets.clear();
-  _tabWidget->clear();
-
-  for (auto& pair : _confFile.getConfBlocks())
+  for (const auto& pair : _confDocs)
   {
-    auto& confBlock = pair.second;
-    auto temp = new ConfBlockWidget(confBlock, this);
-    temp->setDebug(_isDebug);
-
-    _tabWidget->addTab(temp, confBlock.getHeader().c_str());
-    _confBlockWidgets.push_back(temp);
+    const auto& key = pair.first;
+    const auto& doc = pair.second;
+    if (doc.has("Map"))
+      _tabWidget->addTab(new QLineEdit(key.c_str()), key.c_str());
   }
-}
-
-void ConfFileWidget::setDebug(bool state)
-{
-  _isDebug = state;
 }

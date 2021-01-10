@@ -1,5 +1,5 @@
-#ifndef CONFFILEWIDGET_HPP
-#define CONFFILEWIDGET_HPP
+#ifndef BSONCONFFILEWIDGET
+#define BSONCONFFILEWIDGET
 
 #pragma GCC diagnostic ignored "-Weffc++"
 #include <QtWidgets/QMainWindow>
@@ -10,39 +10,30 @@
 #include <fstream>
 #include <memory>
 
-#include "ConfBlockWidget.hpp"
-#include "ConfFile.hpp"
+#include "BSONConfFile.hpp"
+#include "BSONDoc.hpp"
 
-class ConfFileWidget : public QWidget
+class BSONConfFileWidget : public QWidget
 {
   Q_OBJECT
 
 public:
-  ConfFileWidget(const std::function<void(const std::string&)>& radioUploadFile, const std::function<void(const std::string&)>& radioDownloadFile, QWidget* parent = 0);
-  ConfFileWidget(const ConfFileWidget&) = delete;
-  ConfFileWidget& operator=(const ConfFileWidget&) = delete;
-  virtual ~ConfFileWidget();
+  BSONConfFileWidget(const std::string& filename, QWidget* parent = 0);
+  BSONConfFileWidget(const BSONConfFileWidget&) = delete;
+  BSONConfFileWidget& operator=(const BSONConfFileWidget&) = delete;
+  virtual ~BSONConfFileWidget();
 
-  void setDebug(bool state);
   void updateTabs();
-  void clear();
-
-  void nextTab(int step);
-  void setTab(const std::string& tabName);
-
-  ConfFile& getConfFile();
-
-private slots:
-  void tabSelected();
 
 private:
-  ConfFile _confFile;
-  bool _isDebug;
+  BSONConfFile _bsonConfFile;
+
+  Mongo::BSONDoc& _confDoc;
+  std::map<std::string, Mongo::BSONDoc>& _confDocs;
+  std::vector<Mongo::BSONDoc>& _channelDocs;
 
   std::string _filename;
-  std::vector<ConfBlockWidget*> _confBlockWidgets;
   QTabWidget* _tabWidget;
-  QVBoxLayout* _layout;
 };
 
 #endif
