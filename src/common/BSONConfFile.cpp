@@ -5,6 +5,7 @@
 BSONConfFile::BSONConfFile() :
     _confDoc(),
     _confDocs(),
+    _confmaps(),
     _channelDocs()
 {
 }
@@ -20,7 +21,6 @@ bool BSONConfFile::loadFile(const std::string& filename)
 
   Mongo::BSONDoc currentDoc;
   Mongo::BSONDoc descDoc;
-  Mongo::BSONDoc mapDoc;
   std::vector<Mongo::BSONDoc> entryDoc;
   std::vector<std::string> headerVec;
 
@@ -52,11 +52,10 @@ bool BSONConfFile::loadFile(const std::string& filename)
     // Line is a key value pair
     else if (line.find(":") != std::string::npos)
     {
-      // Radio: BTECH DMR-6x2
       auto end = line.find(":");
       auto key = line.substr(0, end);
       auto desc = line.substr(end + 2, line.length() - end - 2);
-      mapDoc.append(key, desc);
+      _confmaps[currentDocName][key] = desc;
     }
     else if (columns.size() >= descDoc.count())
     {
@@ -121,8 +120,6 @@ bool BSONConfFile::loadFile(const std::string& filename)
     {
       if (!descDoc.empty())
         currentDoc.append("Descriptions", descDoc);
-      if (!mapDoc.empty())
-        currentDoc.append("Map", mapDoc);
       if (!entryDoc.empty() && !entryDoc[0].has("Analog") && !entryDoc[0].has("Digital"))
         currentDoc.append("Entries", entryDoc);
 
@@ -132,7 +129,6 @@ bool BSONConfFile::loadFile(const std::string& filename)
       currentDocName = "";
       currentDoc.clear();
       descDoc.clear();
-      mapDoc.clear();
       entryDoc.clear();
       headerVec.clear();
       docCount++;
@@ -147,6 +143,8 @@ bool BSONConfFile::saveFile(const std::string& filename)
   std::ofstream fileStream(filename);
   if (!fileStream.is_open())
     return false;
+
+  sortChannelDocs("Channel");
 
   std::vector<std::string> confDocKeys = _confDoc.getKeys();
   for (unsigned int keyIndex = 0; keyIndex < confDocKeys.size(); ++keyIndex)
@@ -174,71 +172,63 @@ bool BSONConfFile::saveFile(const std::string& filename)
       fileStream << "#\n";
     }
 
-    if (doc.has("Map"))
+    if (_confmaps.find(key) != _confmaps.end())
     {
-      const auto& mapDoc = doc.get<Mongo::BSONDoc>("Map");
-      for (const auto& mapKey : mapDoc.getKeys())
+      for (const auto& pair : _confmaps.at(key))
       {
-        fileStream << mapKey << ": " << mapDoc.get<std::string>(mapKey) << std::endl;
+        fileStream << pair.first << ": " << pair.second << std::endl;
       }
       fileStream << std::endl;
     }
-    else
-    {
-      std::vector<Mongo::BSONDoc> tempDocs;
-      if (key.find("digital") != std::string::npos)
-      {
-        for (const auto& channelDoc : _channelDocs)
-        {
-          if (channelDoc.has("Type") && channelDoc.get<std::string>("Type") == "Digital")
-          {
-            tempDocs.push_back(channelDoc);
-          }
-        }
-        if (!tempDocs.empty())
-          fileStream << vecToTable(tempDocs, tempDocs.at(0).getKeys().size() - 2);
-      }
-      else if (key.find("analog") != std::string::npos)
-      {
-        for (const auto& channelDoc : _channelDocs)
-        {
-          if (channelDoc.has("Type") && channelDoc.get<std::string>("Type") == "Analog")
-          {
-            tempDocs.push_back(channelDoc);
-          }
-        }
-        if (!tempDocs.empty())
-          fileStream << vecToTable(tempDocs, tempDocs.at(0).getKeys().size() - 2);
-      }
 
-      std::vector<std::string> blockHeaders = {
-          "zones",
-          "contacts",
-          "group",
-          "text",
-          "scan",
-          "RadioID",
-      };
-      for (const auto& blockHeader : blockHeaders)
+    std::vector<Mongo::BSONDoc> tempDocs;
+    if (key.find("digital") != std::string::npos)
+    {
+      for (const auto& channelDoc : _channelDocs)
       {
-        if (key.find(blockHeader) != std::string::npos)
+        if (channelDoc.has("Type") && channelDoc.get<std::string>("Type") == "Digital")
         {
-          if (_confDocs.find(key) != _confDocs.end())
-          {
-            if (_confDocs.at(key).has("Entries"))
-            {
-              auto entries = _confDocs.at(key).get<std::vector<Mongo::BSONDoc>>("Entries");
-              if (!entries.empty())
-                fileStream << vecToTable(entries, entries.at(0).getKeys().size());
-            }
-          }
+          tempDocs.push_back(channelDoc);
         }
       }
-      fileStream << std::endl;
+      if (!tempDocs.empty())
+        fileStream << vecToTable(tempDocs, tempDocs.at(0).getKeys().size() - 2) << std::endl;
+    }
+    else if (key.find("analog") != std::string::npos)
+    {
+      for (const auto& channelDoc : _channelDocs)
+      {
+        if (channelDoc.has("Type") && channelDoc.get<std::string>("Type") == "Analog")
+        {
+          tempDocs.push_back(channelDoc);
+        }
+      }
+      if (!tempDocs.empty())
+        fileStream << vecToTable(tempDocs, tempDocs.at(0).getKeys().size() - 2) << std::endl;
+    }
+
+    std::vector<std::string> blockHeaders = {
+        "zones",
+        "contacts",
+        "group",
+        "text",
+        "scan",
+        "RadioID",
+    };
+    for (const auto& blockHeader : blockHeaders)
+    {
+      if (key.find(blockHeader) == std::string::npos)
+        continue;
+      if (_confDocs.find(key) == _confDocs.end())
+        continue;
+      if (!_confDocs.at(key).has("Entries"))
+        continue;
+
+      auto entries = _confDocs.at(key).get<std::vector<Mongo::BSONDoc>>("Entries");
+      if (!entries.empty())
+        fileStream << vecToTable(entries, entries.at(0).getKeys().size()) << std::endl;
     }
   }
-
-  sortChannelDocs("Channel");
 
   return true;
 }

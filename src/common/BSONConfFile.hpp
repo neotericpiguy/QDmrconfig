@@ -35,6 +35,7 @@ public:
 private:
   Mongo::BSONDoc _confDoc;
   std::map<std::string, Mongo::BSONDoc> _confDocs;
+  std::map<std::string, std::map<std::string, std::string>> _confmaps;
   std::vector<Mongo::BSONDoc> _channelDocs;
 };
 
