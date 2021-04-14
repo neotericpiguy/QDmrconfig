@@ -9,7 +9,7 @@ PKG_CONFIG ?= pkg-config
 
 CFLAGS   ?= -g -O -Wall -Werror -fPIC -MMD -fcommon
 CFLAGS   += -DVERSION='"$(VERSION).$(HASH)"'
-CXXFLAGS += $(CFLAGS) -std=c++20 -Weffc++
+CXXFLAGS += $(CFLAGS) -Weffc++
 LDFLAGS  ?= -L$(BUILD_PATH)
 
 DMRCONFIG_PATH=src/dmrconfig
