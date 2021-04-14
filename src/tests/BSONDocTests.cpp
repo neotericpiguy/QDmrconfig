@@ -10,6 +10,7 @@ BSONDocTests::BSONDocTests()
   ADD_TEST(BSONDocTests::getDocumentTest);
   ADD_TEST(BSONDocTests::templateTest);
   ADD_TEST(BSONDocTests::repeaterResultsTest);
+  ADD_TEST(BSONDocTests::inlineChangeTest);
 }
 
 BSONDocTests::~BSONDocTests()
@@ -135,5 +136,19 @@ bool BSONDocTests::repeaterResultsTest()
   docs.resize(51);
   TEST(docs.size(), ==, 51);
 
+  return false;
+}
+
+bool BSONDocTests::inlineChangeTest()
+{
+  Mongo::BSONDoc results("{\"name\": \"test\", \"double\": 3.0}");
+  TEST(results.count(), ==, 2);
+  TEST(results.toString(), ==, "{ \"name\" : \"test\", \"double\" : 3.0 }");
+
+  results.set("double", 4.0);
+  TEST(results.toString(), ==, "{ \"name\" : \"test\", \"double\" : 4.0 }");
+
+  results.set("name", "new name");
+  TEST(results.toString(), ==, "{ \"double\" : 4.0, \"name\" : \"new name\" }");
   return false;
 }

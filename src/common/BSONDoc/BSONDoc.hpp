@@ -69,6 +69,9 @@ public:
   template <typename T>
   T get(const std::string& path) const;
 
+  template <typename T>
+  bool set(const std::string& path, T val);
+
   /** Get the epoch? */
   int64_t getDateTime(const std::string& key) const;
   /** Get Date and time as a string */

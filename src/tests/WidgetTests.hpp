@@ -15,6 +15,7 @@ public:
 
   bool initFieldEntryDialog();
 
+  bool initBsonConfFileWidget();
   bool initBsonDocWidget();
   bool repeaterBookExport();
   bool initChirpCsvTests();
