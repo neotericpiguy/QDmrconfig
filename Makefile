@@ -5,7 +5,7 @@ HASH               = $(shell git rev-parse --short HEAD)
 DMRCONFIG_VERSION  = $(shell git submodule status)
 GITCOUNT           = $(shell git rev-list HEAD --count)
 
-PKG_CONFIG     ?= pkg-config
+PKG_CONFIG ?= pkg-config
 
 CFLAGS   ?= -g -O -Wall -Werror -fPIC -MMD -fcommon
 CFLAGS   += -DVERSION='"$(VERSION).$(HASH)"'
@@ -19,7 +19,7 @@ DMRCONFIG_MAIN_SRC=src/dmrconfig/main.c
 DMRCONFIG_MAIN_OBJ=$(addprefix $(BUILD_PATH)/,$(DMRCONFIG_MAIN_SRC:.c=.o))
 
 GUI_PATH     = src/UI
-GUI_SRCS    = src/main.cpp
+GUI_SRCS     = src/main.cpp
 GUI_WIDGETS  = $(wildcard $(GUI_PATH)/*.cpp)
 GUI_HDRS    += $(wildcard $(GUI_PATH)/*.hpp)
 GUI_PRO     += $(wildcard $(GUI_PATH)/*.pro)
@@ -42,7 +42,7 @@ LIBMONGOC_INCPATHS += $(shell pkg-config --cflags libmongoc-1.0)
 LIBUSB_INCPATHS    += $(shell pkg-config --cflags libusb-1.0)
 LIB_INCPATHS       += $(LIBMONGOC_INCPATHS) $(LIBUSB_INCPATHS)
 
-LIBS      = $(shell pkg-config --libs --static libusb-1.0 libmongoc-1.0)
+LIBS = $(shell pkg-config --libs --static libusb-1.0 libmongoc-1.0)
 
 .PHONY: all clean
 
