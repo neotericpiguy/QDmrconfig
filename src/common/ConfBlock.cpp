@@ -351,7 +351,7 @@ bool ConfBlock::appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs)
     const auto& doc = docs.at(i);
     results.clear();
 
-    for (const auto key : keys)
+    for (const auto& key : keys)
     {
       results.push_back(doc.get<std::string>(key));
     }
