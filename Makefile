@@ -88,6 +88,7 @@ $(WIDGETS_LIB): $(GUI_WIDGETS) $(GUI_HDRS)
 		"TARGET         = widgets" \
 		$(GUI_PRO) -o $(BUILD_PATH)/src/UI/widgets.mk
 	@$(MAKE) -C $(BUILD_PATH)/src/UI -f widgets.mk
+	@ranlib $@
 
 $(TARGET_CLI): $(DMRCONFIG_MAIN_OBJ) $(TARGET_LIB) 
 	$(CXX) -o $@ $(CXXFLAGS) $^ $(LIBS)
