@@ -153,6 +153,7 @@ $(BUILD_PATH)/run-unit-tests: $(TARGET_TESTS)
 	@touch $@
 
 $(BUILD_PATH)/run-new-conf-tests: $(BUILD_PATH)/run-unit-tests $(TARGET_CLI)
+	diff build/btechSimpleOpen.conf ./examples/btechSimpleOpen.conf
 	./$(TARGET_CLI) -c examples/btech6x2.img.bak build/btechSimpleOpen.conf
 	rm device.img
 

@@ -18,6 +18,7 @@ public:
   bool getDocumentTest();
   bool templateTest();
   bool repeaterResultsTest();
+  bool inlineChangeTest();
 
   static const std::string str;
 };
