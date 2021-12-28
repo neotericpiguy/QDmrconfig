@@ -33,7 +33,7 @@ void ConfBlock::setLines(const std::vector<std::string>& lines)
   _isTable = false;
   for (const auto& line : lines)
   {
-    //Ignore blank lines
+    // Ignore blank lines
     if (line.empty())
       continue;
 
@@ -353,7 +353,8 @@ bool ConfBlock::appendRepeaterDoc(const std::vector<Mongo::BSONDoc>& docs)
 
     for (const auto& key : keys)
     {
-      results.push_back(doc.get<std::string>(key));
+      std::string value = doc.get<std::string>(key);
+      results.push_back(value == "" ? "-" : value);
     }
 
     insertRow(getRowCount(), results);
