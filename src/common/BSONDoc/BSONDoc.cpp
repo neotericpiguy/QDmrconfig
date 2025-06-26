@@ -554,6 +554,46 @@ int32_t BSONDoc::get<int32_t>(const std::string& path) const
 }
 
 template <>
+bool BSONDoc::set<double>(const std::string& path, double val)
+{
+  bson_iter_t iter;
+  bson_iter_t baz;
+  if (bson_iter_init(&iter, _doc) && bson_iter_find_descendant(&iter, path.c_str(), &baz))
+  {
+    if (BSON_ITER_HOLDS_DOUBLE(&baz))
+    {
+      bson_iter_overwrite_double(&baz, val);
+      return true;
+    }
+    printf("%d type\n", (bson_iter_type(&baz)));
+    printf("%s no double\n", path.c_str());
+  }
+  return false;
+}
+
+template <>
+bool BSONDoc::set<const char*>(const std::string& path, const char* val)
+{
+  bson_iter_t iter;
+  bson_iter_t baz;
+  if (bson_iter_init(&iter, _doc) && bson_iter_find_descendant(&iter, path.c_str(), &baz))
+  {
+    if (BSON_ITER_HOLDS_UTF8(&baz))
+    {
+      bson_t* temp = bson_new();
+      bson_copy_to_excluding_noinit(_doc, temp, path.c_str(), NULL);
+      bson_destroy(_doc);
+      _doc = temp;
+      append(path, val);
+      return true;
+    }
+    printf("%d type\n", (bson_iter_type(&baz)));
+    printf("%s no utf8\n", path.c_str());
+  }
+  return false;
+}
+
+template <>
 int64_t BSONDoc::get<int64_t>(const std::string& path) const
 {
   bson_iter_t iter;

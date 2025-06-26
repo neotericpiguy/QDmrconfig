@@ -1,5 +1,7 @@
 #include "WidgetTests.hpp"
 
+#include "BSONConfFile.hpp"
+#include "BSONConfFileWidget.hpp"
 #include "BSONDocTests.hpp"
 #include "BSONDocWidget.hpp"
 #include "ChirpCsv.hpp"
@@ -27,6 +29,7 @@ WidgetTests::WidgetTests() :
     initFieldEntryDialog();
   });
 
+  initBsonConfFileWidget();
   initRepeaterBookSearchResultsWidget();
   repeaterBookExport();
   initChirpCsvTests();
@@ -126,5 +129,13 @@ bool WidgetTests::initRepeaterBookSearchResultsWidget()
   TEST(repeaterBook.fromStdString(RepeaterBookTests::repeaterStr), ==, true);
 
   _tabWidget->addTab(new RepeaterBookResultsWidget(repeaterBook.getEntries()), __PRETTY_FUNCTION__);
+  return true;
+}
+
+bool WidgetTests::initBsonConfFileWidget()
+{
+  std::string filename = "./src/dmrconfig/examples/rd5r-factory.conf";
+
+  _tabWidget->addTab(new BSONConfFileWidget(filename), __PRETTY_FUNCTION__);
   return true;
 }
